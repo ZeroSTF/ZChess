@@ -1,24 +1,26 @@
-package tn.zeros.zchess.app;
+package tn.zeros.zchess;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import tn.zeros.zchess.core.board.ChessBoard;
-import tn.zeros.zchess.gui.views.ChessBoardView;
-
-import java.io.IOException;
+import tn.zeros.zchess.core.board.BitboardPosition;
+import tn.zeros.zchess.ui.board.ChessBoardView;
 
 public class ZChessApp extends Application {
-    public static final int BOARD_SIZE = 480;
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
-        ChessBoard board = new ChessBoard();
-        ChessBoardView boardView = new ChessBoardView(board);
+    public void start(Stage primaryStage) {
+        BitboardPosition position = new BitboardPosition();
+        ChessBoardView boardView = new ChessBoardView(position);
 
-        Scene scene = new Scene(boardView, BOARD_SIZE, BOARD_SIZE);
-        primaryStage.setTitle("ZChess");
+        VBox root = new VBox(10);
+        root.getChildren().add(boardView);
+
+        Scene scene = new Scene(root, 800, 800);
+        scene.getStylesheets().add(getClass().getResource("/styles/chess.css").toExternalForm());
+
+        primaryStage.setTitle("Chess");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
