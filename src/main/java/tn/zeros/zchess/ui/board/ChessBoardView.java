@@ -1,4 +1,4 @@
-package tn.zeros.zchess.gui.views;
+package tn.zeros.zchess.ui.views;
 
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
