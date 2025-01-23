@@ -1,13 +1,11 @@
-package tn.zeros.zchess.core.board;
+package tn.zeros.zchess.core.model;
 
-import tn.zeros.zchess.core.game.GameState;
-import tn.zeros.zchess.core.move.Move;
 import tn.zeros.zchess.core.piece.Piece;
-import tn.zeros.zchess.core.move.MoveValidator;
+import tn.zeros.zchess.core.logic.MoveValidator;
 
 import java.util.Stack;
 
-public class BitboardPosition  {
+public class BoardState {
     // Piece types
     private static final int PAWN = 0, KNIGHT = 1, BISHOP = 2, ROOK = 3, QUEEN = 4, KING = 5;
     // Colors
@@ -32,7 +30,7 @@ public class BitboardPosition  {
     private int fullMoveNumber;
     private final Stack<GameState> gameStateHistory;
 
-    public BitboardPosition() {
+    public BoardState() {
         pieceBitboards = new long[6];
         colorBitboards = new long[2];
         gameStateHistory = new Stack<>();
@@ -233,14 +231,18 @@ public class BitboardPosition  {
     private void handleCastling(Move move, int color) {
         int from = move.getFromSquare();
         int to = move.getToSquare();
-        boolean kingside = (to % 8) > (from % 8); // Kingside = right
+        boolean kingside = (to % 8) > (from % 8);
 
-        int rookFrom = kingside ? (from + 3) : (from - 4); // h-file=+3, a-file=-4
-        int rookTo = kingside ? (from + 1) : (from - 1);
+        // White kingside: e1(4) → g1(6), rook h1(7) → f1(5)
+        // Black kingside: e8(60) → g8(62), rook h8(63) → f8(61)
+        int rookFrom = kingside ? from + 3 : from - 4;
+        int rookTo = kingside ? to - 1 : to + 1;
 
-        // Move king
+        // Debug output
+        System.out.printf("Castling: King %d→%d, Rook %d→%d%n",
+                from, to, rookFrom, rookTo);
+
         movePiece(from, to, move.getPiece());
-        // Move rook
         movePiece(rookFrom, rookTo, color == WHITE ? Piece.WHITE_ROOK : Piece.BLACK_ROOK);
     }
 
@@ -346,8 +348,8 @@ public class BitboardPosition  {
     }
 
     @Override
-    public BitboardPosition clone() {
-        BitboardPosition clone = new BitboardPosition();
+    public BoardState clone() {
+        BoardState clone = new BoardState();
         System.arraycopy(pieceBitboards, 0, clone.pieceBitboards, 0, 6);
         System.arraycopy(colorBitboards, 0, clone.colorBitboards, 0, 2);
         clone.whiteToMove = whiteToMove;
@@ -363,15 +365,17 @@ public class BitboardPosition  {
     }
 
     public boolean canCastle(int fromSquare, int toSquare) {
-        if (!whiteToMove) {
-            if (fromSquare == 4 && toSquare == 6) // White kingside
+        if (whiteToMove) {
+            // White castling
+            if (fromSquare == 4 && toSquare == 6) // Kingside (e1 → g1)
                 return (castlingRights & WHITE_KINGSIDE) != 0;
-            if (fromSquare == 4 && toSquare == 2) // White queenside
+            if (fromSquare == 4 && toSquare == 2) // Queenside (e1 → c1)
                 return (castlingRights & WHITE_QUEENSIDE) != 0;
         } else {
-            if (fromSquare == 60 && toSquare == 62) // Black kingside
+            // Black castling
+            if (fromSquare == 60 && toSquare == 62) // Kingside (e8 → g8)
                 return (castlingRights & BLACK_KINGSIDE) != 0;
-            if (fromSquare == 60 && toSquare == 58) // Black queenside
+            if (fromSquare == 60 && toSquare == 58) // Queenside (e8 → c8)
                 return (castlingRights & BLACK_QUEENSIDE) != 0;
         }
         return false;

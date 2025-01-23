@@ -4,14 +4,14 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import tn.zeros.zchess.core.board.BitboardPosition;
+import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.ui.components.ChessBoardView;
 
 public class ZChessApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        BitboardPosition position = new BitboardPosition();
+        BoardState position = new BoardState();
         ChessBoardView boardView = new ChessBoardView(position);
 
         VBox root = new VBox(10);

@@ -1,12 +1,14 @@
-package tn.zeros.zchess.core.move;
+package tn.zeros.zchess.core.logic;
 
-import tn.zeros.zchess.core.board.BitboardPosition;
+import tn.zeros.zchess.core.logic.generation.MoveGenerator;
+import tn.zeros.zchess.core.model.BoardState;
+import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.piece.Piece;
 
 import java.util.List;
 
 public class MoveValidator {
-    private final BitboardPosition position;
+    private final BoardState position;
 
     public List<Move> getValidMoves() {
         return new MoveGenerator(position).generateLegalMoves();
@@ -92,7 +94,7 @@ public class MoveValidator {
         }
     }
 
-    public MoveValidator(BitboardPosition position) {
+    public MoveValidator(BoardState position) {
         this.position = position;
     }
 
@@ -120,7 +122,7 @@ public class MoveValidator {
         if (!isLegalPieceMove) return false;
 
         // Verify move doesn't leave king in check
-        BitboardPosition testPosition = position.clone();
+        BoardState testPosition = position.clone();
         testPosition.makeMove(new Move(fromSquare, toSquare, piece, targetPiece, false, false, false, piece));
 
         // Preserve original turn to check correct king's safety
@@ -225,22 +227,21 @@ public class MoveValidator {
         // Castling
         if (position.canCastle(fromSquare, toSquare)) {
             int direction = (toSquare > fromSquare) ? 1 : -1;
-            int rookSquare = direction == 1 ? fromSquare + 3 : fromSquare - 4;
+            int rookFrom = direction == 1 ? fromSquare + 3 : fromSquare - 4;
 
-            // 1. Check if rook exists
-            if (position.getPieceAt(rookSquare) != (position.isWhiteToMove() ?
-                    Piece.WHITE_ROOK : Piece.BLACK_ROOK)) {
+            // 1. Check if rook exists and hasn't moved
+            Piece expectedRook = position.isWhiteToMove() ? Piece.WHITE_ROOK : Piece.BLACK_ROOK;
+            if (position.getPieceAt(rookFrom) != expectedRook) {
                 return false;
             }
 
-            // 2. Check path between king and rook
-            int current = fromSquare;
-            while (current != rookSquare) {
-                current += direction;
-                if (current != fromSquare && current != rookSquare &&
-                        position.getPieceAt(current) != Piece.NONE) {
+            // 2. Check if squares between king and rook are empty
+            int current = fromSquare + direction;
+            while (current != rookFrom) {
+                if (position.getPieceAt(current) != Piece.NONE) {
                     return false;
                 }
+                current += direction;
             }
 
             // 3. Check king doesn't move through check

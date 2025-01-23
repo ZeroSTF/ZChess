@@ -1,4 +1,4 @@
-package tn.zeros.zchess.core.move;
+package tn.zeros.zchess.core.model;
 
 import tn.zeros.zchess.core.piece.Piece;
 

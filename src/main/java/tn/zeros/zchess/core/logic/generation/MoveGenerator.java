@@ -1,14 +1,15 @@
-package tn.zeros.zchess.core.move;
+package tn.zeros.zchess.core.logic.generation;
 
-import tn.zeros.zchess.core.board.BitboardPosition;
+import tn.zeros.zchess.core.model.BoardState;
+import tn.zeros.zchess.core.model.Move;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class MoveGenerator {
-    private final BitboardPosition position;
+    private final BoardState position;
 
-    public MoveGenerator(BitboardPosition position) {
+    public MoveGenerator(BoardState position) {
         this.position = position;
     }
 
