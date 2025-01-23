@@ -185,6 +185,13 @@ public class BitboardPosition  {
         // Clear en passant
         enPassantSquare = -1;
 
+        // Handle pawn double move to set en passant
+        if (move.getPiece().isPawn()) {
+            if (Math.abs(to/8 - from/8) == 2) { // Pawn moved 2 squares
+                enPassantSquare = from + (move.getPiece().isWhite() ? 8 : -8);
+            }
+        }
+
         // Handle special moves
         if (move.isEnPassant()) {
             handleEnPassant(move, color);
@@ -226,11 +233,14 @@ public class BitboardPosition  {
     private void handleCastling(Move move, int color) {
         int from = move.getFromSquare();
         int to = move.getToSquare();
-        boolean kingside = to > from;
-        int rookFrom = kingside ? (color == WHITE ? 7 : 63) : (color == WHITE ? 0 : 56);
-        int rookTo = kingside ? to - 1 : to + 1;
+        boolean kingside = (to % 8) > (from % 8); // Kingside = right
 
+        int rookFrom = kingside ? (from + 3) : (from - 4); // h-file=+3, a-file=-4
+        int rookTo = kingside ? (from + 1) : (from - 1);
+
+        // Move king
         movePiece(from, to, move.getPiece());
+        // Move rook
         movePiece(rookFrom, rookTo, color == WHITE ? Piece.WHITE_ROOK : Piece.BLACK_ROOK);
     }
 
@@ -284,7 +294,14 @@ public class BitboardPosition  {
 
         for (int dir : directions) {
             int current = square + dir;
-            while (current >= 0 && current < 64 && Math.abs((current % 8) - ((current - dir) % 8)) == Math.abs(dir) % 7) {
+            while (current >= 0 && current < 64) {
+                int prev = current - dir;
+                int currentFile = current % 8;
+                int prevFile = prev % 8;
+
+                // Prevent wrapping around board edges
+                if (Math.abs(currentFile - prevFile) > 1) break;
+
                 if ((sliders & (1L << current)) != 0) return true;
                 if ((occupied & (1L << current)) != 0) break;
                 current += dir;

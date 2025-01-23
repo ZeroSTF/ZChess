@@ -78,17 +78,33 @@ public class ChessBoardView extends GridPane {
             int fromSquare = selectedSquare.getRow() * 8 + selectedSquare.getCol();
             int toSquare = square.getRow() * 8 + square.getCol();
 
-            if (validator.isLegalMove(fromSquare, toSquare)) {
-                Move move = new Move(fromSquare, toSquare,
-                        selectedSquare.getPiece(),
-                        square.getPiece(),
-                        false, false, false, null);
+            Piece piece = selectedSquare.getPiece();
+            Move move;
+            // Check if the move is an en passant capture
+            boolean isEnPassant = false;
+            if (piece.isPawn() && position.getEnPassantSquare() == toSquare) {
+                isEnPassant = true;
+                // Get the actual captured pawn's position (behind the target square)
+                int capturedSquare = toSquare + (piece.isWhite() ? -8 : 8);
+                Piece capturedPiece = position.getPieceAt(capturedSquare);
+                move = new Move(fromSquare, toSquare, piece, capturedPiece, false, false, true, null);
+            } else {
+                move = new Move(fromSquare, toSquare, piece, square.getPiece(), false, false, false, null);
+            }
 
+
+            if (validator.isLegalMove(fromSquare, toSquare)) {
                 position.makeMove(move);
 
                 // Update UI
-                square.setPiece(selectedSquare.getPiece());
+                square.setPiece(piece);
                 selectedSquare.setPiece(null);
+
+                if (isEnPassant) {
+                    // Remove the captured pawn from the board
+                    int capturedSquare = toSquare + (piece.isWhite() ? -8 : 8);
+                    squares[capturedSquare / 8][capturedSquare % 8].setPiece(Piece.NONE);
+                }
             }
 
             clearHighlights();

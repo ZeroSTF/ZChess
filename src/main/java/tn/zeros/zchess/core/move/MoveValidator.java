@@ -224,21 +224,36 @@ public class MoveValidator {
 
         // Castling
         if (position.canCastle(fromSquare, toSquare)) {
-            // Check if path is clear and not under attack
-            int step = (toSquare > fromSquare) ? 1 : -1;
-            int current = fromSquare + step;
-            int end = toSquare;
+            int direction = (toSquare > fromSquare) ? 1 : -1;
+            int rookSquare = direction == 1 ? fromSquare + 3 : fromSquare - 4;
 
-            while (current != end) {
-                if (position.getPieceAt(current) != Piece.NONE ||
-                        position.isSquareAttacked(current, position.isWhiteToMove())) {
-                    return false;
-                }
-                current += step;
+            // 1. Check if rook exists
+            if (position.getPieceAt(rookSquare) != (position.isWhiteToMove() ?
+                    Piece.WHITE_ROOK : Piece.BLACK_ROOK)) {
+                return false;
             }
 
+            // 2. Check path between king and rook
+            int current = fromSquare;
+            while (current != rookSquare) {
+                current += direction;
+                if (current != fromSquare && current != rookSquare &&
+                        position.getPieceAt(current) != Piece.NONE) {
+                    return false;
+                }
+            }
+
+            // 3. Check king doesn't move through check
+            current = fromSquare;
+            for (int i=0; i<2; i++) {
+                current += direction;
+                if (position.isSquareAttacked(current, !position.isWhiteToMove())) {
+                    return false;
+                }
+            }
             return true;
         }
+
 
         return false;
     }
