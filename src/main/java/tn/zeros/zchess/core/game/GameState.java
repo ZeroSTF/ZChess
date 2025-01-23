@@ -1,4 +1,6 @@
-package tn.zeros.zchess.core.board;
+package tn.zeros.zchess.core.game;
+
+import tn.zeros.zchess.core.board.BitboardPosition;
 
 public class GameState {
     private final long[] pieceBitboards;
@@ -21,12 +23,12 @@ public class GameState {
     }
 
     public void restore(BitboardPosition pos) {
-        System.arraycopy(pieceBitboards, 0, pos.pieceBitboards, 0, 6);
-        System.arraycopy(colorBitboards, 0, pos.colorBitboards, 0, 2);
-        pos.castlingRights = castlingRights;
-        pos.enPassantSquare = enPassantSquare;
-        pos.halfMoveClock = halfMoveClock;
-        pos.fullMoveNumber = fullMoveNumber;
-        pos.whiteToMove = whiteToMove;
+//        System.arraycopy(pieceBitboards, 0, pos.pieceBitboards, 0, 6);
+//        System.arraycopy(colorBitboards, 0, pos.colorBitboards, 0, 2);
+//        pos.castlingRights = castlingRights;
+//        pos.enPassantSquare = enPassantSquare;
+//        pos.halfMoveClock = halfMoveClock;
+//        pos.fullMoveNumber = fullMoveNumber;
+//        pos.whiteToMove = whiteToMove;
     }
 }

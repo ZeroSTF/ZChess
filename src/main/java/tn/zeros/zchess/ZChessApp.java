@@ -5,7 +5,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import tn.zeros.zchess.core.board.BitboardPosition;
-import tn.zeros.zchess.ui.board.ChessBoardView;
+import tn.zeros.zchess.ui.components.ChessBoardView;
 
 public class ZChessApp extends Application {
 

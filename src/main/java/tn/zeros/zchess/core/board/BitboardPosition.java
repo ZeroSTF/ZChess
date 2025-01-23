@@ -1,13 +1,13 @@
 package tn.zeros.zchess.core.board;
 
+import tn.zeros.zchess.core.game.GameState;
 import tn.zeros.zchess.core.move.Move;
 import tn.zeros.zchess.core.piece.Piece;
 import tn.zeros.zchess.core.move.MoveValidator;
 
-import java.util.List;
 import java.util.Stack;
 
-public class BitboardPosition implements Board{
+public class BitboardPosition  {
     // Piece types
     private static final int PAWN = 0, KNIGHT = 1, BISHOP = 2, ROOK = 3, QUEEN = 4, KING = 5;
     // Colors
@@ -23,13 +23,13 @@ public class BitboardPosition implements Board{
     private static final int BLACK_KINGSIDE = 4;
     private static final int BLACK_QUEENSIDE = 8;
 
-    public final long[] pieceBitboards; // Indexed by piece type
-    public final long[] colorBitboards; // Indexed by color
-    public boolean whiteToMove;
-    public int castlingRights;
-    public int enPassantSquare;
-    public int halfMoveClock;
-    public int fullMoveNumber;
+    private final long[] pieceBitboards; // Indexed by piece type
+    private final long[] colorBitboards; // Indexed by color
+    private boolean whiteToMove;
+    private int castlingRights;
+    private int enPassantSquare;
+    private int halfMoveClock;
+    private int fullMoveNumber;
     private final Stack<GameState> gameStateHistory;
 
     public BitboardPosition() {
@@ -86,7 +86,6 @@ public class BitboardPosition implements Board{
         colorBitboards[color] |= 1L << square;
     }
 
-    @Override
     public String getFEN() {
         StringBuilder fen = new StringBuilder();
 
@@ -133,12 +132,10 @@ public class BitboardPosition implements Board{
         return fen.toString();
     }
 
-    @Override
     public void setFEN(String fen) {
-        // Implementation omitted for brevity, but would parse FEN and set bitboards
+        //TODO
     }
 
-    @Override
     public Piece getPieceAt(int square) {
         long squareMask = 1L << square;
         for (int color = WHITE; color <= BLACK; color++) {
@@ -153,25 +150,21 @@ public class BitboardPosition implements Board{
         return Piece.NONE;
     }
 
-    @Override
     public boolean isInCheck() {
         long kingBitboard = pieceBitboards[KING] & colorBitboards[whiteToMove ? WHITE : BLACK];
         int kingSquare = Long.numberOfTrailingZeros(kingBitboard);
         return isSquareAttacked(kingSquare, !whiteToMove);
     }
 
-    @Override
     public boolean isGameOver() {
-        // Implementation would check for checkmate/stalemate
+        // TODO Implementation would check for checkmate/stalemate
         return false;
     }
 
-    @Override
     public boolean isWhiteToMove() {
         return whiteToMove;
     }
 
-    @Override
     public void makeMove(Move move) {
         GameState prevState = new GameState(
                 pieceBitboards.clone(),
@@ -188,7 +181,6 @@ public class BitboardPosition implements Board{
         int to = move.getToSquare();
         Piece piece = move.getPiece();
         int color = piece.isWhite() ? WHITE : BLACK;
-        int opponentColor = 1 - color;
 
         // Clear en passant
         enPassantSquare = -1;
@@ -199,6 +191,10 @@ public class BitboardPosition implements Board{
         } else if (move.isCastling()) {
             handleCastling(move, color);
         } else {
+            // Remove captured piece FIRST if present
+            if (move.getCapturedPiece() != Piece.NONE) {
+                removePiece(to, move.getCapturedPiece());
+            }
             movePiece(from, to, piece);
             if (move.isPromotion()) {
                 handlePromotion(to, color, move.getPromotionPiece());
@@ -218,7 +214,6 @@ public class BitboardPosition implements Board{
         if (color == BLACK) fullMoveNumber++;
         whiteToMove = !whiteToMove;
     }
-
     private void handleEnPassant(Move move, int color) {
         int from = move.getFromSquare();
         int to = move.getToSquare();
@@ -253,24 +248,6 @@ public class BitboardPosition implements Board{
             else if (fromSquare == 56) castlingRights &= ~BLACK_QUEENSIDE;
             else if (fromSquare == 63) castlingRights &= ~BLACK_KINGSIDE;
         }
-    }
-
-    @Override
-    public void unmakeMove() {
-        if (!gameStateHistory.isEmpty()) {
-            GameState prevState = gameStateHistory.pop();
-            prevState.restore(this);
-        }
-    }
-
-    @Override
-    public boolean isLegalMove(int fromSquare, int toSquare) {
-        return false;
-    }
-
-    @Override
-    public List<Move> getLegalMoves() {
-        return List.of();
     }
 
     public boolean isSquareAttacked(int square, boolean byWhite) {
@@ -323,6 +300,7 @@ public class BitboardPosition implements Board{
     private String squareToAlgebraic(int square) {
         char file = (char) ('a' + (square % 8));
         int rank = (square / 8) + 1;
+        System.out.println(file + rank);
         return "" + file + rank;
     }
 
@@ -380,5 +358,9 @@ public class BitboardPosition implements Board{
                 return (castlingRights & BLACK_QUEENSIDE) != 0;
         }
         return false;
+    }
+
+    public void setWhiteToMove(boolean whiteToMove) {
+        this.whiteToMove = whiteToMove;
     }
 }

@@ -1,9 +1,7 @@
-package tn.zeros.zchess.ui.board;
+package tn.zeros.zchess.ui.components;
 
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
 import tn.zeros.zchess.core.board.BitboardPosition;
 import tn.zeros.zchess.core.move.Move;
 import tn.zeros.zchess.core.move.MoveValidator;
@@ -23,7 +21,7 @@ public class ChessBoardView extends GridPane {
     private void initializeBoard() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                Color squareColor = (row + col) % 2 == 0 ? Color.WHITE : Color.DARKGRAY;
+                Color squareColor = (row + col) % 2 == 0 ? Color.TEAL : Color.BEIGE;
                 SquareView square = new SquareView(row, col, squareColor);
                 squares[row][col] = square;
                 add(square, col, 7 - row); // Flip board to show white at bottom
@@ -72,17 +70,15 @@ public class ChessBoardView extends GridPane {
 
         if (selectedSquare == null) {
             Piece piece = square.getPiece();
-            if (piece != null && piece != Piece.NONE &&
-                    piece.isWhite() == position.isWhiteToMove()) {
+            if (piece != Piece.NONE && piece !=null && piece.isWhite() == position.isWhiteToMove()) {
                 selectedSquare = square;
-                square.highlight(true);
+                highlightLegalMoves(square);
             }
         } else {
             int fromSquare = selectedSquare.getRow() * 8 + selectedSquare.getCol();
             int toSquare = square.getRow() * 8 + square.getCol();
 
             if (validator.isLegalMove(fromSquare, toSquare)) {
-                // Create and execute move
                 Move move = new Move(fromSquare, toSquare,
                         selectedSquare.getPiece(),
                         square.getPiece(),
@@ -95,8 +91,28 @@ public class ChessBoardView extends GridPane {
                 selectedSquare.setPiece(null);
             }
 
-            selectedSquare.highlight(false);
+            clearHighlights();
             selectedSquare = null;
+        }
+    }
+
+    private void highlightLegalMoves(SquareView square) {
+        int fromSquare = square.getRow() * 8 + square.getCol();
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                int toSquare = row * 8 + col;
+                if (new MoveValidator(position).isLegalMove(fromSquare, toSquare)) {
+                    squares[row][col].highlight(true);
+                }
+            }
+        }
+    }
+
+    private void clearHighlights() {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                squares[row][col].highlight(false);
+            }
         }
     }
 }

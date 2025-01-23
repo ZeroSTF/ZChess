@@ -18,7 +18,7 @@ public class MoveValidator {
     public static final long[][] RAY_MOVES = new long[64][8]; // For sliding pieces
 
     // Direction offsets for rays (N, NE, E, SE, S, SW, W, NW)
-    private static final int[] DIRECTION_OFFSETS = {8, 9, 1, -7, -8, -9, -1, 7};
+    private static final int[] DIRECTION_OFFSETS = {-8, -7, 1, 9, 8, 7, -1, -9};
 
     static {
         initializeMovePatterns();
@@ -122,6 +122,10 @@ public class MoveValidator {
         // Verify move doesn't leave king in check
         BitboardPosition testPosition = position.clone();
         testPosition.makeMove(new Move(fromSquare, toSquare, piece, targetPiece, false, false, false, piece));
+
+        // Preserve original turn to check correct king's safety
+        boolean originalTurn = position.isWhiteToMove();
+        testPosition.setWhiteToMove(originalTurn);
         return !testPosition.isInCheck();
     }
 
@@ -161,32 +165,50 @@ public class MoveValidator {
     }
 
     private boolean isLegalBishopMove(int fromSquare, int toSquare) {
-        // Check if move is on diagonal
-        int rankDiff = Math.abs((toSquare / 8) - (fromSquare / 8));
-        int fileDiff = Math.abs((toSquare % 8) - (fromSquare % 8));
-        if (rankDiff != fileDiff) return false;
+        int fromRank = fromSquare / 8;
+        int fromFile = fromSquare % 8;
+        int toRank = toSquare / 8;
+        int toFile = toSquare % 8;
 
-        // Get direction index (NE=1, SE=3, SW=5, NW=7)
-        int direction = (toSquare > fromSquare ? 1 : 7) + (((toSquare % 8) - (fromSquare % 8)) > 0 ? 0 : 2);
+        int dr = toRank - fromRank;
+        int df = toFile - fromFile;
 
-        return !isPathBlocked(fromSquare, toSquare, direction);
+        if (Math.abs(dr) != Math.abs(df)) {
+            return false;
+        }
+
+        int direction = getBishopDirection(dr, df);
+        return direction != -1 && !isPathBlocked(fromSquare, toSquare, direction);
+    }
+
+    private int getBishopDirection(int dr, int df) {
+        if (dr > 0) { // Moving south (down in internal coordinates)
+            return df > 0 ? 3 : 5; // SE (3) or SW (5)
+        } else { // Moving north (up in internal coordinates)
+            return df > 0 ? 1 : 7; // NE (1) or NW (7)
+        }
     }
 
     private boolean isLegalRookMove(int fromSquare, int toSquare) {
-        // Check if move is on rank or file
-        boolean onSameRank = (toSquare / 8) == (fromSquare / 8);
-        boolean onSameFile = (toSquare % 8) == (fromSquare % 8);
-        if (!onSameRank && !onSameFile) return false;
+        int fromRank = fromSquare / 8;
+        int fromFile = fromSquare % 8;
+        int toRank = toSquare / 8;
+        int toFile = toSquare % 8;
 
-        // Get direction index (N=0, E=2, S=4, W=6)
-        int direction;
-        if (onSameRank) {
-            direction = 2 + (toSquare < fromSquare ? 4 : 0);
-        } else {
-            direction = 0 + (toSquare < fromSquare ? 4 : 0);
+        if (fromRank != toRank && fromFile != toFile) {
+            return false;
         }
 
-        return !isPathBlocked(fromSquare, toSquare, direction);
+        int direction = getRookDirection(fromRank, toRank, fromFile, toFile);
+        return direction != -1 && !isPathBlocked(fromSquare, toSquare, direction);
+    }
+
+    private int getRookDirection(int fromRank, int toRank, int fromFile, int toFile) {
+        if (fromRank == toRank) { // Horizontal move
+            return toFile > fromFile ? 2 : 6; // E (2) or W (6)
+        } else { // Vertical move
+            return toRank > fromRank ? 4 : 0; // S (4) or N (0)
+        }
     }
 
     private boolean isLegalQueenMove(int fromSquare, int toSquare) {
@@ -222,9 +244,27 @@ public class MoveValidator {
     }
 
     private boolean isPathBlocked(int fromSquare, int toSquare, int direction) {
-        long path = RAY_MOVES[fromSquare][direction];
-        long toMask = 1L << toSquare;
-        long between = path & ~(toMask | (1L << fromSquare));
-        return (between & position.getAllPieces()) != 0;
+        int step = DIRECTION_OFFSETS[direction];
+        int current = fromSquare + step;
+
+        while (current != toSquare) {
+            if (current < 0 || current >= 64) {
+                return true;
+            }
+
+            if ((position.getAllPieces() & (1L << current)) != 0) {
+                return true;
+            }
+
+            // Prevent wrapping around board edges
+            int prev = current - step;
+            if (Math.abs((current % 8) - (prev % 8)) > 1 || Math.abs((current / 8) - (prev / 8)) > 1) {
+                return true;
+            }
+
+            current += step;
+        }
+
+        return false;
     }
 }
