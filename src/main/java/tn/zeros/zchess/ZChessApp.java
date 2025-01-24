@@ -2,25 +2,34 @@ package tn.zeros.zchess;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import tn.zeros.zchess.core.model.BoardState;
-import tn.zeros.zchess.ui.components.ChessBoardView;
+import tn.zeros.zchess.ui.components.ControlPanel;
+import tn.zeros.zchess.ui.controllers.ChessController;
+import tn.zeros.zchess.ui.view.ChessBoardView;
 
 public class ZChessApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        BoardState position = new BoardState();
-        ChessBoardView boardView = new ChessBoardView(position);
+        // Initialize core components
+        BoardState boardState = new BoardState();
+        ChessController controller = new ChessController(boardState);
 
-        VBox root = new VBox(10);
-        root.getChildren().add(boardView);
+        // Create UI components
+        ChessBoardView boardView = new ChessBoardView(controller);
+        ControlPanel controlPanel = new ControlPanel(controller);
 
-        Scene scene = new Scene(root, 800, 800);
-        scene.getStylesheets().add(getClass().getResource("/styles/chess.css").toExternalForm());
+        // Set up main layout
+        BorderPane root = new BorderPane();
+        root.setCenter(boardView);
+        root.setBottom(controlPanel);
 
-        primaryStage.setTitle("Chess");
+        // Configure window
+        Scene scene = new Scene(root, 640, 700); // Extra height for controls
+        primaryStage.setTitle("ZChess");
         primaryStage.setScene(scene);
         primaryStage.show();
     }

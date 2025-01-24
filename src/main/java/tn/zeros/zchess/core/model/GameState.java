@@ -1,5 +1,7 @@
 package tn.zeros.zchess.core.model;
 
+import java.util.Arrays;
+
 public class GameState {
     private final long[] pieceBitboards;
     private final long[] colorBitboards;
@@ -11,8 +13,8 @@ public class GameState {
 
     public GameState(long[] pieces, long[] colors, int castling,
                      int epSquare, int halfMove, int fullMove, boolean whiteTurn) {
-        this.pieceBitboards = pieces.clone();
-        this.colorBitboards = colors.clone();
+        this.pieceBitboards = Arrays.copyOf(pieces, pieces.length);
+        this.colorBitboards = Arrays.copyOf(colors, colors.length);
         this.castlingRights = castling;
         this.enPassantSquare = epSquare;
         this.halfMoveClock = halfMove;
@@ -20,13 +22,13 @@ public class GameState {
         this.whiteToMove = whiteTurn;
     }
 
-    public void restore(BoardState pos) {
-//        System.arraycopy(pieceBitboards, 0, pos.pieceBitboards, 0, 6);
-//        System.arraycopy(colorBitboards, 0, pos.colorBitboards, 0, 2);
-//        pos.castlingRights = castlingRights;
-//        pos.enPassantSquare = enPassantSquare;
-//        pos.halfMoveClock = halfMoveClock;
-//        pos.fullMoveNumber = fullMoveNumber;
-//        pos.whiteToMove = whiteToMove;
+    public void restore(BoardState target) {
+        System.arraycopy(this.pieceBitboards, 0, target.getPieceBitboards(), 0, 6);
+        System.arraycopy(this.colorBitboards, 0, target.getColorBitboards(), 0, 2);
+        target.setCastlingRights(this.castlingRights);
+        target.setEnPassantSquare(this.enPassantSquare);
+        target.setHalfMoveClock(this.halfMoveClock);
+        target.setFullMoveNumber(this.fullMoveNumber);
+        target.setWhiteToMove(this.whiteToMove);
     }
 }
