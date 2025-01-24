@@ -5,6 +5,7 @@ import tn.zeros.zchess.core.logic.validation.*;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
+import tn.zeros.zchess.core.service.FenService;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.service.StateManager;
 import tn.zeros.zchess.ui.view.ChessBoardView;
@@ -116,6 +117,10 @@ public class ChessController {
         if (stateManager.redo()) {
             view.refreshEntireBoard();
         }
+    }
+
+    public String getCurrentFEN() {
+        return FenService.generateFEN(boardState);
     }
 
 }
