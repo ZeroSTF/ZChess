@@ -1,5 +1,7 @@
 package tn.zeros.zchess.ui.view;
 
+import javafx.geometry.Insets;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -7,14 +9,15 @@ import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.ui.util.BoardGeometry;
-import tn.zeros.zchess.ui.components.ErrorDisplay;
 import tn.zeros.zchess.ui.controllers.ChessController;
 
 import java.util.List;
 
+import static tn.zeros.zchess.ui.util.UIConstants.FILES;
+import static tn.zeros.zchess.ui.util.UIConstants.RANKS;
+
 public class ChessBoardView extends GridPane implements ChessView {
     private final SquareView[][] squares = new SquareView[8][8];
-    private final ErrorDisplay errorDisplay = new ErrorDisplay();
     private final ChessController controller;
 
     public ChessBoardView(ChessController controller) {
@@ -25,6 +28,8 @@ public class ChessBoardView extends GridPane implements ChessView {
     }
 
     private void initializeBoard() {
+        addRankLabels();
+        addFileLabels();
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 SquareView square = createSquare(row, col);
@@ -135,6 +140,28 @@ public class ChessBoardView extends GridPane implements ChessView {
 
     @Override
     public void showPromotionDialog(boolean isWhite) {
+        // TODO
+    }
 
+    private void addRankLabels() {
+        for (int row = 0; row < 8; row++) {
+            Label rightLabel = createLabel(RANKS[row], true);
+            add(rightLabel, 9, row);
+        }
+    }
+
+    private void addFileLabels() {
+        for (int col = 0; col < 8; col++) {
+            Label fileLabel = createLabel(FILES[col], false);
+            add(fileLabel, col, 8);
+            GridPane.setHalignment(fileLabel, javafx.geometry.HPos.CENTER);
+        }
+    }
+
+    private Label createLabel(String text, boolean isRank) {
+        Label label = new Label(text);
+        label.setStyle("-fx-font-size: 14; -fx-font-weight: bold;");
+        label.setPadding(new Insets(5));
+        return label;
     }
 }

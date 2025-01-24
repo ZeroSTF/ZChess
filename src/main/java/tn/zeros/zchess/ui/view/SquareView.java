@@ -49,6 +49,9 @@ public class SquareView extends StackPane {
         ImageView imageView = new ImageView(image);
         imageView.setFitWidth(UIConstants.SQUARE_SIZE - 10);
         imageView.setFitHeight(UIConstants.SQUARE_SIZE - 10);
+        imageView.setSmooth(true);
+        imageView.setPreserveRatio(true);
+        imageView.setCache(true);
         getChildren().add(imageView);
     }
 

@@ -15,4 +15,8 @@ public class UIConstants {
     // Fonts
     public static final Font PIECE_FONT = Font.font("Arial", 24);
 
+    // Rank and file labels
+    public static final String[] FILES = {"a", "b", "c", "d", "e", "f", "g", "h"};
+    public static final String[] RANKS = {"8", "7", "6", "5", "4", "3", "2", "1"};
+
 }

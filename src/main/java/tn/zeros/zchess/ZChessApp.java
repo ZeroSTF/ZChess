@@ -3,7 +3,6 @@ package tn.zeros.zchess;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.ui.components.ControlPanel;
@@ -28,7 +27,7 @@ public class ZChessApp extends Application {
         root.setBottom(controlPanel);
 
         // Configure window
-        Scene scene = new Scene(root, 640, 700); // Extra height for controls
+        Scene scene = new Scene(root, 750, 750);
         primaryStage.setTitle("ZChess");
         primaryStage.setScene(scene);
         primaryStage.show();
