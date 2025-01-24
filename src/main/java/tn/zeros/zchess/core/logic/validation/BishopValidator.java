@@ -25,15 +25,24 @@ public class BishopValidator implements MoveValidator {
     }
 
     private int getDirection(int from, int to) {
-        int dx = Integer.compare(to%8, from%8);
-        int dy = Integer.compare(to/8, from/8);
-        return switch (dx + dy * 3) {
-            case 4 -> 1;  // NE
-            case 2 -> 3;  // SE
-            case -2 -> 5; // SW
-            case -4 -> 7; // NW
-            default -> -1;
-        };
+        int fromFile = from % 8;
+        int fromRank = from / 8;
+        int toFile = to % 8;
+        int toRank = to / 8;
+
+        int dx = Integer.compare(toFile, fromFile);
+        int dy = Integer.compare(toRank, fromRank);
+
+        // Ensure diagonal movement
+        if (Math.abs(toFile - fromFile) != Math.abs(toRank - fromRank)) {
+            return -1;
+        }
+
+        if (dx > 0) {
+            return dy > 0 ? 3 : 1; // SE (3) or NE (1)
+        } else {
+            return dy > 0 ? 5 : 7; // SW (5) or NW (7)
+        }
     }
 
     private boolean isPathBlocked(BoardState state, int from, int to, int direction) {
