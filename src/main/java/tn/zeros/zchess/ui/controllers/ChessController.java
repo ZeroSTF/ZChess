@@ -104,7 +104,9 @@ public class ChessController {
     }
 
     private boolean checkCastling(Piece piece, int from, int to) {
-        return piece.isKing() && Math.abs(from - to) == 2;
+        if (!piece.isKing()) return false;
+        int delta = Math.abs(from - to);
+        return delta == 2 && (from == 4 || from == 60);
     }
 
     public void undo() {
