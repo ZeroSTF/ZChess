@@ -1,7 +1,5 @@
 package tn.zeros.zchess.core.model;
 
-import tn.zeros.zchess.core.piece.Piece;
-
 public class Move {
     private final int fromSquare;
     private final int toSquare;

@@ -1,7 +1,6 @@
 package tn.zeros.zchess.core.model;
 
-import tn.zeros.zchess.core.piece.Piece;
-import tn.zeros.zchess.core.logic.MoveValidator;
+import tn.zeros.zchess.core.logic.validation.MoveValidator;
 
 import java.util.Stack;
 

@@ -4,8 +4,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
-import tn.zeros.zchess.core.logic.MoveValidator;
-import tn.zeros.zchess.core.piece.Piece;
+import tn.zeros.zchess.core.logic.validation.MoveValidator;
+import tn.zeros.zchess.core.model.Piece;
 
 public class ChessBoardView extends GridPane {
     private static final int SQUARE_SIZE = 80;

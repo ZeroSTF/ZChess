@@ -1,4 +1,4 @@
-package tn.zeros.zchess.core.piece;
+package tn.zeros.zchess.core.model;
 
 public enum Piece {
     WHITE_PAWN('P'), WHITE_KNIGHT('N'), WHITE_BISHOP('B'), WHITE_ROOK('R'), WHITE_QUEEN('Q'), WHITE_KING('K'),

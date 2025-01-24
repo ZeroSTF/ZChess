@@ -1,18 +1,11 @@
-package tn.zeros.zchess.core.logic;
+package tn.zeros.zchess.core.logic.validation;
 
-import tn.zeros.zchess.core.logic.generation.MoveGenerator;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
-import tn.zeros.zchess.core.piece.Piece;
-
-import java.util.List;
+import tn.zeros.zchess.core.model.Piece;
 
 public class MoveValidator {
     private final BoardState position;
-
-    public List<Move> getValidMoves() {
-        return new MoveGenerator(position).generateLegalMoves();
-    }
 
     // Precalculated move masks
     public static final long[] KNIGHT_MOVES = new long[64];
