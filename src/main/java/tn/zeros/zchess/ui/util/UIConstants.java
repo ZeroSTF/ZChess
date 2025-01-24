@@ -5,7 +5,7 @@ import javafx.scene.text.Font;
 
 public class UIConstants {
     // Sizes
-    public static final int SQUARE_SIZE = 80;
+    public static final int SQUARE_SIZE = 90;
 
     // Colors
     public static final Color LIGHT_SQUARE_COLOR = Color.valueOf("#F0D9B5");
