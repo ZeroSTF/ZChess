@@ -10,7 +10,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
-import tn.zeros.zchess.ui.controllers.ChessController;
+import tn.zeros.zchess.ui.controller.ChessController;
 
 public class ControlPanel extends HBox {
     public ControlPanel(ChessController controller) {

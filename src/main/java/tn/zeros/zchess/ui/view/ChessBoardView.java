@@ -9,7 +9,7 @@ import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.ui.util.BoardGeometry;
-import tn.zeros.zchess.ui.controllers.ChessController;
+import tn.zeros.zchess.ui.controller.ChessController;
 
 import java.util.List;
 

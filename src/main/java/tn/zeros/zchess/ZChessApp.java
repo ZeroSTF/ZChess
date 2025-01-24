@@ -9,7 +9,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.ui.components.ControlPanel;
-import tn.zeros.zchess.ui.controllers.ChessController;
+import tn.zeros.zchess.ui.controller.ChessController;
 import tn.zeros.zchess.ui.view.ChessBoardView;
 
 public class ZChessApp extends Application {

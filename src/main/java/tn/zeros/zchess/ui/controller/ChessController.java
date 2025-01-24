@@ -1,4 +1,4 @@
-package tn.zeros.zchess.ui.controllers;
+package tn.zeros.zchess.ui.controller;
 
 import tn.zeros.zchess.core.logic.validation.MoveValidator;
 import tn.zeros.zchess.core.logic.validation.*;
