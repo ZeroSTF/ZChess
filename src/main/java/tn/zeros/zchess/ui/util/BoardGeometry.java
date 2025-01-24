@@ -4,7 +4,7 @@ import javafx.scene.paint.Color;
 
 public class BoardGeometry {
     public static Color getSquareColor(int row, int col) {
-        boolean isLight = (row + col) % 2 == 0;
+        boolean isLight = (row + col) % 2 != 0;
         return isLight ?
                 UIConstants.LIGHT_SQUARE_COLOR :
                 UIConstants.DARK_SQUARE_COLOR;
