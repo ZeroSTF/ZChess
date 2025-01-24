@@ -7,9 +7,9 @@ import tn.zeros.zchess.core.model.Piece;
 public class PawnValidator implements MoveValidator {
     @Override
     public ValidationResult validate(BoardState state, Move move) {
-        Piece pawn = move.getPiece();
-        int from = move.getFromSquare();
-        int to = move.getToSquare();
+        Piece pawn = move.piece();
+        int from = move.fromSquare();
+        int to = move.toSquare();
 
         if (!pawn.isPawn()) {
             return ValidationResult.valid();

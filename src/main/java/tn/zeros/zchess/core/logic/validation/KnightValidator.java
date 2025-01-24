@@ -7,8 +7,8 @@ import tn.zeros.zchess.core.util.PrecomputedMoves;
 public class KnightValidator implements MoveValidator {
     @Override
     public ValidationResult validate(BoardState state, Move move) {
-        int from = move.getFromSquare();
-        int to = move.getToSquare();
+        int from = move.fromSquare();
+        int to = move.toSquare();
 
         if ((PrecomputedMoves.KNIGHT_MOVES[from] & (1L << to)) == 0) {
             return new ValidationResult(false, "Invalid knight move");

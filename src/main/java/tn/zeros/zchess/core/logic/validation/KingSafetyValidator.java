@@ -13,7 +13,7 @@ public class KingSafetyValidator implements MoveValidator {
         BoardState testState = BoardStateCloner.clone(state);
         MoveExecutor.executeMove(testState, move);
 
-        boolean isWhite = move.getPiece().isWhite();
+        boolean isWhite = move.piece().isWhite();
         return ThreatDetectionService.isInCheck(testState, isWhite) ?
                 new ValidationResult(false, "King in check") :
                 ValidationResult.VALID;

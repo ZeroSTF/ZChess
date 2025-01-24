@@ -26,44 +26,44 @@ public class MoveExecutor {
 
     private static void executeRegularMove(BoardState state, Move move) {
         // Remove captured piece first
-        if (move.getCapturedPiece() != Piece.NONE) {
-            state.removePiece(move.getToSquare(), move.getCapturedPiece());
+        if (move.capturedPiece() != Piece.NONE) {
+            state.removePiece(move.toSquare(), move.capturedPiece());
         }
-        state.movePiece(move.getFromSquare(), move.getToSquare(), move.getPiece());
+        state.movePiece(move.fromSquare(), move.toSquare(), move.piece());
     }
 
     private static void executeEnPassant(BoardState state, Move move) {
-        int capturedSquare = move.getToSquare() + (move.getPiece().isWhite() ? -8 : 8);
-        state.movePiece(move.getFromSquare(), move.getToSquare(), move.getPiece());
-        state.removePiece(capturedSquare, move.getCapturedPiece());
+        int capturedSquare = move.toSquare() + (move.piece().isWhite() ? -8 : 8);
+        state.movePiece(move.fromSquare(), move.toSquare(), move.piece());
+        state.removePiece(capturedSquare, move.capturedPiece());
     }
 
     private static void executeCastling(BoardState state, Move move) {
-        int from = move.getFromSquare();
-        int to = move.getToSquare();
+        int from = move.fromSquare();
+        int to = move.toSquare();
         boolean kingside = (to % 8) > (from % 8);
         int rookFrom = kingside ? from + 3 : from - 4;
         int rookTo = kingside ? to - 1 : to + 1;
 
-        state.movePiece(from, to, move.getPiece());
-        Piece rook = move.getPiece().isWhite() ? Piece.WHITE_ROOK : Piece.BLACK_ROOK;
+        state.movePiece(from, to, move.piece());
+        Piece rook = move.piece().isWhite() ? Piece.WHITE_ROOK : Piece.BLACK_ROOK;
         state.movePiece(rookFrom, rookTo, rook);
     }
 
     private static void executePromotion(BoardState state, Move move) {
-        state.removePiece(move.getToSquare(), move.getPiece());
-        state.addPiece(move.getToSquare(), move.getPromotionPiece());
+        state.removePiece(move.toSquare(), move.piece());
+        state.addPiece(move.toSquare(), move.promotionPiece());
     }
 
     private static void updateGameState(BoardState state, Move move) {
         updateEnPassant(state, move);
-        CastlingService.updateCastlingRights(state, move.getPiece(), move.getFromSquare());
+        CastlingService.updateCastlingRights(state, move.piece(), move.fromSquare());
         updateMoveClocks(state, move);
     }
 
     private static void updateEnPassant(BoardState state, Move move) {
-        if (move.getPiece().isPawn() && Math.abs(move.getToSquare()/8 - move.getFromSquare()/8) == 2) {
-            int epSquare = move.getFromSquare() + (move.getPiece().isWhite() ? 8 : -8);
+        if (move.piece().isPawn() && Math.abs(move.toSquare()/8 - move.fromSquare()/8) == 2) {
+            int epSquare = move.fromSquare() + (move.piece().isWhite() ? 8 : -8);
             state.setEnPassantSquare(epSquare);
         } else {
             state.setEnPassantSquare(-1);
@@ -71,13 +71,13 @@ public class MoveExecutor {
     }
 
     private static void updateMoveClocks(BoardState state, Move move) {
-        if (move.getPiece().isPawn() || move.getCapturedPiece() != Piece.NONE) {
+        if (move.piece().isPawn() || move.capturedPiece() != Piece.NONE) {
             state.setHalfMoveClock(0);
         } else {
             state.setHalfMoveClock(state.getHalfMoveClock() + 1);
         }
 
-        if (!move.getPiece().isWhite()) {
+        if (!move.piece().isWhite()) {
             state.setFullMoveNumber(state.getFullMoveNumber() + 1);
         }
     }

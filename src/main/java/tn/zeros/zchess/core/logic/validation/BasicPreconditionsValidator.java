@@ -7,16 +7,16 @@ import tn.zeros.zchess.core.model.Piece;
 public class BasicPreconditionsValidator implements MoveValidator {
     @Override
     public ValidationResult validate(BoardState state, Move move) {
-        if (move.getPiece() == Piece.NONE) {
+        if (move.piece() == Piece.NONE) {
             return new ValidationResult(false, "No piece at source");
         }
 
-        if (move.getPiece().isWhite() != state.isWhiteToMove()) {
+        if (move.piece().isWhite() != state.isWhiteToMove()) {
             return new ValidationResult(false, "Wrong turn");
         }
 
-        if (move.getCapturedPiece() != Piece.NONE &&
-                move.getCapturedPiece().isWhite() == move.getPiece().isWhite()) {
+        if (move.capturedPiece() != Piece.NONE &&
+                move.capturedPiece().isWhite() == move.piece().isWhite()) {
             return new ValidationResult(false, "Cannot capture own piece");
         }
 

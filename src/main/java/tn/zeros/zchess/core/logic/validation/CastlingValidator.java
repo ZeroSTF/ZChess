@@ -13,9 +13,9 @@ public class CastlingValidator implements MoveValidator {
             return ValidationResult.valid();
         }
 
-        Piece king = move.getPiece();
-        int from = move.getFromSquare();
-        int to = move.getToSquare();
+        Piece king = move.piece();
+        int from = move.fromSquare();
+        int to = move.toSquare();
 
         // 1. Verify castling rights
         if (!CastlingService.canCastle(state, from, to)) {

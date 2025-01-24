@@ -53,14 +53,14 @@ public class ChessBoardView extends GridPane implements ChessView {
 
     public void updateBoard(Move move) {
         // Update source square
-        int fromRow = move.getFromSquare() / 8;
-        int fromCol = move.getFromSquare() % 8;
+        int fromRow = move.fromSquare() / 8;
+        int fromCol = move.fromSquare() % 8;
         squares[fromRow][fromCol].setPiece(Piece.NONE);
 
         // Update destination square
-        int toRow = move.getToSquare() / 8;
-        int toCol = move.getToSquare() % 8;
-        squares[toRow][toCol].setPiece(move.getPiece());
+        int toRow = move.toSquare() / 8;
+        int toCol = move.toSquare() % 8;
+        squares[toRow][toCol].setPiece(move.piece());
 
         // Handle special moves
         if (move.isEnPassant()) {
@@ -71,8 +71,8 @@ public class ChessBoardView extends GridPane implements ChessView {
     }
 
     private void handleEnPassantUI(Move move) {
-        int capturedSquare = move.getToSquare() +
-                (move.getPiece().isWhite() ? -8 : 8);
+        int capturedSquare = move.toSquare() +
+                (move.piece().isWhite() ? -8 : 8);
         int[] coords = BoardGeometry.fromSquareIndex(capturedSquare);
         squares[coords[0]][coords[1]].setPiece(Piece.NONE);
     }
@@ -83,8 +83,8 @@ public class ChessBoardView extends GridPane implements ChessView {
     }
 
     private int[] calculateRookMove(Move move) {
-        int from = move.getFromSquare();
-        int to = move.getToSquare();
+        int from = move.fromSquare();
+        int to = move.toSquare();
         boolean kingside = to > from;
 
         int rookFrom = kingside ? from + 3 : from - 4;
@@ -145,20 +145,20 @@ public class ChessBoardView extends GridPane implements ChessView {
 
     private void addRankLabels() {
         for (int row = 0; row < 8; row++) {
-            Label rightLabel = createLabel(RANKS[row], true);
+            Label rightLabel = createLabel(RANKS[row]);
             add(rightLabel, 9, row);
         }
     }
 
     private void addFileLabels() {
         for (int col = 0; col < 8; col++) {
-            Label fileLabel = createLabel(FILES[col], false);
+            Label fileLabel = createLabel(FILES[col]);
             add(fileLabel, col, 8);
             GridPane.setHalignment(fileLabel, javafx.geometry.HPos.CENTER);
         }
     }
 
-    private Label createLabel(String text, boolean isRank) {
+    private Label createLabel(String text) {
         Label label = new Label(text);
         label.setStyle("-fx-font-size: 14; -fx-font-weight: bold;");
         label.setPadding(new Insets(5));

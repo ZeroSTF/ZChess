@@ -35,7 +35,7 @@ public class ZChessApp extends Application {
         BorderPane.setMargin(centeredBoard, new Insets(20));
 
         // Configure window
-        Scene scene = new Scene(root, 800, 850);
+        Scene scene = new Scene(root, 800, 900);
         primaryStage.setTitle("ZChess");
         primaryStage.setScene(scene);
         primaryStage.setMinWidth(700);

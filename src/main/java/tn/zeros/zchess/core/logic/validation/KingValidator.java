@@ -9,8 +9,8 @@ public class KingValidator implements MoveValidator {
     public ValidationResult validate(BoardState state, Move move) {
         if (move.isCastling()) return ValidationResult.VALID;
 
-        int from = move.getFromSquare();
-        int to = move.getToSquare();
+        int from = move.fromSquare();
+        int to = move.toSquare();
 
         if ((PrecomputedMoves.KING_MOVES[from] & (1L << to)) != 0) {
             return ValidationResult.VALID;

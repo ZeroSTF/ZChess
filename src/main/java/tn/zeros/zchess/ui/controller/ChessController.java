@@ -1,6 +1,5 @@
 package tn.zeros.zchess.ui.controller;
 
-import tn.zeros.zchess.core.logic.validation.MoveValidator;
 import tn.zeros.zchess.core.logic.validation.*;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
@@ -9,6 +8,7 @@ import tn.zeros.zchess.core.service.FenService;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.service.StateManager;
 import tn.zeros.zchess.ui.view.ChessBoardView;
+import tn.zeros.zchess.ui.view.ChessView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ public class ChessController {
     private final BoardState boardState;
     private final StateManager stateManager;
     private final MoveValidator moveValidator;
-    private ChessBoardView view;
+    private ChessView view;
     private int selectedSquare = -1;
 
     public ChessController(BoardState boardState) {

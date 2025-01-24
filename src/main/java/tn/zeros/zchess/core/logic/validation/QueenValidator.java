@@ -1,20 +1,13 @@
 package tn.zeros.zchess.core.logic.validation;
 
-import tn.zeros.zchess.core.model.BoardState;
-import tn.zeros.zchess.core.model.Move;
-
-public class QueenValidator implements MoveValidator {
-    private final BishopValidator bishopValidator = new BishopValidator();
-    private final RookValidator rookValidator = new RookValidator();
+public class QueenValidator extends SlidingPieceValidator {
+    @Override
+    protected int[] getDirections() {
+        return new int[]{0, 1, 2, 3, 4, 5, 6, 7}; // All directions
+    }
 
     @Override
-    public ValidationResult validate(BoardState state, Move move) {
-        ValidationResult bishopResult = bishopValidator.validate(state, move);
-        ValidationResult rookResult = rookValidator.validate(state, move);
-
-        if (!bishopResult.isValid() && !rookResult.isValid()) {
-            return new ValidationResult(false, "Queen must move straight or diagonally");
-        }
-        return ValidationResult.VALID;
+    protected String getErrorMessage() {
+        return "Queen must move straight/diagonally and path must be clear";
     }
 }

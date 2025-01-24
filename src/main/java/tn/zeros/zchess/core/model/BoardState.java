@@ -1,7 +1,5 @@
 package tn.zeros.zchess.core.model;
 
-import tn.zeros.zchess.core.service.MoveExecutor;
-import java.util.Stack;
 import static tn.zeros.zchess.core.util.ChessConstants.*;
 
 public class BoardState {
@@ -12,12 +10,10 @@ public class BoardState {
     private int enPassantSquare;
     private int halfMoveClock;
     private int fullMoveNumber;
-    private final Stack<GameState> history;
 
     public BoardState() {
         this.pieceBitboards = new long[6];
         this.colorBitboards = new long[2];
-        this.history = new Stack<>();
         initializeStartingPosition();
     }
 
@@ -109,11 +105,6 @@ public class BoardState {
         return colorBitboards[color];
     }
 
-    public int getKingSquare(boolean whiteKing) {
-        long kingBitboard = pieceBitboards[KING] & colorBitboards[whiteKing ? WHITE : BLACK];
-        return Long.numberOfTrailingZeros(kingBitboard);
-    }
-
     public void movePiece(int from, int to, Piece piece) {
         int type = piece.ordinal() % 6;
         int color = piece.isWhite() ? WHITE : BLACK;
@@ -145,19 +136,4 @@ public class BoardState {
         colorBitboards[color] |= 1L << square;
     }
 
-    public void makeMove(Move move) {
-        GameState prevState = new GameState(
-                pieceBitboards.clone(),
-                colorBitboards.clone(),
-                castlingRights,
-                enPassantSquare,
-                halfMoveClock,
-                fullMoveNumber,
-                whiteToMove
-        );
-        history.push(prevState);
-
-        MoveExecutor.executeMove(this, move);
-        whiteToMove = !whiteToMove;
-    }
 }

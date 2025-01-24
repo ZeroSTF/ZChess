@@ -27,7 +27,7 @@ public class PieceSpecificValidator implements MoveValidator{
 
     @Override
     public ValidationResult validate(BoardState state, Move move) {
-        MoveValidator validator = validators.get(move.getPiece());
+        MoveValidator validator = validators.get(move.piece());
         if (validator == null) {
             return new ValidationResult(false, "Invalid piece type");
         }
