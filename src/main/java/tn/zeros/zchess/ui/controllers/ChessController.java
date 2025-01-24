@@ -81,6 +81,11 @@ public class ChessController {
         boolean isEnPassant = checkEnPassant(piece, to);
         boolean isCastling = checkCastling(piece, from, to);
 
+        if (isEnPassant) {
+            int capturedSquare = to + (piece.isWhite() ? -8 : 8);
+            captured = boardState.getPieceAt(capturedSquare);
+        }
+
         return new Move(
                 from, to, piece, captured,
                 false, isCastling, isEnPassant, null

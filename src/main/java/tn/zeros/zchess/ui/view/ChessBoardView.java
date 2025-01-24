@@ -66,9 +66,10 @@ public class ChessBoardView extends GridPane implements ChessView {
     }
 
     private void handleEnPassantUI(Move move) {
-        int capturedPawnRank = move.getToSquare()/8 + (move.getPiece().isWhite() ? 1 : -1);
-        int capturedPawnFile = move.getToSquare()%8;
-        squares[capturedPawnRank][capturedPawnFile].setPiece(Piece.NONE);
+        int capturedSquare = move.getToSquare() +
+                (move.getPiece().isWhite() ? -8 : 8);
+        int[] coords = BoardGeometry.fromSquareIndex(capturedSquare);
+        squares[coords[0]][coords[1]].setPiece(Piece.NONE);
     }
 
     private void handleCastlingUI(Move move) {
