@@ -7,6 +7,8 @@ import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.service.FenService;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.service.StateManager;
+import tn.zeros.zchess.core.service.ThreatDetectionService;
+import tn.zeros.zchess.ui.util.SoundManager;
 import tn.zeros.zchess.ui.view.ChessBoardView;
 import tn.zeros.zchess.ui.view.ChessView;
 
@@ -127,6 +129,23 @@ public class ChessController {
         MoveExecutor.executeMove(boardState, move);
         boardState.setWhiteToMove(!boardState.isWhiteToMove());
         view.updateBoard(move);
+        playMoveSound(move);
+    }
+
+    private void playMoveSound(Move move) {
+        boolean inCheck = ThreatDetectionService.isInCheck(boardState, boardState.isWhiteToMove());
+
+        if (inCheck) {
+            SoundManager.playMoveCheck();
+        } else if (move.isCastling()) {
+            SoundManager.playCastle();
+        } else if (move.isPromotion()) {
+            SoundManager.playPromotion();
+        } else if (move.capturedPiece() != Piece.NONE){
+            SoundManager.playCapture();
+        } else {
+            SoundManager.playMove();
+        }
     }
 
     private boolean checkEnPassant(Piece piece, int toSquare) {

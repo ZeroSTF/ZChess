@@ -19,4 +19,13 @@ public class UIConstants {
     public static final String[] FILES = {"a", "b", "c", "d", "e", "f", "g", "h"};
     public static final String[] RANKS = {"8", "7", "6", "5", "4", "3", "2", "1"};
 
+    // Sounds
+    public static final String MOVE_SOUND = "/sounds/move.mp3";
+    public static final String MOVE_CHECK_SOUND = "/sounds/move-check.mp3";
+    public static final String MOVE_OPPONENT_SOUND = "/sounds/move-opponent.mp3";
+    public static final String CAPTURE_SOUND = "/sounds/capture.mp3";
+    public static final String CASTLE_SOUND = "/sounds/castle.mp3";
+    public static final String PROMOTION_SOUND = "/sounds/promotion.mp3";
+    public static final String PREMOVE_SOUND = "/sounds/premove.mp3";
+
 }

@@ -6,6 +6,7 @@ module tn.zeros.zchess {
     requires org.kordamp.ikonli.javafx;
     requires com.almasb.fxgl.all;
     requires java.desktop;
+    requires javafx.media;
 
     exports tn.zeros.zchess;
     opens tn.zeros.zchess to javafx.fxml;

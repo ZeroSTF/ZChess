@@ -1,10 +1,12 @@
 package tn.zeros.zchess.ui.view;
 
+import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
@@ -112,6 +114,9 @@ public class ChessBoardView extends GridPane implements ChessView {
         Tooltip errorTip = new Tooltip(message);
         errorTip.setStyle("-fx-background-color: #ff4444; -fx-text-fill: white;");
         errorTip.show(getScene().getWindow());
+        PauseTransition pause = new PauseTransition(Duration.seconds(1));
+        pause.setOnFinished(event -> errorTip.hide());
+        pause.play();
     }
 
     public void highlightLegalMoves(List<Integer> legalSquares) {
