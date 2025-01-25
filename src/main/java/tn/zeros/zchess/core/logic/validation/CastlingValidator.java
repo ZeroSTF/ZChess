@@ -51,6 +51,11 @@ public class CastlingValidator implements MoveValidator {
             }
         }
 
+        // 5. Check if king is in check
+        if (ThreatDetectionService.isSquareAttacked(state, from, !king.isWhite())) {
+            return new ValidationResult(false, "King would be in check");
+        }
+
         return ValidationResult.valid();
     }
 }

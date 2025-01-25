@@ -29,8 +29,9 @@ public class PerftTest {
 
     @Test
     void debugProblemPosition() {
-        String fen = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8";
-        debugPerft(fen, 3);
+        //String fen = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8";
+        String fen = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/P7/1PP1NnPP/RNBQK2R b KQ - 0 8";
+        debugPerft(fen, 2);
     }
 
     public void testPerft(String fen, int depth, long expectedNodes) {
