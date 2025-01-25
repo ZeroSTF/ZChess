@@ -8,21 +8,13 @@ import static tn.zeros.zchess.core.util.ChessConstants.*;
 public class ThreatDetectionService {
 
     public static boolean isSquareAttacked(BoardState state, int square, boolean byWhite) {
-
-        long squareMask = 1L << square;
         int attackerColor = byWhite ? WHITE : BLACK;
         long attackers = state.getColorBitboard(attackerColor);
 
         // Pawn attacks
         long pawns = state.getPieceBitboard(PAWN) & attackers;
-        if (byWhite) {
-            if ((((pawns & ~FILE_A) << 7) & squareMask) != 0) return true;
-            if ((((pawns & ~FILE_H) << 9) & squareMask) != 0) return true;
-
-        } else {
-            if ((((pawns & ~FILE_H) >>> 7) & squareMask) != 0) return true;
-            if ((((pawns & ~FILE_A) >>> 9) & squareMask) != 0) return true;
-        }
+        long pawnAttacks = !byWhite ? PrecomputedMoves.WHITE_PAWN_ATTACKS[square] : PrecomputedMoves.BLACK_PAWN_ATTACKS[square];
+        if ((pawns & pawnAttacks) != 0) return true;
 
         // Knight attacks
         long knights = state.getPieceBitboard(KNIGHT) & attackers;
