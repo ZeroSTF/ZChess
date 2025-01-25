@@ -1,9 +1,11 @@
 package tn.zeros.zchess.core.logic.validation;
 
+import tn.zeros.zchess.core.util.Directions;
+
 public class RookValidator extends SlidingPieceValidator {
     @Override
     protected int[] getDirections() {
-        return new int[]{0, 2, 4, 6}; // N, E, S, W
+        return Directions.ROOK;
     }
 
     @Override

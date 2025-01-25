@@ -66,8 +66,9 @@ public class BoardState {
 
     public Piece getPieceAt(int square) {
         long squareMask = 1L << square;
+
         for (int color = WHITE; color <= BLACK; color++) {
-            if ((colorBitboards[color] & squareMask) != 0) {
+            if ((colorBitboards[color] & squareMask) != 0) { // If the square is occupied by the current color
                 for (int pieceType = PAWN; pieceType <= KING; pieceType++) {
                     if ((pieceBitboards[pieceType] & squareMask) != 0) {
                         return Piece.values()[color * 6 + pieceType];
@@ -82,20 +83,53 @@ public class BoardState {
         return colorBitboards[WHITE] | colorBitboards[BLACK];
     }
 
-    public int getCastlingRights() { return castlingRights; }
-    public void setCastlingRights(int rights) { this.castlingRights = rights; }
-    public int getEnPassantSquare() { return enPassantSquare; }
-    public void setEnPassantSquare(int enPassantSquare) { this.enPassantSquare=enPassantSquare; }
-    public int getHalfMoveClock() { return halfMoveClock; }
-    public void setHalfMoveClock(int halfMoveClock){ this.halfMoveClock=halfMoveClock; }
-    public int getFullMoveNumber() { return fullMoveNumber; }
-    public void setFullMoveNumber(int fullMoveNumber){ this.fullMoveNumber=fullMoveNumber; }
+    public int getCastlingRights() {
+        return castlingRights;
+    }
+
+    public void setCastlingRights(int rights) {
+        this.castlingRights = rights;
+    }
+
+    public int getEnPassantSquare() {
+        return enPassantSquare;
+    }
+
+    public void setEnPassantSquare(int enPassantSquare) {
+        this.enPassantSquare = enPassantSquare;
+    }
+
+    public int getHalfMoveClock() {
+        return halfMoveClock;
+    }
+
+    public void setHalfMoveClock(int halfMoveClock) {
+        this.halfMoveClock = halfMoveClock;
+    }
+
+    public int getFullMoveNumber() {
+        return fullMoveNumber;
+    }
+
+    public void setFullMoveNumber(int fullMoveNumber) {
+        this.fullMoveNumber = fullMoveNumber;
+    }
+
     public boolean isWhiteToMove() {
         return whiteToMove;
     }
-    public void setWhiteToMove(boolean whiteToMove) { this.whiteToMove = whiteToMove; }
-    public long[] getPieceBitboards() { return pieceBitboards; }
-    public long[] getColorBitboards() { return colorBitboards; }
+
+    public void setWhiteToMove(boolean whiteToMove) {
+        this.whiteToMove = whiteToMove;
+    }
+
+    public long[] getPieceBitboards() {
+        return pieceBitboards;
+    }
+
+    public long[] getColorBitboards() {
+        return colorBitboards;
+    }
 
     public long getPieceBitboard(int pieceType) {
         return pieceBitboards[pieceType];

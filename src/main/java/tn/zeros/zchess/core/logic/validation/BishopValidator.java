@@ -1,9 +1,11 @@
 package tn.zeros.zchess.core.logic.validation;
 
+import tn.zeros.zchess.core.util.Directions;
+
 public class BishopValidator extends SlidingPieceValidator {
     @Override
     protected int[] getDirections() {
-        return new int[]{1, 3, 5, 7}; // NE, SE, SW, NW
+        return Directions.BISHOP;
     }
 
     @Override
