@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.ui.components.ControlPanel;
 import tn.zeros.zchess.ui.controller.ChessController;
+import tn.zeros.zchess.ui.util.SoundManager;
 import tn.zeros.zchess.ui.view.ChessBoardView;
 
 import java.io.IOException;
@@ -22,6 +23,9 @@ public class ZChessApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+        // Preload sounds
+        SoundManager.class.getName();
+
         // Initialize core components
         BoardState boardState = new BoardState();
         ChessController controller = new ChessController(boardState);
