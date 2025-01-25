@@ -16,11 +16,12 @@ public class ThreatDetectionService {
         // Pawn attacks
         long pawns = state.getPieceBitboard(PAWN) & attackers;
         if (byWhite) {
-            if (((pawns << 7) & ~FILE_A & squareMask) != 0) return true;
-            if (((pawns << 9) & ~FILE_H & squareMask) != 0) return true;
+            if ((((pawns & ~FILE_A) << 7) & squareMask) != 0) return true;
+            if ((((pawns & ~FILE_H) << 9) & squareMask) != 0) return true;
+
         } else {
-            if (((pawns >>> 7) & ~FILE_H & squareMask) != 0) return true;
-            if (((pawns >>> 9) & ~FILE_A & squareMask) != 0) return true;
+            if ((((pawns & ~FILE_H) >>> 7) & squareMask) != 0) return true;
+            if ((((pawns & ~FILE_A) >>> 9) & squareMask) != 0) return true;
         }
 
         // Knight attacks
