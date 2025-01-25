@@ -122,11 +122,12 @@ public class ChessController {
     }
 
     private void commitMove(Move move) {
+        playMoveSound(move);
         stateManager.saveState();
         MoveExecutor.executeMove(boardState, move);
         boardState.setWhiteToMove(!boardState.isWhiteToMove());
         view.updateBoard(move);
-        playMoveSound(move);
+        stateManager.clearRedo();
     }
 
     private void playMoveSound(Move move) {

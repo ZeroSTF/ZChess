@@ -25,7 +25,6 @@ public class StateManager {
                 boardState.isWhiteToMove()
         );
         undoStack.push(state);
-        redoStack.clear();
     }
 
     public boolean undo() {
@@ -51,8 +50,12 @@ public class StateManager {
         if (redoStack.isEmpty()) return false;
 
         GameState future = redoStack.pop();
-        saveState(); // Save current state to undo stack
+        saveState();
         future.restore(boardState);
         return true;
+    }
+
+    public void clearRedo(){
+        redoStack.clear();
     }
 }
