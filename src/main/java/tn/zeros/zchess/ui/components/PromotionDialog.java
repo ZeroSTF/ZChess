@@ -3,13 +3,16 @@ package tn.zeros.zchess.ui.components;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
+import javafx.stage.Stage;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.ui.controller.ChessController;
 import tn.zeros.zchess.ui.util.AssetLoader;
-
+import tn.zeros.zchess.ui.util.FXUtils;
+import java.util.Objects;
 import java.util.Optional;
 
 public class PromotionDialog {
@@ -20,6 +23,12 @@ public class PromotionDialog {
     public PromotionDialog(ChessController controller) {
         this.controller = controller;
         dialog = new Dialog<>();
+        // Dialog icon setup
+        Image dialogIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/app-icon-32x32.png")));
+        dialog.initOwner(FXUtils.getRootWindow()); // Helper method to get main window
+        Stage dialogStage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        dialogStage.getIcons().add(dialogIcon);
+
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.setTitle("Pawn Promotion");
         dialog.setResultConverter(buttonType -> {
