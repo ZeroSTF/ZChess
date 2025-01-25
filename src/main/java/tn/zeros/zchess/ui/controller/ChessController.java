@@ -19,6 +19,7 @@ public class ChessController {
     private final MoveValidator moveValidator;
     private ChessView view;
     private int selectedSquare = -1;
+    private Move pendingPromotionMove;
 
     public ChessController(BoardState boardState) {
         this.boardState = boardState;
@@ -55,9 +56,13 @@ public class ChessController {
         ValidationResult result = moveValidator.validate(boardState, move);
 
         if (result.isValid()) {
-            executeMove(move);
-            view.updateBoard(move);
-        } else {
+            if (move.isPromotion()) {
+                pendingPromotionMove = move;
+                view.showPromotionDialog(move.piece().isWhite());
+            } else {
+                commitMove(move);
+            }
+        }  else {
             view.showError(result.getMessage());
         }
 
@@ -81,6 +86,9 @@ public class ChessController {
         Piece captured = boardState.getPieceAt(to);
         boolean isEnPassant = checkEnPassant(piece, to);
         boolean isCastling = checkCastling(piece, from, to);
+        boolean isPromotion = piece.isPawn() &&
+                ((piece.isWhite() && (to / 8 == 7)) ||
+                        (!piece.isWhite() && (to / 8 == 0)));
 
         if (isEnPassant) {
             int capturedSquare = to + (piece.isWhite() ? -8 : 8);
@@ -89,14 +97,36 @@ public class ChessController {
 
         return new Move(
                 from, to, piece, captured,
-                false, isCastling, isEnPassant, null
+                isPromotion, isCastling, isEnPassant, isPromotion ? Piece.NONE : null
         );
     }
 
-    private void executeMove(Move move) {
+    public void completePromotion(Piece promotionPiece) {
+        if (pendingPromotionMove == null) return;
+
+        Move completedMove = new Move(
+                pendingPromotionMove.fromSquare(),
+                pendingPromotionMove.toSquare(),
+                pendingPromotionMove.piece(),
+                pendingPromotionMove.capturedPiece(),
+                true,
+                pendingPromotionMove.isCastling(),
+                pendingPromotionMove.isEnPassant(),
+                promotionPiece
+        );
+
+        if (moveValidator.validate(boardState, completedMove).isValid()) {
+            commitMove(completedMove);
+        }
+
+        pendingPromotionMove = null;
+    }
+
+    private void commitMove(Move move) {
         stateManager.saveState();
         MoveExecutor.executeMove(boardState, move);
         boardState.setWhiteToMove(!boardState.isWhiteToMove());
+        view.updateBoard(move);
     }
 
     private boolean checkEnPassant(Piece piece, int toSquare) {

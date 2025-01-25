@@ -8,6 +8,7 @@ import javafx.scene.paint.Color;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
+import tn.zeros.zchess.ui.components.PromotionDialog;
 import tn.zeros.zchess.ui.util.BoardGeometry;
 import tn.zeros.zchess.ui.controller.ChessController;
 
@@ -19,8 +20,10 @@ import static tn.zeros.zchess.ui.util.UIConstants.RANKS;
 public class ChessBoardView extends GridPane implements ChessView {
     private final SquareView[][] squares = new SquareView[8][8];
     private final ChessController controller;
+    private final PromotionDialog promotionDialog;
 
     public ChessBoardView(ChessController controller) {
+        this.promotionDialog = new PromotionDialog(controller);
         this.controller = controller;
         this.controller.registerView(this);
         initializeBoard();
@@ -60,7 +63,9 @@ public class ChessBoardView extends GridPane implements ChessView {
         // Update destination square
         int toRow = move.toSquare() / 8;
         int toCol = move.toSquare() % 8;
-        squares[toRow][toCol].setPiece(move.piece());
+        Piece displayPiece = move.isPromotion() ?
+                move.promotionPiece() : move.piece();
+        squares[toRow][toCol].setPiece(displayPiece);
 
         // Handle special moves
         if (move.isEnPassant()) {
@@ -140,7 +145,7 @@ public class ChessBoardView extends GridPane implements ChessView {
 
     @Override
     public void showPromotionDialog(boolean isWhite) {
-        // TODO
+        promotionDialog.show(isWhite);
     }
 
     private void addRankLabels() {
