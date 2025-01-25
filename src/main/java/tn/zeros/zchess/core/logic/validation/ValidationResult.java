@@ -1,14 +1,17 @@
 package tn.zeros.zchess.core.logic.validation;
 
-public class ValidationResult{
+public class ValidationResult {
+    public static final ValidationResult VALID = new ValidationResult(true, "");
     private final boolean valid;
     private final String message;
-
-    public static final ValidationResult VALID = new ValidationResult(true, "");
 
     public ValidationResult(boolean valid, String message) {
         this.valid = valid;
         this.message = message;
+    }
+
+    public static ValidationResult valid() {
+        return VALID;
     }
 
     public boolean isValid() {
@@ -17,9 +20,5 @@ public class ValidationResult{
 
     public String getMessage() {
         return message;
-    }
-
-    public static ValidationResult valid() {
-        return VALID;
     }
 }

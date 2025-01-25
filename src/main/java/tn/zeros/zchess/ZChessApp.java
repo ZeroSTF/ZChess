@@ -9,6 +9,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import tn.zeros.zchess.core.model.BoardState;
+import tn.zeros.zchess.core.util.ChessConstants;
+import tn.zeros.zchess.core.util.PrecomputedMoves;
 import tn.zeros.zchess.ui.components.ControlPanel;
 import tn.zeros.zchess.ui.controller.ChessController;
 import tn.zeros.zchess.ui.util.SoundManager;

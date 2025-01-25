@@ -39,4 +39,17 @@ public class ChessConstants {
     // Special Square Markers
     public static final int NO_EN_PASSANT = -1;
     public static final int MAX_GAME_LENGTH = 600; // Max ply count
+
+    // Bitboard printing
+    public static void printBitboard(long bitboard) {
+        for (int rank = 7; rank >= 0; rank--) {
+            for (int file = 0; file < 8; file++) {
+                int square = rank * 8 + file;
+                System.out.print(((bitboard >> square) & 1) == 1 ? "1 " : ". ");
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
 }

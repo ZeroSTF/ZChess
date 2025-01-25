@@ -51,27 +51,30 @@ public class PrecomputedMoves {
 
         // Sliding pieces
         for (int square = 0; square < 64; square++) {
-            int rank = square / 8;
-            int file = square % 8;
-
             for (int dir = 0; dir < 8; dir++) {
                 long ray = 0L;
                 int current = square;
 
                 while (true) {
                     int next = current + DIRECTION_OFFSETS[dir];
-                    int nextRank = next / 8;
-                    int nextFile = next % 8;
 
-                    // Check boundaries
+                    // Check if the move is still within the board
                     if (next < 0 || next >= 64) break;
-                    if (Math.abs(nextFile - file) > 1) break;
-                    if (Math.abs(nextRank - rank) > 1) break;
+
+                    // Check if the move crosses the edge of the board
+                    if ((dir == 2 || dir == 3) && (current % 8 == 7)) break; // E, SE (crossing FILE_H)
+                    if ((dir == 6 || dir == 7) && (current % 8 == 0)) break; // W, NW (crossing FILE_A)
 
                     ray |= 1L << next;
                     current = next;
-                    rank = nextRank;
-                    file = nextFile;
+
+                    // Stop if reaching the end of the board in a specific direction
+                    if ((dir == 0 && next < 8) || // N (first rank)
+                            (dir == 4 && next >= 56) || // S (last rank)
+                            (dir == 1 && next % 8 == 7) || // NE (FILE_H)
+                            (dir == 5 && next % 8 == 0)) { // SW (FILE_A)
+                        break;
+                    }
                 }
 
                 RAY_MOVES[square][dir] = ray;
