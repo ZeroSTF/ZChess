@@ -4,10 +4,10 @@ import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.util.ChessConstants;
 
-public class FenService {
-    private static final String FEN_DELIMITER = " ";
-    private static final String FEN_SEPARATOR = "/";
+import static tn.zeros.zchess.core.util.ChessConstants.FEN_DELIMITER;
+import static tn.zeros.zchess.core.util.ChessConstants.FEN_SEPARATOR;
 
+public class FenService {
     public static String generateFEN(BoardState state) {
         StringBuilder fen = new StringBuilder();
 
@@ -34,9 +34,9 @@ public class FenService {
 
         // Active color
         fen.append(FEN_DELIMITER)
-        .append(state.isWhiteToMove()
-                ? ChessConstants.FEN_WHITE_ACTIVE
-                : ChessConstants.FEN_BLACK_ACTIVE)
+                .append(state.isWhiteToMove()
+                        ? ChessConstants.FEN_WHITE_ACTIVE
+                        : ChessConstants.FEN_BLACK_ACTIVE)
                 .append(FEN_DELIMITER);
 
         // Castling rights
@@ -78,7 +78,8 @@ public class FenService {
 
         String[] parts = fen.split(" ");
         if (parts.length < 6) throw new IllegalArgumentException("Invalid FEN - not enough sections");
-        if (!parts[0].matches("([rnbqkpRNBQKP1-8]+/){7}[rnbqkpRNBQKP1-8]+")) throw new IllegalArgumentException("Invalid piece placement");
+        if (!parts[0].matches("([rnbqkpRNBQKP1-8]+/){7}[rnbqkpRNBQKP1-8]+"))
+            throw new IllegalArgumentException("Invalid piece placement");
 
         parsePiecePlacement(state, parts[0]);
         parseActiveColor(state, parts[1]);
@@ -123,10 +124,18 @@ public class FenService {
         if (!rights.equals("-")) {
             for (char c : rights.toCharArray()) {
                 switch (c) {
-                    case 'K': castling |= ChessConstants.WHITE_KINGSIDE; break;
-                    case 'Q': castling |= ChessConstants.WHITE_QUEENSIDE; break;
-                    case 'k': castling |= ChessConstants.BLACK_KINGSIDE; break;
-                    case 'q': castling |= ChessConstants.BLACK_QUEENSIDE; break;
+                    case 'K':
+                        castling |= ChessConstants.WHITE_KINGSIDE;
+                        break;
+                    case 'Q':
+                        castling |= ChessConstants.WHITE_QUEENSIDE;
+                        break;
+                    case 'k':
+                        castling |= ChessConstants.BLACK_KINGSIDE;
+                        break;
+                    case 'q':
+                        castling |= ChessConstants.BLACK_QUEENSIDE;
+                        break;
                 }
             }
         }

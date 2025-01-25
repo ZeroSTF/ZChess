@@ -20,10 +20,8 @@ public class ChessConstants {
     public static final int BLACK_QUEENSIDE = 0b1000;
 
     // Board Geometry
-    public static final int BOARD_SIZE = 8;
-    public static final int NUM_SQUARES = 64;
-    public static final long FIRST_RANK = 0xFFL;
-    public static final long LAST_RANK = 0xFF00000000000000L;
+    public static final long RANK_1 = 0xFFL;
+    public static final long RANK_8 = 0xFF00000000000000L;
     public static final long FILE_A = 0x0101010101010101L;
     public static final long FILE_H = 0x8080808080808080L;
 
@@ -32,13 +30,10 @@ public class ChessConstants {
     public static final String FEN_DELIMITER = " ";
     public static final String FEN_WHITE_ACTIVE = "w";
     public static final String FEN_BLACK_ACTIVE = "b";
+    public static final String FEN_SEPARATOR = "/";
 
     // Direction Offsets (N, NE, E, SE, S, SW, W, NW)
     public static final int[] DIRECTION_OFFSETS = {8, 9, 1, -7, -8, -9, -1, 7};
-
-    // Special Square Markers
-    public static final int NO_EN_PASSANT = -1;
-    public static final int MAX_GAME_LENGTH = 600; // Max ply count
 
     // Bitboard printing
     public static void printBitboard(long bitboard) {

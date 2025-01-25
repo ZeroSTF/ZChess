@@ -6,6 +6,8 @@ public class PrecomputedMoves {
     public static final long[] KNIGHT_MOVES = new long[64];
     public static final long[] KING_MOVES = new long[64];
     public static final long[][] RAY_MOVES = new long[64][8];
+    public static final long[] WHITE_PAWN_ATTACKS = new long[64];
+    public static final long[] BLACK_PAWN_ATTACKS = new long[64];
 
     static {
         initialize();
@@ -76,6 +78,24 @@ public class PrecomputedMoves {
                 }
 
                 RAY_MOVES[square][dir] = ray;
+            }
+        }
+
+        // Pawn attacks
+        for (int square = 0; square < 64; square++) {
+            int rank = square / 8;
+            int file = square % 8;
+
+            // White pawns attack northeast and northwest
+            if (rank < 7) { // Prevent overflow from top rank
+                if (file > 0) WHITE_PAWN_ATTACKS[square] |= 1L << (square + 7);
+                if (file < 7) WHITE_PAWN_ATTACKS[square] |= 1L << (square + 9);
+            }
+
+            // Black pawns attack southeast and southwest
+            if (rank > 0) { // Prevent underflow from bottom rank
+                if (file > 0) BLACK_PAWN_ATTACKS[square] |= 1L << (square - 9);
+                if (file < 7) BLACK_PAWN_ATTACKS[square] |= 1L << (square - 7);
             }
         }
 

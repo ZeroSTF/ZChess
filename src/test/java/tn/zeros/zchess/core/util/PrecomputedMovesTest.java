@@ -20,4 +20,11 @@ public class PrecomputedMovesTest {
         int testSquare = 31;
         ChessConstants.printBitboard(PrecomputedMoves.KNIGHT_MOVES[testSquare]);
     }
+
+    @Test
+    void testPawnAttacks() {
+        System.out.println("Pawn Attacks from D7:");
+        int testSquare = 51;
+        ChessConstants.printBitboard(PrecomputedMoves.WHITE_PAWN_ATTACKS[testSquare]);
+    }
 }

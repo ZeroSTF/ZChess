@@ -9,6 +9,7 @@ import tn.zeros.zchess.core.model.MoveUndoInfo;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.service.FenService;
 import tn.zeros.zchess.core.service.MoveExecutor;
+import tn.zeros.zchess.core.util.ChessConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,7 @@ public class PerftTest {
 
     @Test
     void testPerftPositions() {
-        testPerft("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", 3, 8902);
+        testPerft(ChessConstants.DEFAULT_FEN, 3, 8902);
         testPerft("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8", 1, 44);
         testPerft("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8", 2, 1486);
         testPerft("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8", 3, 62379);
@@ -30,8 +31,9 @@ public class PerftTest {
 
     @Test
     void debugProblemPosition() {
-        String fen = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8";
-        debugPerft(fen, 5);
+        //String fen = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8";
+        String fen = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/P7/1PP1NnPP/RNBQK2R b KQ - 0 8";
+        debugPerft(fen, 2);
     }
 
     public void testPerft(String fen, int depth, long expectedNodes) {
@@ -84,10 +86,8 @@ public class PerftTest {
 
         for (Move move : moves) {
             MoveUndoInfo undoInfo = MoveExecutor.makeMove(state, move);
-            state.setWhiteToMove(!state.isWhiteToMove());
             long nodes = perft(state, currentDepth - 1);
             total += nodes;
-
             if (currentDepth == maxDepth) {
                 System.out.printf("%-6s %,d%n", moveToUCI(move), nodes);
             }
