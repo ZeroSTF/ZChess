@@ -61,18 +61,16 @@ public class PrecomputedMoves {
                     // Check if the move is still within the board
                     if (next < 0 || next >= 64) break;
 
-                    // Check if the move crosses the edge of the board
-                    if ((dir == 2 || dir == 3) && (current % 8 == 7)) break; // E, SE (crossing FILE_H)
-                    if ((dir == 6 || dir == 7) && (current % 8 == 0)) break; // W, NW (crossing FILE_A)
+                    // Check for edge crossing (horizontal and diagonal directions)
+                    if ((dir == 1 || dir == 2 || dir == 3) && (current % 8 == 7)) break; // Crossing FILE_H
+                    if ((dir == 5 || dir == 6 || dir == 7) && (current % 8 == 0)) break; // Crossing FILE_A
 
                     ray |= 1L << next;
                     current = next;
 
-                    // Stop if reaching the end of the board in a specific direction
-                    if ((dir == 0 && next < 8) || // N (first rank)
-                            (dir == 4 && next >= 56) || // S (last rank)
-                            (dir == 1 && next % 8 == 7) || // NE (FILE_H)
-                            (dir == 5 && next % 8 == 0)) { // SW (FILE_A)
+                    // Stop if reaching the edge of the board in a specific direction
+                    if ((dir == 0 && next < 8) ||       // N (first rank)
+                            (dir == 4 && next >= 56)) {     // S (last rank)
                         break;
                     }
                 }
@@ -80,5 +78,6 @@ public class PrecomputedMoves {
                 RAY_MOVES[square][dir] = ray;
             }
         }
+
     }
 }

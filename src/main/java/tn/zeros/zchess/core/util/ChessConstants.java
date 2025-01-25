@@ -33,8 +33,8 @@ public class ChessConstants {
     public static final String FEN_WHITE_ACTIVE = "w";
     public static final String FEN_BLACK_ACTIVE = "b";
 
-    // Direction Offsets (S, SE, E, NE, N, NW, W, SW)
-    public static final int[] DIRECTION_OFFSETS = {-8, -7, 1, 9, 8, 7, -1, -9};
+    // Direction Offsets (N, NE, E, SE, S, SW, W, NW)
+    public static final int[] DIRECTION_OFFSETS = {8, 9, 1, -7, -8, -9, -1, 7};
 
     // Special Square Markers
     public static final int NO_EN_PASSANT = -1;

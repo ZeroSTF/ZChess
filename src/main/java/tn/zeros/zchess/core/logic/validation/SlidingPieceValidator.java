@@ -4,6 +4,7 @@ import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.util.ChessConstants;
+import tn.zeros.zchess.core.util.PrecomputedMoves;
 
 public abstract class SlidingPieceValidator implements MoveValidator {
 
@@ -15,7 +16,7 @@ public abstract class SlidingPieceValidator implements MoveValidator {
         if (!isValidSquare(to)) return new ValidationResult(false, "Invalid destination");
 
         for (int dir : getDirections()) {
-            if (isValidPath(from, to, dir) &&
+            if (isPathValid(from, to, dir) &&
                     !isPathBlocked(state, from, to, dir)) {
                 return ValidationResult.VALID;
             }
@@ -27,33 +28,9 @@ public abstract class SlidingPieceValidator implements MoveValidator {
         return square >= 0 && square < 64;
     }
 
-    private boolean isValidPath(int from, int to, int direction) {
-        int step = ChessConstants.DIRECTION_OFFSETS[direction];
-        if (step == 0) return false;
-
-        int delta = to - from;
-        if (delta % step != 0) return false;
-
-        return isWithinBoardBounds(from, to, direction);
-    }
-
-    private boolean isWithinBoardBounds(int from, int to, int direction) {
-        int fromRank = from / 8;
-        int fromFile = from % 8;
-        int toRank = to / 8;
-        int toFile = to % 8;
-
-        return switch (direction) {
-            case 1 -> (toFile > fromFile) && (toRank < fromRank); // NE
-            case 3 -> (toFile > fromFile) && (toRank > fromRank); // SE
-            case 5 -> (toFile < fromFile) && (toRank > fromRank); // SW
-            case 7 -> (toFile < fromFile) && (toRank < fromRank); // NW
-            case 0 -> (fromFile == toFile) && (toRank < fromRank); // N
-            case 4 -> (fromFile == toFile) && (toRank > fromRank); // S
-            case 2 -> (fromRank == toRank) && (toFile > fromFile); // E
-            case 6 -> (fromRank == toRank) && (toFile < fromFile); // W
-            default -> false;
-        };
+    private boolean isPathValid(int from, int to, int direction) {
+        long ray = PrecomputedMoves.RAY_MOVES[from][direction];
+        return (ray & (1L << to)) != 0;
     }
 
     private boolean isPathBlocked(BoardState state, int from, int to, int direction) {
@@ -75,5 +52,6 @@ public abstract class SlidingPieceValidator implements MoveValidator {
     }
 
     protected abstract int[] getDirections();
+
     protected abstract String getErrorMessage();
 }

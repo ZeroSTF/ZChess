@@ -1,13 +1,14 @@
 package tn.zeros.zchess.core.logic;
 
 import org.junit.jupiter.api.Test;
-import tn.zeros.zchess.core.logic.validation.*;
+import tn.zeros.zchess.core.logic.validation.CompositeMoveValidator;
+import tn.zeros.zchess.core.logic.validation.MoveValidator;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.service.BoardStateCloner;
-import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.service.FenService;
+import tn.zeros.zchess.core.service.MoveExecutor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -155,7 +156,7 @@ public class PerftTest {
     }
 
     private boolean isPromotionSquare(Piece piece, int to) {
-        return piece.isPawn() && ((piece.isWhite() && to/8 == 7) || (!piece.isWhite() && to/8 == 0));
+        return piece.isPawn() && ((piece.isWhite() && to / 8 == 7) || (!piece.isWhite() && to / 8 == 0));
     }
 
     private Move createMove(BoardState state, int from, int to, Piece piece, Piece promotion) {

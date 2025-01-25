@@ -6,8 +6,8 @@ public class PrecomputedMovesTest {
 
     @Test
     void testRayMoves() {
-        System.out.println("Sliding Moves (Queen) from E4:");
-        int testSquare = 28;
+        System.out.println("Sliding Moves (Queen) from H6:");
+        int testSquare = 47;
         for (int dir = 0; dir < 8; dir++) {
             System.out.println("Direction " + dir + ":");
             ChessConstants.printBitboard(PrecomputedMoves.RAY_MOVES[testSquare][dir]);
