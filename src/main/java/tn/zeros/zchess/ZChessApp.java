@@ -27,8 +27,7 @@ public class ZChessApp extends Application {
         SoundManager.class.getName();
 
         // Initialize core components
-        BoardState boardState = new BoardState();
-        ChessController controller = new ChessController(boardState);
+        ChessController controller = new ChessController();
 
         // Create UI components
         ChessBoardView boardView = new ChessBoardView(controller);

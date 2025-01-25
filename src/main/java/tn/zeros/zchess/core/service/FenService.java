@@ -77,7 +77,8 @@ public class FenService {
         clearBoard(state);
 
         String[] parts = fen.split(" ");
-        if (parts.length < 6) throw new IllegalArgumentException("Invalid FEN");
+        if (parts.length < 6) throw new IllegalArgumentException("Invalid FEN - not enough sections");
+        if (!parts[0].matches("([rnbqkpRNBQKP1-8]+/){7}[rnbqkpRNBQKP1-8]+")) throw new IllegalArgumentException("Invalid piece placement");
 
         parsePiecePlacement(state, parts[0]);
         parseActiveColor(state, parts[1]);

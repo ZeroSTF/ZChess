@@ -4,10 +4,7 @@ import tn.zeros.zchess.core.logic.validation.*;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
-import tn.zeros.zchess.core.service.FenService;
-import tn.zeros.zchess.core.service.MoveExecutor;
-import tn.zeros.zchess.core.service.StateManager;
-import tn.zeros.zchess.core.service.ThreatDetectionService;
+import tn.zeros.zchess.core.service.*;
 import tn.zeros.zchess.ui.util.SoundManager;
 import tn.zeros.zchess.ui.view.ChessBoardView;
 import tn.zeros.zchess.ui.view.ChessView;
@@ -16,15 +13,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChessController {
-    private final BoardState boardState;
-    private final StateManager stateManager;
+    private BoardState boardState;
+    private StateManager stateManager;
     private final MoveValidator moveValidator;
     private ChessView view;
     private int selectedSquare = -1;
     private Move pendingPromotionMove;
 
-    public ChessController(BoardState boardState) {
-        this.boardState = boardState;
+    public ChessController() {
+        this.boardState = new BoardState();
         this.stateManager = new StateManager(boardState);
         this.moveValidator = new CompositeMoveValidator();
     }
@@ -172,6 +169,21 @@ public class ChessController {
 
     public String getCurrentFEN() {
         return FenService.generateFEN(boardState);
+    }
+
+    public void loadFEN(String fen) {
+        try {
+            BoardState newState = FenService.parseFEN(fen);
+            resetState(newState);
+            view.refreshEntireBoard();
+        } catch (IllegalArgumentException e) {
+            view.showError("Invalid FEN: " + e.getMessage());
+        }
+    }
+
+    private void resetState(BoardState newState) {
+        this.boardState = newState;
+        this.stateManager = new StateManager(newState);
     }
 
 }
