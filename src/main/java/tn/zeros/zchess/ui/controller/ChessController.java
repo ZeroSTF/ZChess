@@ -1,10 +1,15 @@
 package tn.zeros.zchess.ui.controller;
 
-import tn.zeros.zchess.core.logic.validation.*;
+import tn.zeros.zchess.core.logic.validation.CompositeMoveValidator;
+import tn.zeros.zchess.core.logic.validation.MoveValidator;
+import tn.zeros.zchess.core.logic.validation.ValidationResult;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
-import tn.zeros.zchess.core.service.*;
+import tn.zeros.zchess.core.service.FenService;
+import tn.zeros.zchess.core.service.MoveExecutor;
+import tn.zeros.zchess.core.service.StateManager;
+import tn.zeros.zchess.core.service.ThreatDetectionService;
 import tn.zeros.zchess.ui.util.SoundManager;
 import tn.zeros.zchess.ui.view.ChessBoardView;
 import tn.zeros.zchess.ui.view.ChessView;
@@ -13,9 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChessController {
+    private final MoveValidator moveValidator;
     private BoardState boardState;
     private StateManager stateManager;
-    private final MoveValidator moveValidator;
     private ChessView view;
     private int selectedSquare = -1;
     private Move pendingPromotionMove;
@@ -61,7 +66,7 @@ public class ChessController {
             } else {
                 commitMove(move);
             }
-        }  else {
+        } else {
             view.showError(result.getMessage());
         }
 
@@ -122,8 +127,8 @@ public class ChessController {
     }
 
     private void commitMove(Move move) {
-        stateManager.saveState();
-        MoveExecutor.executeMove(boardState, move);
+        stateManager.saveState(move);
+        MoveExecutor.makeMove(boardState, move);
         boardState.setWhiteToMove(!boardState.isWhiteToMove());
         view.updateBoard(move);
         playMoveSound(move);
@@ -139,7 +144,7 @@ public class ChessController {
             SoundManager.playCastle();
         } else if (move.isPromotion()) {
             SoundManager.playPromotion();
-        } else if (move.capturedPiece() != Piece.NONE){
+        } else if (move.capturedPiece() != Piece.NONE) {
             SoundManager.playCapture();
         } else {
             SoundManager.playMove();

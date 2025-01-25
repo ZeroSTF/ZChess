@@ -5,8 +5,8 @@ import tn.zeros.zchess.core.logic.validation.CompositeMoveValidator;
 import tn.zeros.zchess.core.logic.validation.MoveValidator;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
+import tn.zeros.zchess.core.model.MoveUndoInfo;
 import tn.zeros.zchess.core.model.Piece;
-import tn.zeros.zchess.core.service.BoardStateCloner;
 import tn.zeros.zchess.core.service.FenService;
 import tn.zeros.zchess.core.service.MoveExecutor;
 
@@ -53,10 +53,9 @@ public class PerftTest {
         List<Move> moves = generateAllMoves(state);
 
         for (Move move : moves) {
-            BoardState cloned = BoardStateCloner.clone(state);
-            MoveExecutor.executeMove(cloned, move);
-            cloned.setWhiteToMove(!cloned.isWhiteToMove());
-            nodes += perft(cloned, depth - 1);
+            MoveUndoInfo undoInfo = MoveExecutor.makeMove(state, move);
+            nodes += perft(state, depth - 1);
+            MoveExecutor.unmakeMove(state, undoInfo);
         }
         return nodes;
     }
@@ -84,16 +83,15 @@ public class PerftTest {
         List<Move> moves = generateAllMoves(state);
 
         for (Move move : moves) {
-            BoardState cloned = BoardStateCloner.clone(state);
-            MoveExecutor.executeMove(cloned, move);
-            cloned.setWhiteToMove(!cloned.isWhiteToMove());
-
-            long nodes = perft(cloned, currentDepth - 1);
+            MoveUndoInfo undoInfo = MoveExecutor.makeMove(state, move);
+            state.setWhiteToMove(!state.isWhiteToMove());
+            long nodes = perft(state, currentDepth - 1);
             total += nodes;
 
             if (currentDepth == maxDepth) {
                 System.out.printf("%-6s %,d%n", moveToUCI(move), nodes);
             }
+            MoveExecutor.unmakeMove(state, undoInfo);
         }
         return total;
     }

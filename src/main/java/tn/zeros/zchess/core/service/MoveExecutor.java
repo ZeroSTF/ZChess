@@ -2,26 +2,37 @@ package tn.zeros.zchess.core.service;
 
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
+import tn.zeros.zchess.core.model.MoveUndoInfo;
 import tn.zeros.zchess.core.model.Piece;
 
 public class MoveExecutor {
-    public static void executeMove(BoardState state, Move move) {
-        handleSpecialMoves(state, move);
-        updateGameState(state, move);
-    }
+    public static MoveUndoInfo makeMove(BoardState state, Move move) {
+        // Save pre-move state
+        MoveUndoInfo undoInfo = new MoveUndoInfo(
+                move,
+                state.getCastlingRights(),
+                state.getEnPassantSquare(),
+                state.getHalfMoveClock()
+        );
 
-    private static void handleSpecialMoves(BoardState state, Move move) {
-        if (move.isEnPassant()) {
-            executeEnPassant(state, move);
-        } else if (move.isCastling()) {
+        // Handle special moves
+        if (move.isCastling()) {
             executeCastling(state, move);
+        } else if (move.isEnPassant()) {
+            executeEnPassant(state, move);
         } else {
             executeRegularMove(state, move);
         }
 
+        // Handle promotion
         if (move.isPromotion()) {
             executePromotion(state, move);
         }
+
+        // Update game state
+        updateGameState(state, move);
+
+        return undoInfo;
     }
 
     private static void executeRegularMove(BoardState state, Move move) {
@@ -59,10 +70,11 @@ public class MoveExecutor {
         updateEnPassant(state, move);
         CastlingService.updateCastlingRights(state, move.piece(), move.fromSquare());
         updateMoveClocks(state, move);
+        state.setWhiteToMove(!state.isWhiteToMove());
     }
 
     private static void updateEnPassant(BoardState state, Move move) {
-        if (move.piece().isPawn() && Math.abs(move.toSquare()/8 - move.fromSquare()/8) == 2) {
+        if (move.piece().isPawn() && Math.abs(move.toSquare() / 8 - move.fromSquare() / 8) == 2) {
             int epSquare = move.fromSquare() + (move.piece().isWhite() ? 8 : -8);
             state.setEnPassantSquare(epSquare);
         } else {
@@ -79,6 +91,75 @@ public class MoveExecutor {
 
         if (!move.piece().isWhite()) {
             state.setFullMoveNumber(state.getFullMoveNumber() + 1);
+        }
+    }
+
+    public static void unmakeMove(BoardState state, MoveUndoInfo undoInfo) {
+        Move move = undoInfo.move();
+
+        // Restore game state
+        state.setCastlingRights(undoInfo.previousCastlingRights());
+        state.setEnPassantSquare(undoInfo.previousEnPassantSquare());
+        state.setHalfMoveClock(undoInfo.previousHalfMoveClock());
+        state.setWhiteToMove(!state.isWhiteToMove());
+
+        // Reverse special moves
+        if (move.isCastling()) {
+            unmakeCastling(state, move);
+        } else if (move.isEnPassant()) {
+            unmakeEnPassant(state, move);
+        } else if (move.isPromotion()) {
+            unmakePromotion(state, move);
+        } else {
+            unmakeRegularMove(state, move);
+        }
+    }
+
+    private static void unmakeRegularMove(BoardState state, Move move) {
+        // Move piece back
+        state.movePiece(move.toSquare(), move.fromSquare(), move.piece());
+
+        // Restore captured piece
+        if (move.capturedPiece() != Piece.NONE) {
+            state.addPiece(move.toSquare(), move.capturedPiece());
+        }
+    }
+
+    private static void unmakeEnPassant(BoardState state, Move move) {
+        int capturedSquare = move.toSquare() + (move.piece().isWhite() ? -8 : 8);
+
+        // Move pawn back
+        state.movePiece(move.toSquare(), move.fromSquare(), move.piece());
+
+        // Restore captured pawn
+        state.addPiece(capturedSquare, move.capturedPiece());
+    }
+
+    private static void unmakeCastling(BoardState state, Move move) {
+        int from = move.fromSquare();
+        int to = move.toSquare();
+        boolean kingside = (to % 8) > (from % 8);
+
+        // Move king back
+        state.movePiece(to, from, move.piece());
+
+        // Move rook back (calculate from move data)
+        int rookFrom = kingside ? from + 3 : from - 4;
+        int rookTo = kingside ? to - 1 : to + 1;
+        Piece rook = move.piece().isWhite() ? Piece.WHITE_ROOK : Piece.BLACK_ROOK;
+        state.movePiece(rookTo, rookFrom, rook);
+    }
+
+    private static void unmakePromotion(BoardState state, Move move) {
+        // Remove promoted piece
+        state.removePiece(move.toSquare(), move.promotionPiece());
+
+        // Restore pawn
+        state.addPiece(move.fromSquare(), move.piece());
+
+        // Restore captured piece if any
+        if (move.capturedPiece() != Piece.NONE) {
+            state.addPiece(move.toSquare(), move.capturedPiece());
         }
     }
 }

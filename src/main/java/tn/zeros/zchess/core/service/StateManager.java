@@ -1,61 +1,43 @@
 package tn.zeros.zchess.core.service;
 
 import tn.zeros.zchess.core.model.BoardState;
-import tn.zeros.zchess.core.model.GameState;
+import tn.zeros.zchess.core.model.Move;
+import tn.zeros.zchess.core.model.MoveUndoInfo;
 
 import java.util.Stack;
 
 public class StateManager {
     private final BoardState boardState;
-    private final Stack<GameState> undoStack = new Stack<>();
-    private final Stack<GameState> redoStack = new Stack<>();
+    private final Stack<MoveUndoInfo> undoStack = new Stack<>();
+    private final Stack<MoveUndoInfo> redoStack = new Stack<>();
 
     public StateManager(BoardState boardState) {
         this.boardState = boardState;
     }
 
-    public void saveState() {
-        GameState state = new GameState(
-                boardState.getPieceBitboards().clone(),
-                boardState.getColorBitboards().clone(),
-                boardState.getCastlingRights(),
-                boardState.getEnPassantSquare(),
-                boardState.getHalfMoveClock(),
-                boardState.getFullMoveNumber(),
-                boardState.isWhiteToMove()
-        );
-        undoStack.push(state);
+    public void saveState(Move move) {
+        MoveUndoInfo undoInfo = MoveExecutor.makeMove(boardState, move);
+        undoStack.push(undoInfo);
     }
 
     public boolean undo() {
         if (undoStack.isEmpty()) return false;
 
-        GameState current = new GameState(
-                boardState.getPieceBitboards().clone(),
-                boardState.getColorBitboards().clone(),
-                boardState.getCastlingRights(),
-                boardState.getEnPassantSquare(),
-                boardState.getHalfMoveClock(),
-                boardState.getFullMoveNumber(),
-                boardState.isWhiteToMove()
-        );
-        redoStack.push(current);
-
-        GameState previous = undoStack.pop();
-        previous.restore(boardState);
+        MoveUndoInfo undoInfo = undoStack.pop();
+        MoveExecutor.unmakeMove(boardState, undoInfo);
+        redoStack.push(undoInfo);
         return true;
     }
 
     public boolean redo() {
         if (redoStack.isEmpty()) return false;
 
-        GameState future = redoStack.pop();
-        saveState();
-        future.restore(boardState);
+        MoveUndoInfo redoInfo = redoStack.pop();
+        saveState(redoInfo.move());
         return true;
     }
 
-    public void clearRedo(){
+    public void clearRedo() {
         redoStack.clear();
     }
 }
