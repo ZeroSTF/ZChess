@@ -11,6 +11,24 @@ public enum Piece {
         this.symbol = symbol;
     }
 
+    public static Piece fromSymbol(char symbol) {
+        return switch (symbol) {
+            case 'P' -> WHITE_PAWN;
+            case 'N' -> WHITE_KNIGHT;
+            case 'B' -> WHITE_BISHOP;
+            case 'R' -> WHITE_ROOK;
+            case 'Q' -> WHITE_QUEEN;
+            case 'K' -> WHITE_KING;
+            case 'p' -> BLACK_PAWN;
+            case 'n' -> BLACK_KNIGHT;
+            case 'b' -> BLACK_BISHOP;
+            case 'r' -> BLACK_ROOK;
+            case 'q' -> BLACK_QUEEN;
+            case 'k' -> BLACK_KING;
+            default -> NONE;
+        };
+    }
+
     public char getSymbol() {
         return symbol;
     }

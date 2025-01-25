@@ -71,4 +71,79 @@ public class FenService {
         int rank = (square / 8) + 1;
         return "" + file + rank;
     }
+
+    public static BoardState parseFEN(String fen) {
+        BoardState state = new BoardState();
+        clearBoard(state);
+
+        String[] parts = fen.split(" ");
+        if (parts.length < 6) throw new IllegalArgumentException("Invalid FEN");
+
+        parsePiecePlacement(state, parts[0]);
+        parseActiveColor(state, parts[1]);
+        parseCastlingRights(state, parts[2]);
+        parseEnPassant(state, parts[3]);
+        parseMoveClocks(state, parts[4], parts[5]);
+
+        return state;
+    }
+
+    private static void clearBoard(BoardState state) {
+        for (int i = 0; i < 64; i++) {
+            Piece piece = state.getPieceAt(i);
+            if (piece != Piece.NONE) {
+                state.removePiece(i, piece);
+            }
+        }
+    }
+
+    private static void parsePiecePlacement(BoardState state, String placement) {
+        String[] ranks = placement.split("/");
+        for (int rank = 7; rank >= 0; rank--) {
+            int file = 0;
+            for (char c : ranks[7 - rank].toCharArray()) {
+                if (Character.isDigit(c)) {
+                    file += Character.getNumericValue(c);
+                } else {
+                    Piece piece = Piece.fromSymbol(c);
+                    state.addPiece(rank * 8 + file, piece);
+                    file++;
+                }
+            }
+        }
+    }
+
+    private static void parseActiveColor(BoardState state, String color) {
+        state.setWhiteToMove(color.equals("w"));
+    }
+
+    private static void parseCastlingRights(BoardState state, String rights) {
+        int castling = 0;
+        if (!rights.equals("-")) {
+            for (char c : rights.toCharArray()) {
+                switch (c) {
+                    case 'K': castling |= ChessConstants.WHITE_KINGSIDE; break;
+                    case 'Q': castling |= ChessConstants.WHITE_QUEENSIDE; break;
+                    case 'k': castling |= ChessConstants.BLACK_KINGSIDE; break;
+                    case 'q': castling |= ChessConstants.BLACK_QUEENSIDE; break;
+                }
+            }
+        }
+        state.setCastlingRights(castling);
+    }
+
+    private static void parseEnPassant(BoardState state, String ep) {
+        if (ep.equals("-")) {
+            state.setEnPassantSquare(-1);
+        } else {
+            int file = ep.charAt(0) - 'a';
+            int rank = ep.charAt(1) - '1';
+            state.setEnPassantSquare(rank * 8 + file);
+        }
+    }
+
+    private static void parseMoveClocks(BoardState state, String halfMove, String fullMove) {
+        state.setHalfMoveClock(Integer.parseInt(halfMove));
+        state.setFullMoveNumber(Integer.parseInt(fullMove));
+    }
 }
