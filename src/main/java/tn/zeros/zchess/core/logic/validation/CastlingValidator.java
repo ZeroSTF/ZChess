@@ -33,7 +33,12 @@ public class CastlingValidator implements MoveValidator {
             return new ValidationResult(false, "Rook missing from castling position");
         }
 
-        // 3. Check squares between are empty
+        // 3. Check king is not in check
+        if (ThreatDetectionService.isSquareAttacked(state, from, !king.isWhite())) {
+            return new ValidationResult(false, "King would be in check");
+        }
+
+        // 4. Check squares between are empty
         current += direction;
         while (current != rookFrom) {
             if (state.getPieceAt(current) != Piece.NONE) {
@@ -42,18 +47,13 @@ public class CastlingValidator implements MoveValidator {
             current += direction;
         }
 
-        // 4. Check king doesn't move through check
+        // 5. Check king doesn't move through check
         current = from;
         for (int i = 0; i < 2; i++) {
             current += direction;
             if (ThreatDetectionService.isSquareAttacked(state, current, !king.isWhite())) {
                 return new ValidationResult(false, "King would move through check");
             }
-        }
-
-        // 5. Check if king is in check
-        if (ThreatDetectionService.isSquareAttacked(state, from, !king.isWhite())) {
-            return new ValidationResult(false, "King would be in check");
         }
 
         return ValidationResult.valid();
