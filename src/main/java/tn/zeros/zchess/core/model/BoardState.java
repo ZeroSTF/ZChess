@@ -5,6 +5,7 @@ import static tn.zeros.zchess.core.util.ChessConstants.*;
 public class BoardState {
     private final long[] pieceBitboards; // Indexed by piece type
     private final long[] colorBitboards; // Indexed by color
+    private final Piece[] pieceSquare = new Piece[64];
     private boolean whiteToMove;
     private int castlingRights;
     private int enPassantSquare;
@@ -62,21 +63,11 @@ public class BoardState {
         int square = rank * 8 + file;
         pieceBitboards[pieceType] |= 1L << square;
         colorBitboards[color] |= 1L << square;
+        pieceSquare[square] = Piece.values()[color * 6 + pieceType];
     }
 
     public Piece getPieceAt(int square) {
-        long squareMask = 1L << square;
-
-        for (int color = WHITE; color <= BLACK; color++) {
-            if ((colorBitboards[color] & squareMask) != 0) { // If the square is occupied by the current color
-                for (int pieceType = PAWN; pieceType <= KING; pieceType++) {
-                    if ((pieceBitboards[pieceType] & squareMask) != 0) {
-                        return Piece.values()[color * 6 + pieceType];
-                    }
-                }
-            }
-        }
-        return Piece.NONE;
+        return pieceSquare[square] != null ? pieceSquare[square] : Piece.NONE;
     }
 
     public long getAllPieces() {
@@ -152,15 +143,20 @@ public class BoardState {
         mask = 1L << to;
         pieceBitboards[type] |= mask;
         colorBitboards[color] |= mask;
+
+        pieceSquare[from] = Piece.NONE;
+        pieceSquare[to] = piece;
     }
 
     public void removePiece(int square, Piece piece) {
-        if (piece == Piece.NONE) return;
+        if (piece == Piece.NONE || piece == null) return;
         int type = piece.ordinal() % 6;
         int color = piece.isWhite() ? WHITE : BLACK;
         long mask = ~(1L << square);
         pieceBitboards[type] &= mask;
         colorBitboards[color] &= mask;
+
+        pieceSquare[square] = Piece.NONE;
     }
 
     public void addPiece(int square, Piece piece) {
@@ -168,6 +164,8 @@ public class BoardState {
         int color = piece.isWhite() ? WHITE : BLACK;
         pieceBitboards[type] |= 1L << square;
         colorBitboards[color] |= 1L << square;
+
+        pieceSquare[square] = piece;
     }
 
 }
