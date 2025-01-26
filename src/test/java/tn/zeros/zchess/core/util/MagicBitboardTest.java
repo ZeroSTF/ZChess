@@ -16,7 +16,7 @@ public class MagicBitboardTest {
         testBishopAttacks(63, 1L << 54 | 1L << 45); // h8 with diagonal blockers
 
         // Pawns
-        testPawnAttacks(12, 0L);              // e2, no blockers
+        testPawnAttacks(12, 1L << 28);              // e2 with e4 blocker
         testPawnAttacks(63, 1L << 55 | 1L << 62); // h8 with edge blockers
         testPawnAttacks(28, 1L << 20 | 1L << 27); // e4 with central blockers
     }
