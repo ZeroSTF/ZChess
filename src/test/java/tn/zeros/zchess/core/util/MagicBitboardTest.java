@@ -15,10 +15,8 @@ public class MagicBitboardTest {
         testBishopAttacks(0, 1L << 9 | 1L << 18);   // a1 with diagonal blockers
         testBishopAttacks(63, 1L << 54 | 1L << 45); // h8 with diagonal blockers
 
-        // Pawns
-        testPawnAttacks(12, 1L << 28);              // e2 with e4 blocker
-        testPawnAttacks(63, 1L << 55 | 1L << 62); // h8 with edge blockers
-        testPawnAttacks(28, 1L << 20 | 1L << 27); // e4 with central blockers
+        // Knights
+        
     }
 
     private void testRookAttacks(int square, long blockers) {
@@ -35,14 +33,6 @@ public class MagicBitboardTest {
         ChessConstants.printBitboard(blockers);
         System.out.println("Generated attacks:");
         ChessConstants.printBitboard(PrecomputedMoves.getMagicBishopAttack(square, blockers));
-    }
-
-    private void testPawnAttacks(int square, long blockers) {
-        System.out.println("Pawn at " + squareName(square));
-        System.out.println("Blockers:");
-        ChessConstants.printBitboard(blockers);
-        System.out.println("Generated attacks:");
-        ChessConstants.printBitboard(PrecomputedMoves.getPawnMoves(square, blockers, true));
     }
 
     public String squareName(int square) {

@@ -26,6 +26,16 @@ public class PrecomputedMoves {
         initializePawnMoves();
     }
 
+    public static long getKnightMoves(int square, long friendlyBlockers) {
+        long possibleMoves = KNIGHT_MOVES[square];
+        return possibleMoves & ~friendlyBlockers;
+    }
+
+    public static long getKingMoves(int square, long friendlyBlockers) {
+        long possibleMoves = KING_MOVES[square];
+        return possibleMoves & ~friendlyBlockers;
+    }
+
     public static long getMagicRookAttack(int square, long blockers) {
         long mask = PrecomputedMoves.ROOK_MASKS[square];
         long magic = ChessConstants.ROOK_MAGICS[square];
@@ -42,31 +52,29 @@ public class PrecomputedMoves {
         return PrecomputedMoves.BISHOP_ATTACKS[square][index];
     }
 
-    public static long getPawnMoves(int square, long blockers, boolean isWhite) {
-        long possibleMoves = isWhite ? WHITE_PAWN_MOVES[square] : BLACK_PAWN_MOVES[square];
-        long validMoves = 0;
+    public static long getPawnMoves(int square, long blockers, long enemyPieces, boolean isWhite) {
+        long pushes = isWhite ? WHITE_PAWN_MOVES[square] : BLACK_PAWN_MOVES[square];
+        long validPushes = 0;
 
+        // Calculate valid pushes (existing code)
         int singleStepOffset = isWhite ? 8 : -8;
-        long singleStepBit = isWhite ? (1L << (square + 8)) : (1L << (square - 8));
-        long doubleStepBit = isWhite ? (1L << (square + 16)) : (1L << (square - 16));
-
-        // Check single step
-        if ((possibleMoves & singleStepBit) != 0) {
-            if ((blockers & singleStepBit) == 0) {
-                validMoves |= singleStepBit;
-
-                // Check double step if applicable
-                if ((possibleMoves & doubleStepBit) != 0) {
-                    int intermediateSquare = square + singleStepOffset;
-                    long intermediateBit = 1L << intermediateSquare;
-                    if ((blockers & doubleStepBit) == 0 && (blockers & intermediateBit) == 0) {
-                        validMoves |= doubleStepBit;
-                    }
+        long singleStepBit = 1L << (square + singleStepOffset);
+        if ((blockers & singleStepBit) == 0) {
+            validPushes |= singleStepBit;
+            // Check double step if applicable
+            if ((pushes & (1L << (square + 2 * singleStepOffset))) != 0) {
+                long intermediateBit = 1L << (square + singleStepOffset);
+                if ((blockers & (1L << (square + 2 * singleStepOffset))) == 0 && (blockers & intermediateBit) == 0) {
+                    validPushes |= 1L << (square + 2 * singleStepOffset);
                 }
             }
         }
 
-        return validMoves;
+        // Calculate valid captures
+        long attacks = isWhite ? WHITE_PAWN_ATTACKS[square] : BLACK_PAWN_ATTACKS[square];
+        long validCaptures = attacks & enemyPieces; // Only squares with enemy pieces
+
+        return validPushes | validCaptures;
     }
 
     private static void initializeMagicBitboards() {
@@ -85,15 +93,26 @@ public class PrecomputedMoves {
     }
 
     private static void initializeKnightMoves() {
-        int[] knightOffsets = {6, 10, 15, 17, -6, -10, -15, -17};
+        // All possible knight offsets (relative to a1)
+        final int[][] knightOffsets = {
+                {1, 2}, {2, 1}, {2, -1}, {1, -2},
+                {-1, -2}, {-2, -1}, {-2, 1}, {-1, 2}
+        };
+
         for (int square = 0; square < 64; square++) {
-            for (int offset : knightOffsets) {
-                int targetSquare = square + offset;
-                if (isWithinBounds(targetSquare) &&
-                        Math.abs((targetSquare % 8) - (square % 8)) + Math.abs((targetSquare / 8) - (square / 8)) == 3) {
-                    KNIGHT_MOVES[square] |= 1L << targetSquare;
+            int file = square % 8;
+            int rank = square / 8;
+            long moves = 0L;
+            for (int[] offset : knightOffsets) {
+                int newFile = file + offset[0];
+                int newRank = rank + offset[1];
+
+                // Check if new position is within board bounds
+                if (newFile >= 0 && newFile < 8 && newRank >= 0 && newRank < 8) {
+                    moves |= 1L << (newRank * 8 + newFile);
                 }
             }
+            KNIGHT_MOVES[square] = moves;
         }
     }
 
