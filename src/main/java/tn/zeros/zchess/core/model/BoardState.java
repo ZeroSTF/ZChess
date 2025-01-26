@@ -114,14 +114,6 @@ public class BoardState {
         this.whiteToMove = whiteToMove;
     }
 
-    public long[] getPieceBitboards() {
-        return pieceBitboards;
-    }
-
-    public long[] getColorBitboards() {
-        return colorBitboards;
-    }
-
     public long getPieceBitboard(int pieceType) {
         return pieceBitboards[pieceType];
     }
