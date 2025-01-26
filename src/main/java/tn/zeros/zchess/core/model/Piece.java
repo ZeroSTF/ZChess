@@ -50,4 +50,16 @@ public enum Piece {
     public boolean isKing() {
         return this == WHITE_KING || this == BLACK_KING;
     }
+
+    public boolean isKnight() {
+        return this == WHITE_KNIGHT || this == BLACK_KNIGHT;
+    }
+
+    public boolean isBishop() {
+        return this == WHITE_BISHOP || this == BLACK_BISHOP;
+    }
+
+    public boolean isQueen() {
+        return this == WHITE_QUEEN || this == BLACK_QUEEN;
+    }
 }

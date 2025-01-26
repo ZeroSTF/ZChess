@@ -53,7 +53,7 @@ public class BoardState {
         fullMoveNumber = 1;
     }
 
-    private void setRank(int pieceType, int color, int rank) {
+    public void setRank(int pieceType, int color, int rank) {
         for (int file = 0; file < 8; file++) {
             setPiece(pieceType, color, file, rank);
         }
@@ -84,6 +84,10 @@ public class BoardState {
 
     public long getPiecesOfType(int pieceType) {
         return pieceBitboards[pieceType];
+    }
+
+    public long getPieces(int pieceType, int color) {
+        return pieceBitboards[pieceType] & colorBitboards[color];
     }
 
     public int getCastlingRights() {
