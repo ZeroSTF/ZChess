@@ -77,6 +77,10 @@ public class PrecomputedMoves {
         return validPushes | validCaptures;
     }
 
+    public static long getPawnAttacks(int square, boolean isWhite) {
+        return isWhite ? WHITE_PAWN_ATTACKS[square] : BLACK_PAWN_ATTACKS[square];
+    }
+
     private static void initializeMagicBitboards() {
         // Initialize masks and shifts
         for (int square = 0; square < 64; square++) {

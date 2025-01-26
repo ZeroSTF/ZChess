@@ -11,7 +11,7 @@ import static tn.zeros.zchess.core.util.ChessConstants.*;
 public abstract class MoveGenerator {
     public static List<Move> generateAllMoves(BoardState state) {
         List<Move> pseudoLegal = generatePseudoLegalMoves(state);
-        return filterLegalMoves(state, pseudoLegal);
+        return LegalMoveFilter.filterLegalMoves(state, pseudoLegal);
     }
 
     private static List<Move> generatePseudoLegalMoves(BoardState state) {

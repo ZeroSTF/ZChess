@@ -54,14 +54,22 @@ public class KingMoveGenerator {
         int castlingRights = state.getCastlingRights();
         long allPieces = state.getAllPieces();
 
+        // Check if king is currently in check
+        if (LegalMoveFilter.isSquareAttacked(state, from, !isWhite)) {
+            return;
+        }
+
         // Kingside castling
         if ((castlingRights & (isWhite ? ChessConstants.WHITE_KINGSIDE : ChessConstants.BLACK_KINGSIDE)) != 0) {
             long kingsideMask = isWhite ? 0x60L : 0x6000000000000000L;
             if ((allPieces & kingsideMask) == 0) {
-                moves.add(new Move(
-                        from, from + 2, state.getPieceAt(from), Piece.NONE,
-                        false, true, false, Piece.NONE
-                ));
+                int intermediateSquare = from + 1;
+                if (!LegalMoveFilter.isSquareAttacked(state, intermediateSquare, !isWhite)) {
+                    moves.add(new Move(
+                            from, from + 2, state.getPieceAt(from), Piece.NONE,
+                            false, true, false, Piece.NONE
+                    ));
+                }
             }
         }
 
@@ -69,10 +77,13 @@ public class KingMoveGenerator {
         if ((castlingRights & (isWhite ? ChessConstants.WHITE_QUEENSIDE : ChessConstants.BLACK_QUEENSIDE)) != 0) {
             long queensideMask = isWhite ? 0xEL : 0xE00000000000000L;
             if ((allPieces & queensideMask) == 0) {
-                moves.add(new Move(
-                        from, from - 2, state.getPieceAt(from), Piece.NONE,
-                        false, true, false, Piece.NONE
-                ));
+                int intermediateSquare = from - 1;
+                if (!LegalMoveFilter.isSquareAttacked(state, intermediateSquare, !isWhite)) {
+                    moves.add(new Move(
+                            from, from - 2, state.getPieceAt(from), Piece.NONE,
+                            false, true, false, Piece.NONE
+                    ));
+                }
             }
         }
     }
