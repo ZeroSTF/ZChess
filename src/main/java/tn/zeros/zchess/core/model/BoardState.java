@@ -160,4 +160,7 @@ public class BoardState {
         pieceSquare[square] = piece;
     }
 
+    public int getKingSquare(boolean white) {
+        return Long.numberOfTrailingZeros(getColorBitboard(white ? WHITE : BLACK) & getPieceBitboard(KING));
+    }
 }

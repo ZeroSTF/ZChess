@@ -52,13 +52,8 @@ public class ThreatDetectionService {
     }
 
     public static boolean isInCheck(BoardState state, boolean whiteKing) {
-        int kingSquare = findKingSquare(state, whiteKing);
+        int kingSquare = state.getKingSquare(whiteKing);
         return isSquareAttacked(state, kingSquare, !whiteKing);
-    }
-
-    private static int findKingSquare(BoardState state, boolean white) {
-        long kings = state.getPieceBitboard(KING) & state.getColorBitboard(white ? WHITE : BLACK);
-        return Long.numberOfTrailingZeros(kings);
     }
 
 }

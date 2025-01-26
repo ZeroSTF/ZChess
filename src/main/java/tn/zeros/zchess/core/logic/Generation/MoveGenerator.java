@@ -5,6 +5,7 @@ import tn.zeros.zchess.core.logic.validation.MoveValidator;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
+import tn.zeros.zchess.core.util.ChessConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,17 +14,19 @@ public class MoveGenerator {
     private static final MoveValidator validator = new CompositeMoveValidator();
 
     public static List<Move> generateAllMoves(BoardState state) {
-        List<Move> moves = new ArrayList<>();
-        for (int from = 0; from < 64; from++) {
-            generateMovesForSquare(state, from, moves);
+        List<Move> moves = new ArrayList<>(128);
+        long ourPieces = state.getColorBitboard(state.isWhiteToMove() ? ChessConstants.WHITE : ChessConstants.BLACK);
+
+        while (ourPieces != 0) {
+            int from = Long.numberOfTrailingZeros(ourPieces);
+            Piece piece = state.getPieceAt(from);
+            generateMovesForPiece(state, from, piece, moves);
+            ourPieces ^= 1L << from;
         }
         return moves;
     }
 
-    private static void generateMovesForSquare(BoardState state, int from, List<Move> moves) {
-        Piece piece = state.getPieceAt(from);
-        if (piece == Piece.NONE || piece.isWhite() != state.isWhiteToMove()) return;
-
+    private static void generateMovesForPiece(BoardState state, int from, Piece piece, List<Move> moves) {
         for (int to = 0; to < 64; to++) {
             if (from == to) continue;
 

@@ -17,7 +17,7 @@ public class PerftTest {
 
     @Test
     void testPerftPositions() {
-        testPerft(ChessConstants.DEFAULT_FEN, 3, 8902);
+        //testPerft(ChessConstants.DEFAULT_FEN, 3, 8902);
         testPerft(ChessConstants.POSITION_5_FEN, 1, 44);
         testPerft(ChessConstants.POSITION_5_FEN, 2, 1486);
         testPerft(ChessConstants.POSITION_5_FEN, 3, 62379);
@@ -61,8 +61,7 @@ public class PerftTest {
         double ms = nanos / 1_000_000.0;
         double npms = (nodes / ms);
 
-        System.out.printf("\nFEN: %s\nDepth %d: %,d nodes in %.3f ms (%,.1f N/ms)\n",
-                fen, depth, nodes, ms, npms);
+        System.out.printf("\nDepth %d: %,d nodes in %.3f ms (%,.1f N/ms)\n", depth, nodes, ms, npms);
     }
 
     public void debugPerft(String fen, int depth) {

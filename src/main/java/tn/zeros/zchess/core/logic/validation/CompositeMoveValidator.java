@@ -9,8 +9,8 @@ import java.util.List;
 public class CompositeMoveValidator implements MoveValidator {
     private final List<MoveValidator> validators = Arrays.asList(
             new BasicPreconditionsValidator(),
-            new CastlingValidator(),
             new PieceSpecificValidator(),
+            new CastlingValidator(),
             new KingSafetyValidator()
     );
 
