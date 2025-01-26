@@ -130,10 +130,6 @@ public class BoardState {
         return pieceBitboards[pieceType];
     }
 
-    public long getColorBitboard(int color) {
-        return colorBitboards[color];
-    }
-
     public void movePiece(int from, int to, Piece piece) {
         int type = piece.ordinal() % 6;
         int color = piece.isWhite() ? WHITE : BLACK;
@@ -173,6 +169,6 @@ public class BoardState {
     }
 
     public int getKingSquare(boolean white) {
-        return Long.numberOfTrailingZeros(getColorBitboard(white ? WHITE : BLACK) & getPieceBitboard(KING));
+        return Long.numberOfTrailingZeros(getFriendlyPieces(white) & getPieceBitboard(KING));
     }
 }

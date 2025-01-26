@@ -5,7 +5,6 @@ import tn.zeros.zchess.core.logic.validation.MoveValidator;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
-import tn.zeros.zchess.core.util.ChessConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +14,7 @@ public class MoveGenerator {
 
     public static List<Move> generateAllMoves(BoardState state) {
         List<Move> moves = new ArrayList<>(128);
-        long ourPieces = state.getColorBitboard(state.isWhiteToMove() ? ChessConstants.WHITE : ChessConstants.BLACK);
+        long ourPieces = state.getFriendlyPieces(state.isWhiteToMove());
 
         while (ourPieces != 0) {
             int from = Long.numberOfTrailingZeros(ourPieces);

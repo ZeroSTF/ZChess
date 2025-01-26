@@ -9,7 +9,7 @@ public class ThreatDetectionService {
 
     public static boolean isSquareAttacked(BoardState state, int square, boolean byWhite) {
         int attackerColor = byWhite ? WHITE : BLACK;
-        long attackers = state.getColorBitboard(attackerColor);
+        long attackers = state.getFriendlyPieces(byWhite);
 
         // Pawn attacks
         long pawns = state.getPieceBitboard(PAWN) & attackers;
@@ -30,7 +30,8 @@ public class ThreatDetectionService {
     }
 
     private static boolean checkSliderAttacks(BoardState state, int square, int attackerColor, int pieceType, int queenType, int[] directions) {
-        long sliders = (state.getPieceBitboard(pieceType) | state.getPieceBitboard(queenType)) & state.getColorBitboard(attackerColor);
+        boolean isWhite = attackerColor == WHITE;
+        long sliders = (state.getPieceBitboard(pieceType) | state.getPieceBitboard(queenType)) & state.getFriendlyPieces(isWhite);
         long occupied = state.getAllPieces();
 
         for (int dir : directions) {

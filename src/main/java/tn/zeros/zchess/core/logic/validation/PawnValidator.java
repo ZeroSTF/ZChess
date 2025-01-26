@@ -3,7 +3,6 @@ package tn.zeros.zchess.core.logic.validation;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
-import tn.zeros.zchess.core.util.ChessConstants;
 import tn.zeros.zchess.core.util.PrecomputedMoves;
 
 public class PawnValidator implements MoveValidator {
@@ -17,7 +16,7 @@ public class PawnValidator implements MoveValidator {
             return ValidationResult.valid();
         }
 
-        long enemyPieces = state.getColorBitboard(pawn.isWhite() ? ChessConstants.BLACK : ChessConstants.WHITE);
+        long enemyPieces = state.getEnemyPieces(pawn.isWhite());
         if (to == state.getEnPassantSquare()) enemyPieces |= 1L << state.getEnPassantSquare();
         long precomputed = PrecomputedMoves.getPawnMoves(from, state.getAllPieces(), enemyPieces, pawn.isWhite());
         if ((precomputed & (1L << to)) != 0) {
