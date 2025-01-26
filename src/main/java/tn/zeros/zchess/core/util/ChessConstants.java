@@ -27,6 +27,7 @@ public class ChessConstants {
 
     // FEN Constants
     public static final String DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    public static final String POSITION_5_FEN = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8";
     public static final String FEN_DELIMITER = " ";
     public static final String FEN_WHITE_ACTIVE = "w";
     public static final String FEN_BLACK_ACTIVE = "b";
