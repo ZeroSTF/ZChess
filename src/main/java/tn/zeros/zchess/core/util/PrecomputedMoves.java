@@ -9,16 +9,41 @@ public class PrecomputedMoves {
     public static final long[] WHITE_PAWN_ATTACKS = new long[64];
     public static final long[] BLACK_PAWN_ATTACKS = new long[64];
 
+    // Magic Bitboard Data
+    public static final long[][] BISHOP_ATTACKS = new long[64][];
+    public static final long[][] ROOK_ATTACKS = new long[64][];
+
+    public static final int[] BISHOP_SHIFTS = new int[64];
+    public static final int[] ROOK_SHIFTS = new int[64];
+
+    public static final long[] BISHOP_MASKS = new long[64];
+    public static final long[] ROOK_MASKS = new long[64];
+
     static {
+        initializeMagicBitboards();
         initializeKnightMoves();
         initializeKingMoves();
         initializeSlidingPieces();
         initializePawnAttacks();
     }
 
+    private static void initializeMagicBitboards() {
+        // Initialize masks and shifts
+        for (int square = 0; square < 64; square++) {
+            BISHOP_MASKS[square] = calculateBishopMask(square);
+            ROOK_MASKS[square] = calculateRookMask(square);
+
+            BISHOP_SHIFTS[square] = 64 - Long.bitCount(BISHOP_MASKS[square]);
+            ROOK_SHIFTS[square] = 64 - Long.bitCount(ROOK_MASKS[square]);
+        }
+
+        // Initialize attack tables
+        initializeAttackTables(BISHOP_ATTACKS, ChessConstants.BISHOP_MAGICS, BISHOP_MASKS, BISHOP_SHIFTS, true);
+        initializeAttackTables(ROOK_ATTACKS, ChessConstants.ROOK_MAGICS, ROOK_MASKS, ROOK_SHIFTS, false);
+    }
+
     private static void initializeKnightMoves() {
         int[] knightOffsets = {6, 10, 15, 17, -6, -10, -15, -17};
-
         for (int square = 0; square < 64; square++) {
             for (int offset : knightOffsets) {
                 int targetSquare = square + offset;
@@ -105,5 +130,123 @@ public class PrecomputedMoves {
         int targetFile = targetSquare % 8;
 
         return Math.abs(currentFile - targetFile) <= 1 && Math.abs(currentRank - targetRank) <= 1;
+    }
+
+    // Mask calculation
+    private static long calculateBishopMask(int square) {
+        long attacks = 0L;
+        int r = square / 8;
+        int f = square % 8;
+
+        for (int i = 1; i < 7; i++) {
+            if (r + i < 7 && f + i < 7) attacks |= 1L << ((r + i) * 8 + (f + i));
+            if (r + i < 7 && f - i > 0) attacks |= 1L << ((r + i) * 8 + (f - i));
+            if (r - i > 0 && f + i < 7) attacks |= 1L << ((r - i) * 8 + (f + i));
+            if (r - i > 0 && f - i > 0) attacks |= 1L << ((r - i) * 8 + (f - i));
+        }
+        return attacks;
+    }
+
+    private static long calculateRookMask(int square) {
+        long attacks = 0L;
+        int r = square / 8;
+        int f = square % 8;
+
+        for (int i = r + 1; i < 7; i++) attacks |= 1L << (i * 8 + f); // Up
+        for (int i = r - 1; i > 0; i--) attacks |= 1L << (i * 8 + f); // Down
+        for (int i = f + 1; i < 7; i++) attacks |= 1L << (r * 8 + i); // Right
+        for (int i = f - 1; i > 0; i--) attacks |= 1L << (r * 8 + i); // Left
+
+        return attacks;
+    }
+
+    private static void initializeAttackTables(long[][] attackTable, long[] magics, long[] masks, int[] shifts, boolean isBishop) {
+        for (int square = 0; square < 64; square++) {
+            int numBits = Long.bitCount(masks[square]);
+            int size = 1 << (64 - shifts[square]);
+            attackTable[square] = new long[size];
+
+            long mask = masks[square];
+            long magic = magics[square];
+
+            long occ = 0L;
+            do {
+                // Calculate index
+                long index = (occ & mask) * magic;
+                index >>>= shifts[square];
+
+                // Generate attacks
+                attackTable[square][(int) index] = isBishop ?
+                        generateBishopAttacks(square, occ) :
+                        generateRookAttacks(square, occ);
+
+                // Next occupancy
+                occ = (occ - mask) & mask;
+            } while (occ != 0);
+        }
+    }
+
+    public static long generateBishopAttacks(int square, long occupancy) {
+        long attacks = 0L;
+        int r = square / 8;
+        int f = square % 8;
+
+        // Northeast
+        for (int nr = r + 1, nf = f + 1; nr < 8 && nf < 8; nr++, nf++) {
+            attacks |= 1L << (nr * 8 + nf);
+            if ((occupancy & (1L << (nr * 8 + nf))) != 0) break;
+        }
+
+        // Northwest
+        for (int nr = r + 1, nf = f - 1; nr < 8 && nf >= 0; nr++, nf--) {
+            attacks |= 1L << (nr * 8 + nf);
+            if ((occupancy & (1L << (nr * 8 + nf))) != 0) break;
+        }
+
+        // Southeast
+        for (int nr = r - 1, nf = f + 1; nr >= 0 && nf < 8; nr--, nf++) {
+            attacks |= 1L << (nr * 8 + nf);
+            if ((occupancy & (1L << (nr * 8 + nf))) != 0) break;
+        }
+
+        // Southwest
+        for (int nr = r - 1, nf = f - 1; nr >= 0 && nf >= 0; nr--, nf--) {
+            attacks |= 1L << (nr * 8 + nf);
+            if ((occupancy & (1L << (nr * 8 + nf))) != 0) break;
+        }
+
+        return attacks;
+    }
+
+    public static long generateRookAttacks(int square, long occupancy) {
+        long attacks = 0L;
+        int r = square / 8;
+        int f = square % 8;
+
+        // North
+        for (int nr = r + 1; nr < 8; nr++) {
+            attacks |= 1L << (nr * 8 + f);
+            if ((occupancy & (1L << (nr * 8 + f))) != 0) break;
+        }
+
+        // South
+        for (int nr = r - 1; nr >= 0; nr--) {
+            attacks |= 1L << (nr * 8 + f);
+            if ((occupancy & (1L << (nr * 8 + f))) != 0) break;
+        }
+
+        // East
+        for (int nf = f + 1; nf < 8; nf++) {
+            attacks |= 1L << (r * 8 + nf);
+            if ((occupancy & (1L << (r * 8 + nf))) != 0) break;
+        }
+
+        // West
+        for (int nf = f - 1; nf >= 0; nf--) {
+            attacks |= 1L << (r * 8 + nf);
+            if ((occupancy & (1L << (r * 8 + nf))) != 0) break;
+        }
+
+        return attacks;
     }
 }

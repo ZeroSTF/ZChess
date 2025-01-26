@@ -74,6 +74,18 @@ public class BoardState {
         return colorBitboards[WHITE] | colorBitboards[BLACK];
     }
 
+    public long getFriendlyPieces(boolean isWhite) {
+        return colorBitboards[isWhite ? WHITE : BLACK];
+    }
+
+    public long getEnemyPieces(boolean isWhite) {
+        return colorBitboards[isWhite ? BLACK : WHITE];
+    }
+
+    public long getPiecesOfType(int pieceType) {
+        return pieceBitboards[pieceType];
+    }
+
     public int getCastlingRights() {
         return castlingRights;
     }
