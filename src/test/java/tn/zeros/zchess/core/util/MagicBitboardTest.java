@@ -3,23 +3,17 @@ package tn.zeros.zchess.core.util;
 import org.junit.jupiter.api.Test;
 
 public class MagicBitboardTest {
-    public static long getBishopAttacks(int square, long occupancy) {
-        long masked = occupancy & PrecomputedMoves.BISHOP_MASKS[square];
-        long magic = ChessConstants.BISHOP_MAGICS[square];
-        int index = (int) ((masked * magic) >>> PrecomputedMoves.BISHOP_SHIFTS[square]);
-        return PrecomputedMoves.BISHOP_ATTACKS[square][index];
-    }
-
     @Test
     void testMagicBitboards() {
-        // Test rook on a1 (square 0) with no blockers
-        testRookAttacks(0, 0L);
+        // Rooks
+        testRookAttacks(0, 0L);              // a1, no blockers
+        testRookAttacks(63, 1L << 55 | 1L << 62); // h8 with edge blockers
+        testRookAttacks(28, 1L << 20 | 1L << 27); // e4 with central blockers
 
-        // Test bishop on e4 (square 28) with central blockers
-        testBishopAttacks(28, 1L << 35 | 1L << 19);
-
-        // Test edge case: rook on h8 (square 63) with edge blockers
-        testRookAttacks(63, 1L << 55 | 1L << 62);
+        // Bishops
+        testBishopAttacks(28, 1L << 35 | 1L << 19); // e4 with central blockers
+        testBishopAttacks(0, 1L << 9 | 1L << 18);   // a1 with diagonal blockers
+        testBishopAttacks(63, 1L << 54 | 1L << 45); // h8 with diagonal blockers
     }
 
     private void testRookAttacks(int square, long blockers) {
