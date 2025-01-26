@@ -1,13 +1,12 @@
 package tn.zeros.zchess.core.util;
 
-import static tn.zeros.zchess.core.util.ChessConstants.DIRECTION_OFFSETS;
-
 public class PrecomputedMoves {
     public static final long[] KNIGHT_MOVES = new long[64];
     public static final long[] KING_MOVES = new long[64];
-    public static final long[][] RAY_MOVES = new long[64][8];
     public static final long[] WHITE_PAWN_ATTACKS = new long[64];
     public static final long[] BLACK_PAWN_ATTACKS = new long[64];
+    public static final long[] WHITE_PAWN_MOVES = new long[64];
+    public static final long[] BLACK_PAWN_MOVES = new long[64];
 
     // Magic Bitboard Data
     public static final long[][] BISHOP_ATTACKS = new long[64][];
@@ -23,8 +22,51 @@ public class PrecomputedMoves {
         initializeMagicBitboards();
         initializeKnightMoves();
         initializeKingMoves();
-        initializeSlidingPieces();
         initializePawnAttacks();
+        initializePawnMoves();
+    }
+
+    public static long getMagicRookAttack(int square, long blockers) {
+        long mask = PrecomputedMoves.ROOK_MASKS[square];
+        long magic = ChessConstants.ROOK_MAGICS[square];
+        long occupancy = blockers & mask; // Mask out irrelevant squares
+        int index = (int) ((occupancy * magic) >>> PrecomputedMoves.ROOK_SHIFTS[square]);
+        return PrecomputedMoves.ROOK_ATTACKS[square][index];
+    }
+
+    public static long getMagicBishopAttack(int square, long blockers) {
+        long mask = PrecomputedMoves.BISHOP_MASKS[square];
+        long magic = ChessConstants.BISHOP_MAGICS[square];
+        long occupancy = blockers & mask; // Mask out irrelevant squares
+        int index = (int) ((occupancy * magic) >>> PrecomputedMoves.BISHOP_SHIFTS[square]);
+        return PrecomputedMoves.BISHOP_ATTACKS[square][index];
+    }
+
+    public static long getPawnMoves(int square, long blockers, boolean isWhite) {
+        long possibleMoves = isWhite ? WHITE_PAWN_MOVES[square] : BLACK_PAWN_MOVES[square];
+        long validMoves = 0;
+
+        int singleStepOffset = isWhite ? 8 : -8;
+        long singleStepBit = isWhite ? (1L << (square + 8)) : (1L << (square - 8));
+        long doubleStepBit = isWhite ? (1L << (square + 16)) : (1L << (square - 16));
+
+        // Check single step
+        if ((possibleMoves & singleStepBit) != 0) {
+            if ((blockers & singleStepBit) == 0) {
+                validMoves |= singleStepBit;
+
+                // Check double step if applicable
+                if ((possibleMoves & doubleStepBit) != 0) {
+                    int intermediateSquare = square + singleStepOffset;
+                    long intermediateBit = 1L << intermediateSquare;
+                    if ((blockers & doubleStepBit) == 0 && (blockers & intermediateBit) == 0) {
+                        validMoves |= doubleStepBit;
+                    }
+                }
+            }
+        }
+
+        return validMoves;
     }
 
     private static void initializeMagicBitboards() {
@@ -68,36 +110,6 @@ public class PrecomputedMoves {
         }
     }
 
-    private static void initializeSlidingPieces() {
-        for (int square = 0; square < 64; square++) {
-            for (int dir = 0; dir < 8; dir++) {
-                long ray = 0L;
-                int current = square;
-
-                while (true) {
-                    int next = current + DIRECTION_OFFSETS[dir];
-
-                    // Validate bounds and edge crossing
-                    if (!isWithinBounds(next) ||
-                            (dir == 1 || dir == 2 || dir == 3) && (current % 8 == 7) || // Crossing FILE_H
-                            (dir == 5 || dir == 6 || dir == 7) && (current % 8 == 0)) { // Crossing FILE_A
-                        break;
-                    }
-
-                    ray |= 1L << next;
-                    current = next;
-
-                    // Stop if reaching the edge of the board in a specific direction
-                    if ((dir == 0 && next < 8) ||       // N (first rank)
-                            (dir == 4 && next >= 56)) {    // S (last rank)
-                        break;
-                    }
-                }
-
-                RAY_MOVES[square][dir] = ray;
-            }
-        }
-    }
 
     private static void initializePawnAttacks() {
         for (int square = 0; square < 64; square++) {
@@ -115,6 +127,31 @@ public class PrecomputedMoves {
                 if (file > 0 && isWithinBounds(square - 9)) BLACK_PAWN_ATTACKS[square] |= 1L << (square - 9);
                 if (file < 7 && isWithinBounds(square - 7)) BLACK_PAWN_ATTACKS[square] |= 1L << (square - 7);
             }
+        }
+    }
+
+    private static void initializePawnMoves() {
+        for (int square = 0; square < 64; square++) {
+            // White pawn moves
+            int rank = square / 8;
+            long whiteMoves = 0L;
+            if (rank < 7) { // Can move forward one square
+                whiteMoves |= 1L << (square + 8);
+                if (rank == 1) { // Starting rank (second rank)
+                    whiteMoves |= 1L << (square + 16);
+                }
+            }
+            WHITE_PAWN_MOVES[square] = whiteMoves;
+
+            // Black pawn moves
+            long blackMoves = 0L;
+            if (rank > 0) { // Can move forward one square (down)
+                blackMoves |= 1L << (square - 8);
+                if (rank == 6) { // Starting rank for black (seventh rank)
+                    blackMoves |= 1L << (square - 16);
+                }
+            }
+            BLACK_PAWN_MOVES[square] = blackMoves;
         }
     }
 

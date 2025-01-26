@@ -19,7 +19,7 @@ public class ChessConstants {
     public static final int BLACK_KINGSIDE = 0b0100;
     public static final int BLACK_QUEENSIDE = 0b1000;
 
-    // Board Geometry
+    // Board Geometry Masks
     public static final long RANK_1 = 0xFFL;
     public static final long RANK_8 = 0xFF00000000000000L;
     public static final long FILE_A = 0x0101010101010101L;
@@ -32,10 +32,6 @@ public class ChessConstants {
     public static final String FEN_WHITE_ACTIVE = "w";
     public static final String FEN_BLACK_ACTIVE = "b";
     public static final String FEN_SEPARATOR = "/";
-
-    // Direction Offsets (N, NE, E, SE, S, SW, W, NW)
-    public static final int[] DIRECTION_OFFSETS = {8, 9, 1, -7, -8, -9, -1, 7};
-
     // Generated magic numbers
     // Rook Magics
     public static final long[] ROOK_MAGICS = {
@@ -56,7 +52,6 @@ public class ChessConstants {
             0x4080008040102101L, 0x40002080411D01L, 0x2005524060000901L, 0x502001008400422L,
             0x489A000810200402L, 0x1004400080A13L, 0x4000011008020084L, 0x26002114058042L
     };
-
     // Bishop Magics
     public static final long[] BISHOP_MAGICS = {
             0x89A1121896040240L, 0x2004844802002010L, 0x2068080051921000L, 0x62880A0220200808L,
@@ -92,5 +87,4 @@ public class ChessConstants {
         }
         System.out.println("  ---------------");
     }
-
 }
