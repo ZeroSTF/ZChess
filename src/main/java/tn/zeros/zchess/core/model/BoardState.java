@@ -145,26 +145,28 @@ public class BoardState {
     }
 
     public void removePiece(int square, Piece piece) {
-        if (piece == Piece.NONE || piece == null) return;
-        int type = piece.ordinal() % 6;
-        int color = piece.isWhite() ? WHITE : BLACK;
-        long mask = ~(1L << square);
-        pieceBitboards[type] &= mask;
-        colorBitboards[color] &= mask;
+        if (piece == Piece.NONE) return;
 
-        pieceSquare[square] = Piece.NONE;
+        final long mask = SQUARE_MASKS[square];
+        final int type = piece.type.ordinal();
+        final int color = piece.color.ordinal();
+
+        pieceBitboards[type] &= ~mask;
+        colorBitboards[color] &= ~mask;
+        pieceSquare[square] = null;
     }
 
     public void addPiece(int square, Piece piece) {
-        int type = piece.ordinal() % 6;
-        int color = piece.isWhite() ? WHITE : BLACK;
-        pieceBitboards[type] |= 1L << square;
-        colorBitboards[color] |= 1L << square;
+        final long mask = SQUARE_MASKS[square];
+        final int type = piece.type.ordinal();
+        final int color = piece.color.ordinal();
 
+        pieceBitboards[type] |= mask;
+        colorBitboards[color] |= mask;
         pieceSquare[square] = piece;
     }
 
     public int getKingSquare(boolean white) {
-        return Long.numberOfTrailingZeros(getFriendlyPieces(white) & getPieceBitboard(KING));
+        return Long.numberOfTrailingZeros(pieceBitboards[KING] & colorBitboards[white ? WHITE : BLACK]);
     }
 }
