@@ -1,6 +1,5 @@
 package tn.zeros.zchess.ui.util;
 
-
 import javafx.scene.image.Image;
 import tn.zeros.zchess.core.model.Piece;
 
@@ -16,9 +15,8 @@ public class AssetLoader {
         return PIECE_CACHE.computeIfAbsent(piece, p -> {
             String path = String.format(PIECE_ASSET_PATH, p.name());
             try {
-                return new Image(Objects.requireNonNull(
-                        AssetLoader.class.getResourceAsStream(path)
-                ));
+                return new Image(Objects.requireNonNull(AssetLoader.class.getResourceAsStream(path)),
+                        UIConstants.SQUARE_SIZE - 10, UIConstants.SQUARE_SIZE - 10, true, true);
             } catch (Exception e) {
                 return null;
             }
