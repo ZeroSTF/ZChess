@@ -15,7 +15,6 @@ public class StateManager {
     }
 
     public void saveState(MoveUndoInfo undoInfo) {
-        //MoveUndoInfo undoInfo = MoveExecutor.makeMove(boardState, move);
         undoStack.push(undoInfo);
     }
 
@@ -33,6 +32,7 @@ public class StateManager {
 
         MoveUndoInfo redoInfo = redoStack.pop();
         saveState(redoInfo);
+        MoveUndoInfo undoInfo = MoveExecutor.makeMove(boardState, redoInfo.move());
         return true;
     }
 
