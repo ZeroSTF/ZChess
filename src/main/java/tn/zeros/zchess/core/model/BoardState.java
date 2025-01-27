@@ -3,8 +3,16 @@ package tn.zeros.zchess.core.model;
 import static tn.zeros.zchess.core.util.ChessConstants.*;
 
 public class BoardState {
-    private final long[] pieceBitboards; // Indexed by piece type
-    private final long[] colorBitboards; // Indexed by color
+    private static final long[] SQUARE_MASKS = new long[64];
+
+    static {
+        for (int i = 0; i < 64; i++) {
+            SQUARE_MASKS[i] = 1L << i;
+        }
+    }
+
+    private final long[] pieceBitboards = new long[6]; // Indexed by piece type
+    private final long[] colorBitboards = new long[2]; // Indexed by color
     private final Piece[] pieceSquare = new Piece[64];
     private boolean whiteToMove;
     private int castlingRights;
@@ -13,44 +21,31 @@ public class BoardState {
     private int fullMoveNumber;
 
     public BoardState() {
-        this.pieceBitboards = new long[6];
-        this.colorBitboards = new long[2];
         initializeStartingPosition();
     }
 
     private void initializeStartingPosition() {
-        // Clear all bitboards
-        for (int i = 0; i < 6; i++) pieceBitboards[i] = 0L;
-        colorBitboards[WHITE] = 0L;
-        colorBitboards[BLACK] = 0L;
-
-        // Set up white pieces
         setRank(PAWN, WHITE, 1);
-        setPiece(ROOK, WHITE, 0, 0);
-        setPiece(KNIGHT, WHITE, 1, 0);
-        setPiece(BISHOP, WHITE, 2, 0);
-        setPiece(QUEEN, WHITE, 3, 0);
-        setPiece(KING, WHITE, 4, 0);
-        setPiece(BISHOP, WHITE, 5, 0);
-        setPiece(KNIGHT, WHITE, 6, 0);
-        setPiece(ROOK, WHITE, 7, 0);
-
-        // Set up black pieces
+        setBackRank(WHITE, 0);
         setRank(PAWN, BLACK, 6);
-        setPiece(ROOK, BLACK, 0, 7);
-        setPiece(KNIGHT, BLACK, 1, 7);
-        setPiece(BISHOP, BLACK, 2, 7);
-        setPiece(QUEEN, BLACK, 3, 7);
-        setPiece(KING, BLACK, 4, 7);
-        setPiece(BISHOP, BLACK, 5, 7);
-        setPiece(KNIGHT, BLACK, 6, 7);
-        setPiece(ROOK, BLACK, 7, 7);
+        setBackRank(BLACK, 7);
 
         whiteToMove = true;
         castlingRights = WHITE_KINGSIDE | WHITE_QUEENSIDE | BLACK_KINGSIDE | BLACK_QUEENSIDE;
         enPassantSquare = -1;
         halfMoveClock = 0;
         fullMoveNumber = 1;
+    }
+
+    private void setBackRank(int color, int rank) {
+        setPiece(ROOK, color, 0, rank);
+        setPiece(KNIGHT, color, 1, rank);
+        setPiece(BISHOP, color, 2, rank);
+        setPiece(QUEEN, color, 3, rank);
+        setPiece(KING, color, 4, rank);
+        setPiece(BISHOP, color, 5, rank);
+        setPiece(KNIGHT, color, 6, rank);
+        setPiece(ROOK, color, 7, rank);
     }
 
     public void setRank(int pieceType, int color, int rank) {
@@ -135,20 +130,17 @@ public class BoardState {
     }
 
     public void movePiece(int from, int to, Piece piece) {
-        int type = piece.ordinal() % 6;
-        int color = piece.isWhite() ? WHITE : BLACK;
-        long mask = 1L << from;
+        final long fromMask = SQUARE_MASKS[from];
+        final long toMask = SQUARE_MASKS[to];
+        final int type = piece.type.ordinal();
+        final int color = piece.color.ordinal();
 
-        // Remove from original square
-        pieceBitboards[type] &= ~mask;
-        colorBitboards[color] &= ~mask;
+        // Update bitboards using precomputed masks
+        pieceBitboards[type] ^= fromMask | toMask;
+        colorBitboards[color] ^= fromMask | toMask;
 
-        // Add to new square
-        mask = 1L << to;
-        pieceBitboards[type] |= mask;
-        colorBitboards[color] |= mask;
-
-        pieceSquare[from] = Piece.NONE;
+        // Update pieceSquare array
+        pieceSquare[from] = null;
         pieceSquare[to] = piece;
     }
 

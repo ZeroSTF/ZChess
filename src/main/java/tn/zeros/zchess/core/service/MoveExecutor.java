@@ -8,12 +8,7 @@ import tn.zeros.zchess.core.model.Piece;
 public class MoveExecutor {
     public static MoveUndoInfo makeMove(BoardState state, Move move) {
         // Save pre-move state
-        MoveUndoInfo undoInfo = new MoveUndoInfo(
-                move,
-                state.getCastlingRights(),
-                state.getEnPassantSquare(),
-                state.getHalfMoveClock()
-        );
+        MoveUndoInfo undoInfo = new MoveUndoInfo(move, state.getCastlingRights(), state.getEnPassantSquare(), state.getHalfMoveClock());
 
         // Handle special moves
         if (move.isCastling()) {
