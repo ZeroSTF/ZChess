@@ -66,7 +66,7 @@ public class ChessBoardView extends GridPane implements ChessView {
     public void clearHighlights() {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                squares[row][col].highlight(false);
+                squares[row][col].highlightWithColor(false, null);
             }
         }
     }
@@ -78,7 +78,7 @@ public class ChessBoardView extends GridPane implements ChessView {
             for (int col = 0; col < 8; col++) {
                 int square = row * 8 + col;
                 squares[row][col].setPiece(state.getPieceAt(square));
-                squares[row][col].highlight(false);
+                squares[row][col].highlightWithColor(false, null);
             }
         }
     }
@@ -91,10 +91,34 @@ public class ChessBoardView extends GridPane implements ChessView {
     @Override
     public void updateHighlights(List<Integer> legalSquares) {
         clearHighlights();
+
+        // Highlight last move squares
+        int lastMoveFrom = controller.getInteractionState().getLastMoveFrom();
+        int lastMoveTo = controller.getInteractionState().getLastMoveTo();
+        if (lastMoveFrom != -1) {
+            int fromRow = lastMoveFrom / 8;
+            int fromCol = lastMoveFrom % 8;
+            squares[fromRow][fromCol].highlightWithColor(true, UIConstants.LAST_MOVE_COLOR); // Color for "from" square
+        }
+        if (lastMoveTo != -1) {
+            int toRow = lastMoveTo / 8;
+            int toCol = lastMoveTo % 8;
+            squares[toRow][toCol].highlightWithColor(true, UIConstants.LAST_MOVE_COLOR); // Color for "to" square
+        }
+
+        // Highlight selected square
+        int selectedSquare = controller.getInteractionState().getSelectedSquare();
+        if (selectedSquare != -1) {
+            int selectedRow = selectedSquare / 8;
+            int selectedCol = selectedSquare % 8;
+            squares[selectedRow][selectedCol].highlightWithColor(true, UIConstants.SELECTED_SQUARE_COLOR); // Color for selected square
+        }
+
+        // Highlight legal moves
         for (int square : legalSquares) {
             int row = square / 8;
             int col = square % 8;
-            squares[row][col].highlight(true);
+            squares[row][col].highlightWithColor(true, UIConstants.LEGAL_MOVE_COLOR); // Color for legal moves
         }
     }
 

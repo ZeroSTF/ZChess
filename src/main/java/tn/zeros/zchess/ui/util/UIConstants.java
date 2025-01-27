@@ -10,8 +10,9 @@ public class UIConstants {
     // Colors
     public static final Color LIGHT_SQUARE_COLOR = Color.valueOf("#F0D9B5");
     public static final Color DARK_SQUARE_COLOR = Color.valueOf("#B58863");
-    public static final Color HIGHLIGHT_COLOR = Color.YELLOW;
-
+    public static final Color LAST_MOVE_COLOR = Color.valueOf("#FF0000");
+    public static final Color SELECTED_SQUARE_COLOR = Color.valueOf("#00FFFF");
+    public static final Color LEGAL_MOVE_COLOR = Color.valueOf("#00FF00");
     // Fonts
     public static final Font PIECE_FONT = Font.font("Arial", 24);
 

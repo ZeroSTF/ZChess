@@ -66,11 +66,8 @@ public class SquareView extends StackPane {
         getChildren().add(text);
     }
 
-    public void highlight(boolean highlight) {
-        background.setFill(highlight ?
-                UIConstants.HIGHLIGHT_COLOR :
-                originalColor
-        );
+    public void highlightWithColor(boolean highlight, Color color) {
+        background.setFill(highlight ? color : originalColor);
     }
 
     public Piece getPiece() {

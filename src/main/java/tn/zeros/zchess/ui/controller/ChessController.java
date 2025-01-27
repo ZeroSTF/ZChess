@@ -121,6 +121,10 @@ public class ChessController {
     }
 
     private void commitMove(Move move) {
+        interactionState.setLastMoveFrom(move.fromSquare());
+        interactionState.setLastMoveTo(move.toSquare());
+        interactionState.setSelectedSquare(-1);
+
         MoveUndoInfo undoInfo = MoveExecutor.makeMove(boardState, move);
         stateManager.saveState(undoInfo);
         view.refreshEntireBoard();
