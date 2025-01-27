@@ -44,14 +44,8 @@ public class ChessBoardView extends GridPane implements ChessView {
 
     private SquareView createSquare(int row, int col) {
         Color color = BoardGeometry.getSquareColor(row, col);
-        SquareView square = new SquareView(color);
-
-        square.setOnMouseClicked(e -> {
-            int squareIndex = BoardGeometry.toSquareIndex(row, col);
-            controller.handleSquareClick(squareIndex);
-        });
-
-        return square;
+        int squareIndex = BoardGeometry.toSquareIndex(row, col);
+        return new SquareView(color, controller, squareIndex);
     }
 
 
@@ -63,15 +57,6 @@ public class ChessBoardView extends GridPane implements ChessView {
         PauseTransition pause = new PauseTransition(Duration.seconds(1));
         pause.setOnFinished(event -> errorTip.hide());
         pause.play();
-    }
-
-    public void highlightLegalMoves(List<Integer> legalSquares) {
-        clearHighlights();
-        for (int square : legalSquares) {
-            int row = square / 8;
-            int col = square % 8;
-            squares[row][col].highlight(true);
-        }
     }
 
     public void clearHighlights() {
@@ -99,6 +84,16 @@ public class ChessBoardView extends GridPane implements ChessView {
         promotionDialog.show(isWhite);
     }
 
+    @Override
+    public void updateHighlights(List<Integer> legalSquares) {
+        clearHighlights();
+        for (int square : legalSquares) {
+            int row = square / 8;
+            int col = square % 8;
+            squares[row][col].highlight(true);
+        }
+    }
+
     private void addRankLabels() {
         for (int row = 0; row < 8; row++) {
             Label rightLabel = createLabel(RANKS[row]);
@@ -120,5 +115,5 @@ public class ChessBoardView extends GridPane implements ChessView {
         label.setPadding(new Insets(5));
         return label;
     }
-    
+
 }

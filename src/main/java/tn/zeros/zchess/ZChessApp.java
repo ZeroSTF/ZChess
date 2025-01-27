@@ -8,9 +8,6 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import tn.zeros.zchess.core.model.BoardState;
-import tn.zeros.zchess.core.util.ChessConstants;
-import tn.zeros.zchess.core.util.PrecomputedMoves;
 import tn.zeros.zchess.ui.components.ControlPanel;
 import tn.zeros.zchess.ui.controller.ChessController;
 import tn.zeros.zchess.ui.util.SoundManager;
@@ -22,6 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ZChessApp extends Application {
+
+    public static void main(String[] args) {
+        launch(args);
+    }
 
     @Override
     public void start(Stage primaryStage) {
@@ -62,6 +63,7 @@ public class ZChessApp extends Application {
         primaryStage.setMinHeight(800);
         primaryStage.show();
     }
+
     private void addIconIfPresent(List<Image> icons, String path) {
         try (InputStream stream = getClass().getResourceAsStream(path)) {
             if (stream != null) {
@@ -70,9 +72,5 @@ public class ZChessApp extends Application {
         } catch (IOException e) {
             System.err.println("Error loading icon: " + path);
         }
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }

@@ -13,21 +13,22 @@ import tn.zeros.zchess.ui.util.SoundManager;
 import tn.zeros.zchess.ui.view.ChessBoardView;
 import tn.zeros.zchess.ui.view.ChessView;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ChessController {
+    private final InteractionState interactionState;
+    private final InputHandler activeInputHandler;
     private BoardState boardState;
     private StateManager stateManager;
     private ChessView view;
-    private int selectedSquare = -1;
-    private Move pendingPromotionMove;
-    private List<Move> currentLegalMoves = new ArrayList<>(32);
 
     public ChessController() {
         this.boardState = new BoardState();
         this.stateManager = new StateManager(boardState);
+        this.interactionState = new InteractionState();
+        this.activeInputHandler = new ClickInputHandler(this);
     }
 
     public BoardState getBoardState() {
@@ -38,21 +39,17 @@ public class ChessController {
         this.view = view;
     }
 
-    public void handleSquareClick(int square) {
-        if (selectedSquare == -1) {
-            handlePieceSelection(square);
-        } else {
-            handleMoveExecution(square);
-        }
+    public void handleSquareInteraction(int square) {
+        activeInputHandler.handlePress(square);
     }
 
-    private void handlePieceSelection(int square) {
+    public void handlePieceSelection(int square) {
         Piece piece = boardState.getPieceAt(square);
         if (piece != Piece.NONE && piece.isWhite() == boardState.isWhiteToMove()) {
-            selectedSquare = square;
-            currentLegalMoves.clear();
+            interactionState.setSelectedSquare(square);
+            interactionState.clearCurrentLegalMoves();
             generateLegalMoves(square, piece);
-            view.highlightLegalMoves(extractTargetSquares());
+            view.updateHighlights(extractTargetSquares());
         } else {
             resetSelection();
         }
@@ -64,7 +61,10 @@ public class ChessController {
         moveList.clear();
 
         getPseudoLegalMoves(square, piece, moveList);
-        currentLegalMoves = LegalMoveFilter.filterLegalMoves(boardState, moveList.toList());
+        interactionState.getCurrentLegalMoves().clear();
+        interactionState.getCurrentLegalMoves().addAll(
+                LegalMoveFilter.filterLegalMoves(boardState, moveList.toList())
+        );
     }
 
     private void getPseudoLegalMoves(int square, Piece piece, MoveGenerator.MoveList moveList) {
@@ -77,12 +77,12 @@ public class ChessController {
     }
 
     private List<Integer> extractTargetSquares() {
-        return currentLegalMoves.stream()
+        return interactionState.getCurrentLegalMoves().stream()
                 .map(Move::toSquare)
                 .collect(Collectors.toList());
     }
 
-    private void handleMoveExecution(int targetSquare) {
+    public void handleMoveExecution(int targetSquare) {
         Move move = findMoveByTarget(targetSquare);
 
         if (move != null) {
@@ -95,15 +95,15 @@ public class ChessController {
     }
 
     private Move findMoveByTarget(int targetSquare) {
-        return currentLegalMoves.stream()
+        return interactionState.getCurrentLegalMoves().stream()
                 .filter(m -> m.toSquare() == targetSquare)
                 .findFirst()
                 .orElse(null);
     }
 
-    private void handleMove(Move move) {
+    void handleMove(Move move) {
         if (move.isPromotion()) {
-            pendingPromotionMove = move;
+            interactionState.setPendingPromotionMove(move);
             view.showPromotionDialog(move.piece().isWhite());
         } else {
             commitMove(move);
@@ -111,14 +111,14 @@ public class ChessController {
     }
 
     public void completePromotion(Piece promotionPiece) {
-        if (pendingPromotionMove == null) return;
+        if (interactionState.getPendingPromotionMove() == null) return;
 
         // Find the exact promotion move from legal options
-        currentLegalMoves.stream()
+        interactionState.getCurrentLegalMoves().stream()
                 .filter(m -> m.isPromotion() && m.promotionPiece() == promotionPiece)
                 .findFirst().ifPresent(this::commitMove);
 
-        pendingPromotionMove = null;
+        interactionState.setPendingPromotionMove(null);
     }
 
     private void commitMove(Move move) {
@@ -130,9 +130,9 @@ public class ChessController {
     }
 
     private void resetSelection() {
-        view.clearHighlights();
-        selectedSquare = -1;
-        currentLegalMoves.clear();
+        view.updateHighlights(Collections.emptyList());
+        interactionState.setSelectedSquare(-1);
+        interactionState.clearCurrentLegalMoves();
     }
 
     private void playMoveSound(Move move) {
@@ -190,6 +190,10 @@ public class ChessController {
     private void resetState(BoardState newState) {
         this.boardState = newState;
         this.stateManager = new StateManager(newState);
+    }
+
+    public InteractionState getInteractionState() {
+        return interactionState;
     }
 
 }

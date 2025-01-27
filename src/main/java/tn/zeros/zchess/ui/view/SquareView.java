@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import tn.zeros.zchess.core.model.Piece;
+import tn.zeros.zchess.ui.controller.ChessController;
 import tn.zeros.zchess.ui.util.AssetLoader;
 import tn.zeros.zchess.ui.util.UIConstants;
 
@@ -15,7 +16,11 @@ public class SquareView extends StackPane {
     private final Color originalColor;
     private Piece currentPiece;
 
-    public SquareView(Color color) {
+    public SquareView(Color color, ChessController controller, int squareIndex) {
+        this.setOnMouseClicked(e -> {
+            controller.handleSquareInteraction(squareIndex);
+        });
+
         this.originalColor = color;
         background = new Rectangle(
                 UIConstants.SQUARE_SIZE,
@@ -23,11 +28,6 @@ public class SquareView extends StackPane {
                 color
         );
         getChildren().add(background);
-    }
-
-    public void setPiece(Piece piece) {
-        currentPiece = piece;
-        refreshDisplay();
     }
 
     private void refreshDisplay() {
@@ -68,6 +68,13 @@ public class SquareView extends StackPane {
         );
     }
 
-    public Piece getPiece() { return currentPiece; }
+    public Piece getPiece() {
+        return currentPiece;
+    }
+
+    public void setPiece(Piece piece) {
+        currentPiece = piece;
+        refreshDisplay();
+    }
 
 }
