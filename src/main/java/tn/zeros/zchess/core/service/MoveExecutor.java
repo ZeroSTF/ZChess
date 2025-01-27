@@ -68,7 +68,7 @@ public class MoveExecutor {
 
     private static void updateGameState(BoardState state, Move move) {
         updateEnPassant(state, move);
-        CastlingService.updateCastlingRights(state, move.piece(), move.fromSquare());
+        CastlingService.updateCastlingRights(state, move.piece(), move.fromSquare(), move.capturedPiece(), move.toSquare());
         updateMoveClocks(state, move);
         state.setWhiteToMove(!state.isWhiteToMove());
     }

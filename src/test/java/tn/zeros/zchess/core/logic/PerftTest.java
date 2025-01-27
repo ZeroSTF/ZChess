@@ -27,8 +27,8 @@ public class PerftTest {
 
     @Test
     void debugProblemPosition() {
-        String fen = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/P7/1PP1N1PP/RNBQK2n w KQ - 0 17";//ChessConstants.POSITION_5_FEN;
-        debugPerft(fen, 2);
+        String fen = ChessConstants.POSITION_5_FEN;
+        debugPerft(fen, 4);
     }
 
     public void testPerft(String fen, int depth, long expectedNodes) {
