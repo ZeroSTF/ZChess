@@ -53,6 +53,8 @@ public class ChessController {
             currentLegalMoves.clear();
             generateLegalMoves(square, piece);
             view.highlightLegalMoves(extractTargetSquares());
+        } else {
+            resetSelection();
         }
     }
 
