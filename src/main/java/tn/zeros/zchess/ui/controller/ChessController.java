@@ -1,10 +1,9 @@
 package tn.zeros.zchess.ui.controller;
 
-import tn.zeros.zchess.core.logic.validation.CompositeMoveValidator;
-import tn.zeros.zchess.core.logic.validation.MoveValidator;
-import tn.zeros.zchess.core.logic.validation.ValidationResult;
+import tn.zeros.zchess.core.logic.Generation.*;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
+import tn.zeros.zchess.core.model.MoveUndoInfo;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.service.FenService;
 import tn.zeros.zchess.core.service.MoveExecutor;
@@ -16,19 +15,19 @@ import tn.zeros.zchess.ui.view.ChessView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ChessController {
-    private final MoveValidator moveValidator;
     private BoardState boardState;
     private StateManager stateManager;
     private ChessView view;
     private int selectedSquare = -1;
     private Move pendingPromotionMove;
+    private List<Move> currentLegalMoves = new ArrayList<>(32);
 
     public ChessController() {
         this.boardState = new BoardState();
         this.stateManager = new StateManager(boardState);
-        this.moveValidator = new CompositeMoveValidator();
     }
 
     public BoardState getBoardState() {
@@ -51,88 +50,83 @@ public class ChessController {
         Piece piece = boardState.getPieceAt(square);
         if (piece != Piece.NONE && piece.isWhite() == boardState.isWhiteToMove()) {
             selectedSquare = square;
-            view.highlightLegalMoves(getLegalMoves(square));
+            currentLegalMoves.clear();
+            generateLegalMoves(square, piece);
+            view.highlightLegalMoves(extractTargetSquares());
         }
+    }
+
+    private void generateLegalMoves(int square, Piece piece) {
+        List<Move> pseudoLegal = getPseudoLegalMoves(square, piece);
+        currentLegalMoves = LegalMoveFilter.filterLegalMoves(boardState, pseudoLegal);
+    }
+
+    private List<Move> getPseudoLegalMoves(int square, Piece piece) {
+        if (piece.isPawn()) return PawnMoveGenerator.generate(boardState, square);
+        if (piece.isKnight()) return KnightMoveGenerator.generate(boardState, square);
+        if (piece.isBishop()) return BishopMoveGenerator.generate(boardState, square);
+        if (piece.isRook()) return RookMoveGenerator.generate(boardState, square);
+        if (piece.isQueen()) return QueenMoveGenerator.generate(boardState, square);
+        if (piece.isKing()) return KingMoveGenerator.generate(boardState, square);
+        return List.of();
+    }
+
+    private List<Integer> extractTargetSquares() {
+        return currentLegalMoves.stream()
+                .map(Move::toSquare)
+                .collect(Collectors.toList());
     }
 
     private void handleMoveExecution(int targetSquare) {
-        Move move = createMove(selectedSquare, targetSquare);
-        ValidationResult result = moveValidator.validate(boardState, move);
+        Move move = findMoveByTarget(targetSquare);
 
-        if (result.isValid()) {
-            if (move.isPromotion()) {
-                pendingPromotionMove = move;
-                view.showPromotionDialog(move.piece().isWhite());
-            } else {
-                commitMove(move);
-            }
+        if (move != null) {
+            handleMove(move);
         } else {
-            view.showError(result.getMessage());
+            view.showError("Illegal move");
         }
-
-        view.clearHighlights();
-        selectedSquare = -1;
+        resetSelection();
     }
 
-    private List<Integer> getLegalMoves(int square) {
-        List<Integer> legalMoves = new ArrayList<>();
-        for (int target = 0; target < 64; target++) {
-            Move testMove = createMove(square, target);
-            if (moveValidator.validate(boardState, testMove).isValid()) {
-                legalMoves.add(target);
-            }
-        }
-        return legalMoves;
+    private Move findMoveByTarget(int targetSquare) {
+        return currentLegalMoves.stream()
+                .filter(m -> m.toSquare() == targetSquare)
+                .findFirst()
+                .orElse(null);
     }
 
-    private Move createMove(int from, int to) {
-        Piece piece = boardState.getPieceAt(from);
-        Piece captured = boardState.getPieceAt(to);
-        boolean isEnPassant = checkEnPassant(piece, to);
-        boolean isCastling = checkCastling(piece, from, to);
-        boolean isPromotion = piece.isPawn() &&
-                ((piece.isWhite() && (to / 8 == 7)) ||
-                        (!piece.isWhite() && (to / 8 == 0)));
-
-        if (isEnPassant) {
-            int capturedSquare = to + (piece.isWhite() ? -8 : 8);
-            captured = boardState.getPieceAt(capturedSquare);
+    private void handleMove(Move move) {
+        if (move.isPromotion()) {
+            pendingPromotionMove = move;
+            view.showPromotionDialog(move.piece().isWhite());
+        } else {
+            commitMove(move);
         }
-
-        return new Move(
-                from, to, piece, captured,
-                isPromotion, isCastling, isEnPassant, isPromotion ? Piece.NONE : null
-        );
     }
 
     public void completePromotion(Piece promotionPiece) {
         if (pendingPromotionMove == null) return;
 
-        Move completedMove = new Move(
-                pendingPromotionMove.fromSquare(),
-                pendingPromotionMove.toSquare(),
-                pendingPromotionMove.piece(),
-                pendingPromotionMove.capturedPiece(),
-                true,
-                pendingPromotionMove.isCastling(),
-                pendingPromotionMove.isEnPassant(),
-                promotionPiece
-        );
-
-        if (moveValidator.validate(boardState, completedMove).isValid()) {
-            commitMove(completedMove);
-        }
+        // Find the exact promotion move from legal options
+        currentLegalMoves.stream()
+                .filter(m -> m.isPromotion() && m.promotionPiece() == promotionPiece)
+                .findFirst().ifPresent(this::commitMove);
 
         pendingPromotionMove = null;
     }
 
     private void commitMove(Move move) {
-        stateManager.saveState(move);
-        MoveExecutor.makeMove(boardState, move);
-        boardState.setWhiteToMove(!boardState.isWhiteToMove());
-        view.updateBoard(move);
+        MoveUndoInfo undoInfo = MoveExecutor.makeMove(boardState, move);
+        stateManager.saveState(undoInfo);
+        view.refreshEntireBoard();
         playMoveSound(move);
         stateManager.clearRedo();
+    }
+
+    private void resetSelection() {
+        view.clearHighlights();
+        selectedSquare = -1;
+        currentLegalMoves.clear();
     }
 
     private void playMoveSound(Move move) {

@@ -70,7 +70,9 @@ public class MoveExecutor {
         updateEnPassant(state, move);
         CastlingService.updateCastlingRights(state, move.piece(), move.fromSquare());
         updateMoveClocks(state, move);
+        System.out.println("It was this guy's move : " + (state.isWhiteToMove() ? "white" : "black"));
         state.setWhiteToMove(!state.isWhiteToMove());
+        System.out.println("It is now this guy's move : " + (state.isWhiteToMove() ? "white" : "black"));
     }
 
     private static void updateEnPassant(BoardState state, Move move) {

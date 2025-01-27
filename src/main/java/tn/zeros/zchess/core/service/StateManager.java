@@ -1,7 +1,6 @@
 package tn.zeros.zchess.core.service;
 
 import tn.zeros.zchess.core.model.BoardState;
-import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.MoveUndoInfo;
 
 import java.util.Stack;
@@ -15,8 +14,8 @@ public class StateManager {
         this.boardState = boardState;
     }
 
-    public void saveState(Move move) {
-        MoveUndoInfo undoInfo = MoveExecutor.makeMove(boardState, move);
+    public void saveState(MoveUndoInfo undoInfo) {
+        //MoveUndoInfo undoInfo = MoveExecutor.makeMove(boardState, move);
         undoStack.push(undoInfo);
     }
 
@@ -33,7 +32,7 @@ public class StateManager {
         if (redoStack.isEmpty()) return false;
 
         MoveUndoInfo redoInfo = redoStack.pop();
-        saveState(redoInfo.move());
+        saveState(redoInfo);
         return true;
     }
 

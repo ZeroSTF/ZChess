@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BishopMoveGenerator {
-    protected static List<Move> generate(BoardState state, int from) {
+    public static List<Move> generate(BoardState state, int from) {
         List<Move> moves = new ArrayList<>();
         Piece bishop = state.getPieceAt(from);
 

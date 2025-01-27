@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QueenMoveGenerator {
-    protected static List<Move> generate(BoardState state, int from) {
+    public static List<Move> generate(BoardState state, int from) {
         List<Move> moves = new ArrayList<>();
         Piece queen = state.getPieceAt(from);
 
