@@ -22,15 +22,15 @@ public class SquareView extends StackPane {
         });*/
         setOnMousePressed(e -> {
             controller.handleSquareInteraction(squareIndex);
-            controller.getActiveInputHandler().handleDrag(e.getSceneX(), e.getSceneY());
+            controller.getInputHandler().handleDrag(e.getSceneX(), e.getSceneY());
         });
 
         setOnMouseDragged(e -> {
-            controller.getActiveInputHandler().handleDrag(e.getSceneX(), e.getSceneY());
+            controller.getInputHandler().handleDrag(e.getSceneX(), e.getSceneY());
         });
 
         setOnMouseReleased(e -> {
-            controller.getActiveInputHandler().handleRelease(e.getSceneX(), e.getSceneY());
+            controller.getInputHandler().handleRelease(e.getSceneX(), e.getSceneY());
         });
 
         this.originalColor = color;

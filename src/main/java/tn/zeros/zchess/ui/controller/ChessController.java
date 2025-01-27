@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class ChessController {
     private final InteractionState interactionState;
-    private final InputHandler activeInputHandler;
+    private final InputHandler inputHandler;
     private BoardState boardState;
     private StateManager stateManager;
     private ChessView view;
@@ -27,7 +27,7 @@ public class ChessController {
         this.boardState = new BoardState();
         this.stateManager = new StateManager(boardState);
         this.interactionState = new InteractionState();
-        this.activeInputHandler = new DragInputHandler(this);
+        this.inputHandler = new InputHandler(this);
     }
 
     public BoardState getBoardState() {
@@ -39,7 +39,7 @@ public class ChessController {
     }
 
     public void handleSquareInteraction(int square) {
-        activeInputHandler.handlePress(square);
+        inputHandler.handlePress(square);
     }
 
     public void handlePieceSelection(int square) {
@@ -199,8 +199,8 @@ public class ChessController {
         return view;
     }
 
-    public InputHandler getActiveInputHandler() {
-        return activeInputHandler;
+    public InputHandler getInputHandler() {
+        return inputHandler;
     }
 
 }
