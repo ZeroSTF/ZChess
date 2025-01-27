@@ -18,21 +18,22 @@ public class InputHandler {
     }
 
     public void handlePress(int square) {
+        boolean isWhiteToMove = controller.getBoardState().isWhiteToMove();
         Piece piece = controller.getBoardState().getPieceAt(square);
-        if (piece != Piece.NONE && piece.isWhite() == controller.getBoardState().isWhiteToMove()) {
+
+        if (piece != Piece.NONE && piece.isWhite() == isWhiteToMove) {
             startSquare = square;
             ChessBoardView boardView = (ChessBoardView) controller.getView();
             sourceSquare = (SquareView) boardView.getSquareNode(square);
             sourceSquare.hideCurrentPiece();
             createDragImage(piece);
             controller.handlePieceSelection(square);
-        } else if (piece == Piece.NONE || !piece.isWhite() == controller.getBoardState().isWhiteToMove()) {
+        } else {
             if (controller.getInteractionState().getSelectedSquare() == -1) {
                 controller.handlePieceSelection(square);
             } else {
                 controller.handleMoveExecution(square);
             }
-
         }
     }
 
