@@ -11,6 +11,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import tn.zeros.zchess.core.model.BoardState;
+import tn.zeros.zchess.core.model.Move;
+import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.ui.components.PromotionDialog;
 import tn.zeros.zchess.ui.controller.ChessController;
 import tn.zeros.zchess.ui.util.BoardGeometry;
@@ -67,7 +69,7 @@ public class ChessBoardView extends GridPane implements ChessView {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 squares[row][col].highlightWithColor(false, null);
-                squares[row][col].setLegalMove(false);
+                squares[row][col].setLegalMove(false, false);
             }
         }
     }
@@ -90,13 +92,9 @@ public class ChessBoardView extends GridPane implements ChessView {
     }
 
     @Override
-    public void updateHighlights(List<Integer> legalSquares, int kingInCheckSquare) {
+    public void updateHighlights(List<Move> legalMoves, int kingInCheckSquare) {
         clearHighlights();
-
-        // Highlight last move squares
         highlightLastMove();
-
-        // Highlight selected square
         highlightSelectedSquare();
 
         for (int row = 0; row < 8; row++) {
@@ -105,16 +103,20 @@ public class ChessBoardView extends GridPane implements ChessView {
             }
         }
 
-        // Highlight check square
-        if (kingInCheckSquare != -1) {
-            squares[kingInCheckSquare / 8][kingInCheckSquare % 8].setCheck(true);
+        // Process legal moves
+        for (Move move : legalMoves) {
+            int row = move.toSquare() / 8;
+            int col = move.toSquare() % 8;
+            boolean isCapture = move.capturedPiece() != Piece.NONE;
+
+            squares[row][col].setLegalMove(true, isCapture);
         }
 
-        // Set legal moves
-        for (int square : legalSquares) {
-            int row = square / 8;
-            int col = square % 8;
-            squares[row][col].setLegalMove(true);
+        // Set check highlight
+        if (kingInCheckSquare != -1) {
+            int row = kingInCheckSquare / 8;
+            int col = kingInCheckSquare % 8;
+            squares[row][col].setCheck(true);
         }
     }
 

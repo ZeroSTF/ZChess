@@ -19,10 +19,38 @@ public class SquareView extends StackPane {
     private final Circle legalMoveDot;
     private final Color originalColor;
     private final Rectangle checkOverlay;
+    private final Rectangle captureHighlight;
     private Piece currentPiece;
     private boolean isLegalMove;
+    private boolean isCaptureMove;
 
     public SquareView(Color color, ChessController controller, int squareIndex) {
+        // Initialisation
+        this.originalColor = color;
+
+        background = new Rectangle(UIConstants.SQUARE_SIZE, UIConstants.SQUARE_SIZE, color);
+        legalMoveDot = new Circle(UIConstants.SQUARE_SIZE * UIConstants.LEGAL_MOVE_DOT_RADIUS, UIConstants.LEGAL_MOVE_DOT_COLOR);
+        checkOverlay = new Rectangle(UIConstants.SQUARE_SIZE, UIConstants.SQUARE_SIZE);
+        captureHighlight = new Rectangle(UIConstants.SQUARE_SIZE, UIConstants.SQUARE_SIZE);
+
+        legalMoveDot.setVisible(false);
+        checkOverlay.setVisible(false);
+        captureHighlight.setVisible(false);
+        checkOverlay.setFill(EffectUtils.gradient);
+        captureHighlight.setFill(UIConstants.CAPTURE_HIGHLIGHT);
+
+
+        getChildren().addAll(background, legalMoveDot, captureHighlight, checkOverlay);
+
+        // Events
+        setOnMouseEntered(e -> {
+            if (isLegalMove) highlightWithColor(true, UIConstants.LEGAL_MOVE_HOVER_COLOR);
+        });
+
+        setOnMouseExited(e -> {
+            setLegalMove(isLegalMove, isCaptureMove);
+        });
+
         setOnMousePressed(e -> {
             if (e.getButton() != MouseButton.PRIMARY) return;
             controller.getInputHandler().handlePress(squareIndex);
@@ -38,46 +66,14 @@ public class SquareView extends StackPane {
             if (e.getButton() != MouseButton.PRIMARY) return;
             controller.getInputHandler().handleRelease(e.getSceneX(), e.getSceneY());
         });
-
-        this.originalColor = color;
-
-        background = new Rectangle(
-                UIConstants.SQUARE_SIZE,
-                UIConstants.SQUARE_SIZE,
-                color
-        );
-        legalMoveDot = new Circle(
-                UIConstants.SQUARE_SIZE * UIConstants.LEGAL_MOVE_DOT_RADIUS,
-                UIConstants.LEGAL_MOVE_DOT_COLOR
-        );
-        legalMoveDot.setVisible(false);
-
-        checkOverlay = new Rectangle(
-                UIConstants.SQUARE_SIZE,
-                UIConstants.SQUARE_SIZE
-        );
-        checkOverlay.setVisible(false);
-        checkOverlay.setFill(EffectUtils.gradient);
-
-        getChildren().addAll(background, legalMoveDot, checkOverlay);
-
-        setOnMouseEntered(e -> {
-            if (isLegalMove) {
-                highlightWithColor(true, UIConstants.LEGAL_MOVE_HOVER_COLOR);
-            }
-        });
-
-        setOnMouseExited(e -> {
-            if (isLegalMove) {
-                background.setFill(originalColor);
-                legalMoveDot.setVisible(true);
-            }
-        });
     }
 
-    public void setLegalMove(boolean isLegal) {
+    public void setLegalMove(boolean isLegal, boolean isCapture) {
         this.isLegalMove = isLegal;
-        legalMoveDot.setVisible(isLegal);
+        this.isCaptureMove = isCapture;
+
+        legalMoveDot.setVisible(isLegal && !isCapture);
+        captureHighlight.setVisible(isLegal && isCapture);
     }
 
     private void refreshDisplay() {
@@ -114,12 +110,14 @@ public class SquareView extends StackPane {
             Color blendedColor = blendColors(originalColor, overlayColor);
             background.setFill(blendedColor);
             if (isLegalMove) {
-                legalMoveDot.setVisible(false); // Hide dot when square is highlighted
+                legalMoveDot.setVisible(false);
+                captureHighlight.setVisible(false);
             }
         } else {
             background.setFill(originalColor);
             if (isLegalMove) {
-                legalMoveDot.setVisible(true); // Show dot when not highlighted
+                legalMoveDot.setVisible(!isCaptureMove);
+                captureHighlight.setVisible(isCaptureMove);
             }
         }
     }

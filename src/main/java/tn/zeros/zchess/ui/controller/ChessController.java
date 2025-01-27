@@ -13,8 +13,6 @@ import tn.zeros.zchess.ui.view.ChessBoardView;
 import tn.zeros.zchess.ui.view.ChessView;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class ChessController {
     private final InteractionState interactionState;
@@ -45,7 +43,7 @@ public class ChessController {
             interactionState.clearCurrentLegalMoves();
             generateLegalMoves(square, piece);
             int kingInCheck = LegalMoveFilter.getKingInCheckSquare(boardState, boardState.isWhiteToMove());
-            view.updateHighlights(extractTargetSquares(), kingInCheck);
+            view.updateHighlights(interactionState.getCurrentLegalMoves(), kingInCheck);
         } else {
             resetSelection();
         }
@@ -70,12 +68,6 @@ public class ChessController {
         else if (piece.isRook()) RookMoveGenerator.generate(boardState, square, moveList);
         else if (piece.isQueen()) QueenMoveGenerator.generate(boardState, square, moveList);
         else if (piece.isKing()) KingMoveGenerator.generate(boardState, square, moveList);
-    }
-
-    private List<Integer> extractTargetSquares() {
-        return interactionState.getCurrentLegalMoves().stream()
-                .map(Move::toSquare)
-                .collect(Collectors.toList());
     }
 
     public void handleMoveExecution(int targetSquare) {
@@ -207,6 +199,11 @@ public class ChessController {
 
     public InputHandler getInputHandler() {
         return inputHandler;
+    }
+
+    public void updateHighlights() {
+        int kingInCheck = LegalMoveFilter.getKingInCheckSquare(boardState, boardState.isWhiteToMove());
+        view.updateHighlights(interactionState.getCurrentLegalMoves(), kingInCheck);
     }
 
 }
