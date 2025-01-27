@@ -1,7 +1,6 @@
 package tn.zeros.zchess.core.logic.generation;
 
 import org.junit.jupiter.api.Test;
-import tn.zeros.zchess.core.logic.Generation.PawnMoveGenerator;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.util.ChessConstants;
 

@@ -1,6 +1,6 @@
 package tn.zeros.zchess.ui.controller;
 
-import tn.zeros.zchess.core.logic.Generation.*;
+import tn.zeros.zchess.core.logic.generation.*;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.MoveUndoInfo;

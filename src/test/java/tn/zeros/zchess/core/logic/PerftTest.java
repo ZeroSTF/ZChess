@@ -1,7 +1,7 @@
 package tn.zeros.zchess.core.logic;
 
 import org.junit.jupiter.api.Test;
-import tn.zeros.zchess.core.logic.Generation.MoveGenerator;
+import tn.zeros.zchess.core.logic.generation.MoveGenerator;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.MoveUndoInfo;

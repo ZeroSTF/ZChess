@@ -1,4 +1,4 @@
-package tn.zeros.zchess.core.logic.Generation;
+package tn.zeros.zchess.core.logic.generation;
 
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;

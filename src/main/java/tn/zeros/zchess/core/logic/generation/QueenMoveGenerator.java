@@ -1,4 +1,4 @@
-package tn.zeros.zchess.core.logic.Generation;
+package tn.zeros.zchess.core.logic.generation;
 
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
@@ -8,20 +8,23 @@ import tn.zeros.zchess.core.util.PrecomputedMoves;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RookMoveGenerator {
+public class QueenMoveGenerator {
     public static List<Move> generate(BoardState state, int from) {
         List<Move> moves = new ArrayList<>();
-        Piece rook = state.getPieceAt(from);
+        Piece queen = state.getPieceAt(from);
 
-        if (rook == null || !rook.isRook()) {
+        if (queen == null || !queen.isQueen()) {
             return moves;
         }
 
-        boolean isWhite = rook.isWhite();
+        boolean isWhite = queen.isWhite();
         long allPieces = state.getAllPieces();
         long friendlyPieces = state.getFriendlyPieces(isWhite);
 
-        long possibleMoves = PrecomputedMoves.getMagicRookAttack(from, allPieces);
+        // Combine bishop and rook attacks
+        long possibleMoves = PrecomputedMoves.getMagicBishopAttack(from, allPieces)
+                | PrecomputedMoves.getMagicRookAttack(from, allPieces);
+
         possibleMoves &= ~friendlyPieces; // Filter out friendly blocks
 
         while (possibleMoves != 0) {
@@ -32,7 +35,7 @@ public class RookMoveGenerator {
             Piece captured = target.isWhite() != isWhite ? target : Piece.NONE;
 
             moves.add(new Move(
-                    from, to, rook, captured,
+                    from, to, queen, captured,
                     false, false, false, Piece.NONE
             ));
         }
