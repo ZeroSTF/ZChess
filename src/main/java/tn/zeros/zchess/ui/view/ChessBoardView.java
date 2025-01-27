@@ -99,6 +99,12 @@ public class ChessBoardView extends GridPane implements ChessView {
         // Highlight selected square
         highlightSelectedSquare();
 
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                squares[row][col].setCheck(false);
+            }
+        }
+
         // Highlight check square
         if (kingInCheckSquare != -1) {
             squares[kingInCheckSquare / 8][kingInCheckSquare % 8].setCheck(true);

@@ -133,8 +133,8 @@ public class ChessController {
 
     private void resetSelection() {
         int kingInCheck = LegalMoveFilter.getKingInCheckSquare(boardState, boardState.isWhiteToMove());
-        view.updateHighlights(Collections.emptyList(), kingInCheck);
         interactionState.setSelectedSquare(-1);
+        view.updateHighlights(Collections.emptyList(), kingInCheck);
         interactionState.clearCurrentLegalMoves();
     }
 
