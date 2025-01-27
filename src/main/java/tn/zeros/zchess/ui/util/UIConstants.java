@@ -10,11 +10,11 @@ public class UIConstants {
     // Colors
     public static final Color LIGHT_SQUARE_COLOR = Color.web("#F0D9B5");
     public static final Color DARK_SQUARE_COLOR = Color.web("#B58863");
-    public static final Color LAST_MOVE_COLOR = Color.web("#9bc700", 0.41);
-    public static final Color SELECTED_SQUARE_COLOR = Color.web("#14551e", 0.5);
-    public static final Color LEGAL_MOVE_DOT_COLOR = Color.web("#14551e", 0.5);
+    public static final Color LAST_MOVE_COLOR = Color.web("#9BC700", 0.41);
+    public static final Color SELECTED_SQUARE_COLOR = Color.web("#14551E", 0.5);
+    public static final Color LEGAL_MOVE_DOT_COLOR = Color.web("#14551E", 0.5);
     public static final double LEGAL_MOVE_DOT_RADIUS = 0.14;
-    public static final Color LEGAL_MOVE_HOVER_COLOR = Color.web("#96BB6D", 0.3);
+    public static final Color LEGAL_MOVE_HOVER_COLOR = Color.web("#14551E", 0.3);
 
     // Fonts
     public static final Font PIECE_FONT = Font.font("Arial", 24);
