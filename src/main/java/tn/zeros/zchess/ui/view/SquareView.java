@@ -66,8 +66,21 @@ public class SquareView extends StackPane {
         getChildren().add(text);
     }
 
-    public void highlightWithColor(boolean highlight, Color color) {
-        background.setFill(highlight ? color : originalColor);
+    public void highlightWithColor(boolean highlight, Color overlayColor) {
+        if (highlight) {
+            Color blendedColor = blendColors(originalColor, overlayColor, 0.5); // Adjustable alpha
+            background.setFill(blendedColor);
+        } else {
+            background.setFill(originalColor);
+        }
+    }
+
+    private Color blendColors(Color base, Color overlay, double overlayAlpha) {
+        // Calculate blended color components
+        double r = (1 - overlayAlpha) * base.getRed() + overlayAlpha * overlay.getRed();
+        double g = (1 - overlayAlpha) * base.getGreen() + overlayAlpha * overlay.getGreen();
+        double b = (1 - overlayAlpha) * base.getBlue() + overlayAlpha * overlay.getBlue();
+        return new Color(r, g, b, 1.0);
     }
 
     public Piece getPiece() {
