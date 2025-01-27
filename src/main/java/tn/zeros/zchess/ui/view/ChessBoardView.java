@@ -8,8 +8,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import tn.zeros.zchess.core.model.BoardState;
-import tn.zeros.zchess.core.model.Move;
-import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.ui.components.PromotionDialog;
 import tn.zeros.zchess.ui.controller.ChessController;
 import tn.zeros.zchess.ui.util.BoardGeometry;
@@ -122,62 +120,5 @@ public class ChessBoardView extends GridPane implements ChessView {
         label.setPadding(new Insets(5));
         return label;
     }
-
-    @Deprecated
-    public void updateBoard(Move move) {
-        // Update source square
-        int fromRow = move.fromSquare() / 8;
-        int fromCol = move.fromSquare() % 8;
-        squares[fromRow][fromCol].setPiece(Piece.NONE);
-
-        // Update destination square
-        int toRow = move.toSquare() / 8;
-        int toCol = move.toSquare() % 8;
-        Piece displayPiece = move.isPromotion() ?
-                move.promotionPiece() : move.piece();
-        squares[toRow][toCol].setPiece(displayPiece);
-
-        // Handle special moves
-        if (move.isEnPassant()) {
-            handleEnPassantUI(move);
-        } else if (move.isCastling()) {
-            handleCastlingUI(move);
-        }
-    }
-
-    @Deprecated
-    private void handleEnPassantUI(Move move) {
-        int capturedSquare = move.toSquare() +
-                (move.piece().isWhite() ? -8 : 8);
-        int[] coords = BoardGeometry.fromSquareIndex(capturedSquare);
-        squares[coords[0]][coords[1]].setPiece(Piece.NONE);
-    }
-
-    @Deprecated
-    private void handleCastlingUI(Move move) {
-        int[] rookPositions = calculateRookMove(move);
-        updateRookPosition(rookPositions[0], rookPositions[1]);
-    }
-
-    @Deprecated
-    private int[] calculateRookMove(Move move) {
-        int from = move.fromSquare();
-        int to = move.toSquare();
-        boolean kingside = to > from;
-
-        int rookFrom = kingside ? from + 3 : from - 4;
-        int rookTo = kingside ? to - 1 : to + 1;
-
-        return new int[]{rookFrom, rookTo};
-    }
-
-    @Deprecated
-    private void updateRookPosition(int from, int to) {
-        int[] fromCoords = BoardGeometry.fromSquareIndex(from);
-        int[] toCoords = BoardGeometry.fromSquareIndex(to);
-
-        Piece rook = squares[fromCoords[0]][fromCoords[1]].getPiece();
-        squares[fromCoords[0]][fromCoords[1]].setPiece(Piece.NONE);
-        squares[toCoords[0]][toCoords[1]].setPiece(rook);
-    }
+    
 }
