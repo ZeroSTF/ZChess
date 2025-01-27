@@ -2,6 +2,7 @@ package tn.zeros.zchess.ui.view;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -18,13 +19,20 @@ public class SquareView extends StackPane {
 
     public SquareView(Color color, ChessController controller, int squareIndex) {
         setOnMousePressed(e -> {
+            if (e.getButton() != MouseButton.PRIMARY) return;
             controller.getInputHandler().handlePress(squareIndex);
             controller.getInputHandler().handleDrag(e.getSceneX(), e.getSceneY());
         });
 
-        setOnMouseDragged(e -> controller.getInputHandler().handleDrag(e.getSceneX(), e.getSceneY()));
+        setOnMouseDragged(e -> {
+            if (!e.isPrimaryButtonDown()) return;
+            controller.getInputHandler().handleDrag(e.getSceneX(), e.getSceneY());
+        });
 
-        setOnMouseReleased(e -> controller.getInputHandler().handleRelease(e.getSceneX(), e.getSceneY()));
+        setOnMouseReleased(e -> {
+            if (e.getButton() != MouseButton.PRIMARY) return;
+            controller.getInputHandler().handleRelease(e.getSceneX(), e.getSceneY());
+        });
 
         this.originalColor = color;
         background = new Rectangle(
