@@ -27,7 +27,7 @@ public class ChessController {
         this.boardState = new BoardState();
         this.stateManager = new StateManager(boardState);
         this.interactionState = new InteractionState();
-        this.activeInputHandler = new ClickInputHandler(this);
+        this.activeInputHandler = new DragInputHandler(this);
     }
 
     public BoardState getBoardState() {
@@ -193,6 +193,14 @@ public class ChessController {
 
     public InteractionState getInteractionState() {
         return interactionState;
+    }
+
+    public ChessView getView() {
+        return view;
+    }
+
+    public InputHandler getActiveInputHandler() {
+        return activeInputHandler;
     }
 
 }

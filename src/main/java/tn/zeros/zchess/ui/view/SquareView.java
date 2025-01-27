@@ -17,8 +17,20 @@ public class SquareView extends StackPane {
     private Piece currentPiece;
 
     public SquareView(Color color, ChessController controller, int squareIndex) {
-        this.setOnMouseClicked(e -> {
+        /*this.setOnMouseClicked(e -> {
             controller.handleSquareInteraction(squareIndex);
+        });*/
+        setOnMousePressed(e -> {
+            controller.handleSquareInteraction(squareIndex);
+            controller.getActiveInputHandler().handleDrag(e.getSceneX(), e.getSceneY());
+        });
+
+        setOnMouseDragged(e -> {
+            controller.getActiveInputHandler().handleDrag(e.getSceneX(), e.getSceneY());
+        });
+
+        setOnMouseReleased(e -> {
+            controller.getActiveInputHandler().handleRelease(e.getSceneX(), e.getSceneY());
         });
 
         this.originalColor = color;
@@ -77,4 +89,15 @@ public class SquareView extends StackPane {
         refreshDisplay();
     }
 
+    public void hideCurrentPiece() {
+        getChildren().stream()
+                .filter(node -> node instanceof ImageView || node instanceof Text)
+                .forEach(node -> node.setVisible(false));
+    }
+
+    public void showCurrentPiece() {
+        getChildren().stream()
+                .filter(node -> node instanceof ImageView || node instanceof Text)
+                .forEach(node -> node.setVisible(true));
+    }
 }

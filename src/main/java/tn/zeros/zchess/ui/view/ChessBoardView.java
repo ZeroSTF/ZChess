@@ -2,8 +2,11 @@ package tn.zeros.zchess.ui.view;
 
 import javafx.animation.PauseTransition;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
@@ -11,6 +14,7 @@ import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.ui.components.PromotionDialog;
 import tn.zeros.zchess.ui.controller.ChessController;
 import tn.zeros.zchess.ui.util.BoardGeometry;
+import tn.zeros.zchess.ui.util.UIConstants;
 
 import java.util.List;
 
@@ -116,4 +120,29 @@ public class ChessBoardView extends GridPane implements ChessView {
         return label;
     }
 
+    public void addDragImage(ImageView image) {
+        getChildren().add(image);
+    }
+
+    public void removeDragImage(ImageView image) {
+        getChildren().remove(image);
+    }
+
+    @Override
+    public Node getSquareNode(int square) {
+        int row = square / 8;
+        int col = square % 8;
+        return squares[row][col];
+    }
+
+    public int getSquareFromSceneCoordinates(double sceneX, double sceneY) {
+        Point2D boardPoint = sceneToLocal(sceneX, sceneY);
+        int col = (int) (boardPoint.getX() / UIConstants.SQUARE_SIZE);
+        int row = 7 - (int) (boardPoint.getY() / UIConstants.SQUARE_SIZE);
+
+        if (row >= 0 && row < 8 && col >= 0 && col < 8) {
+            return row * 8 + col;
+        }
+        return -1;
+    }
 }
