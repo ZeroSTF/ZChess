@@ -57,18 +57,21 @@ public class ChessController {
     }
 
     private void generateLegalMoves(int square, Piece piece) {
-        List<Move> pseudoLegal = getPseudoLegalMoves(square, piece);
-        currentLegalMoves = LegalMoveFilter.filterLegalMoves(boardState, pseudoLegal);
+        // Get thread-local MoveList and reuse it
+        MoveGenerator.MoveList moveList = MoveGenerator.getThreadLocalMoveList();
+        moveList.clear();
+
+        getPseudoLegalMoves(square, piece, moveList);
+        currentLegalMoves = LegalMoveFilter.filterLegalMoves(boardState, moveList.toList());
     }
 
-    private List<Move> getPseudoLegalMoves(int square, Piece piece) {
-        if (piece.isPawn()) return PawnMoveGenerator.generate(boardState, square);
-        if (piece.isKnight()) return KnightMoveGenerator.generate(boardState, square);
-        if (piece.isBishop()) return BishopMoveGenerator.generate(boardState, square);
-        if (piece.isRook()) return RookMoveGenerator.generate(boardState, square);
-        if (piece.isQueen()) return QueenMoveGenerator.generate(boardState, square);
-        if (piece.isKing()) return KingMoveGenerator.generate(boardState, square);
-        return List.of();
+    private void getPseudoLegalMoves(int square, Piece piece, MoveGenerator.MoveList moveList) {
+        if (piece.isPawn()) PawnMoveGenerator.generate(boardState, square, moveList);
+        else if (piece.isKnight()) KnightMoveGenerator.generate(boardState, square, moveList);
+        else if (piece.isBishop()) BishopMoveGenerator.generate(boardState, square, moveList);
+        else if (piece.isRook()) RookMoveGenerator.generate(boardState, square, moveList);
+        else if (piece.isQueen()) QueenMoveGenerator.generate(boardState, square, moveList);
+        else if (piece.isKing()) KingMoveGenerator.generate(boardState, square, moveList);
     }
 
     private List<Integer> extractTargetSquares() {

@@ -5,16 +5,11 @@ import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.util.PrecomputedMoves;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class PawnMoveGenerator {
-    public static List<Move> generate(BoardState state, int from) {
-        List<Move> moves = new ArrayList<>();
+    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList) {
         Piece pawn = state.getPieceAt(from);
-        if (pawn == null || !pawn.isPawn()) {
-            return moves;
-        }
+        if (pawn == null || !pawn.isPawn()) return;
+
         boolean isWhite = pawn.isWhite();
         long allPieces = state.getAllPieces();
         long enemyPieces = state.getEnemyPieces(isWhite);
@@ -36,16 +31,14 @@ public class PawnMoveGenerator {
             boolean isPromotion = isPromotionRank(to, isWhite);
 
             if (isPromotion) {
-                addPromotionMoves(moves, from, to, pawn, captured);
+                addPromotionMoves(moveList, from, to, pawn, captured);
             } else {
-                moves.add(new Move(
+                moveList.add(new Move(
                         from, to, pawn, captured,
                         false, false, isEnPassant, Piece.NONE
                 ));
             }
         }
-
-        return moves;
     }
 
     private static Piece getCapturedPiece(BoardState state, int from, int to, int enPassantSquare, boolean isWhite) {
@@ -60,7 +53,7 @@ public class PawnMoveGenerator {
         return (isWhite && square >= 56) || (!isWhite && square <= 7);
     }
 
-    private static void addPromotionMoves(List<Move> moves, int from, int to, Piece pawn, Piece captured) {
+    private static void addPromotionMoves(MoveGenerator.MoveList moveList, int from, int to, Piece pawn, Piece captured) {
         Piece[] promotions = {
                 pawn.isWhite() ? Piece.WHITE_QUEEN : Piece.BLACK_QUEEN,
                 pawn.isWhite() ? Piece.WHITE_ROOK : Piece.BLACK_ROOK,
@@ -69,7 +62,7 @@ public class PawnMoveGenerator {
         };
 
         for (Piece promotion : promotions) {
-            moves.add(new Move(
+            moveList.add(new Move(
                     from, to, pawn, captured,
                     true, false, false, promotion
             ));

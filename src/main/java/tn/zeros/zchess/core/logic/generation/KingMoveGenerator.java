@@ -6,33 +6,26 @@ import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.util.ChessConstants;
 import tn.zeros.zchess.core.util.PrecomputedMoves;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class KingMoveGenerator {
-    public static List<Move> generate(BoardState state, int from) {
-        List<Move> moves = new ArrayList<>();
+    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList) {
         Piece king = state.getPieceAt(from);
 
-        if (king == null || !king.isKing()) {
-            return moves;
-        }
+        if (king == null || !king.isKing()) return;
 
         boolean isWhite = king.isWhite();
         long friendlyPieces = state.getFriendlyPieces(isWhite);
 
         // Generate regular king moves
         long possibleMoves = PrecomputedMoves.getKingMoves(from, friendlyPieces);
-        processMoves(state, from, king, possibleMoves, moves);
+        processMoves(state, from, king, possibleMoves, moveList);
 
         // Generate castling moves (separate logic)
         if (state.getCastlingRights() != 0) {
-            addCastlingMoves(state, from, isWhite, moves);
+            addCastlingMoves(state, from, isWhite, moveList);
         }
-        return moves;
     }
 
-    private static void processMoves(BoardState state, int from, Piece king, long moveMask, List<Move> moves) {
+    private static void processMoves(BoardState state, int from, Piece king, long moveMask, MoveGenerator.MoveList moveList) {
         while (moveMask != 0) {
             int to = Long.numberOfTrailingZeros(moveMask);
             moveMask ^= 1L << to;
@@ -41,14 +34,14 @@ public class KingMoveGenerator {
                     state.getPieceAt(to) :
                     Piece.NONE;
 
-            moves.add(new Move(
+            moveList.add(new Move(
                     from, to, king, captured,
                     false, false, false, Piece.NONE
             ));
         }
     }
 
-    private static void addCastlingMoves(BoardState state, int from, boolean isWhite, List<Move> moves) {
+    private static void addCastlingMoves(BoardState state, int from, boolean isWhite, MoveGenerator.MoveList moveList) {
         if (from != (isWhite ? 4 : 60)) return; // King not on starting position
 
         int castlingRights = state.getCastlingRights();
@@ -65,7 +58,7 @@ public class KingMoveGenerator {
             if ((allPieces & kingsideMask) == 0) {
                 int intermediateSquare = from + 1;
                 if (!LegalMoveFilter.isSquareAttacked(state, intermediateSquare, !isWhite)) {
-                    moves.add(new Move(
+                    moveList.add(new Move(
                             from, from + 2, state.getPieceAt(from), Piece.NONE,
                             false, true, false, Piece.NONE
                     ));
@@ -79,7 +72,7 @@ public class KingMoveGenerator {
             if ((allPieces & queensideMask) == 0) {
                 int intermediateSquare = from - 1;
                 if (!LegalMoveFilter.isSquareAttacked(state, intermediateSquare, !isWhite)) {
-                    moves.add(new Move(
+                    moveList.add(new Move(
                             from, from - 2, state.getPieceAt(from), Piece.NONE,
                             false, true, false, Piece.NONE
                     ));

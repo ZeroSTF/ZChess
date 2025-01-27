@@ -5,16 +5,12 @@ import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.util.PrecomputedMoves;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class BishopMoveGenerator {
-    public static List<Move> generate(BoardState state, int from) {
-        List<Move> moves = new ArrayList<>();
+    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList) {
         Piece bishop = state.getPieceAt(from);
 
         if (bishop == null || !bishop.isBishop()) {
-            return moves;
+            return;
         }
 
         boolean isWhite = bishop.isWhite();
@@ -34,12 +30,10 @@ public class BishopMoveGenerator {
                     state.getPieceAt(to) :
                     Piece.NONE;
 
-            moves.add(new Move(
+            moveList.add(new Move(
                     from, to, bishop, captured,
                     false, false, false, Piece.NONE
             ));
         }
-
-        return moves;
     }
 }

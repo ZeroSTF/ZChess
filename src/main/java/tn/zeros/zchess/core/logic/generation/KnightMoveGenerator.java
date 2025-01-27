@@ -5,17 +5,11 @@ import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.util.PrecomputedMoves;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class KnightMoveGenerator {
-    public static List<Move> generate(BoardState state, int from) {
-        List<Move> moves = new ArrayList<>();
+    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList) {
         Piece knight = state.getPieceAt(from);
 
-        if (knight == null || !knight.isKnight()) {
-            return moves;
-        }
+        if (knight == null || !knight.isKnight()) return;
 
         boolean isWhite = knight.isWhite();
         long friendlyPieces = state.getFriendlyPieces(isWhite);
@@ -29,12 +23,10 @@ public class KnightMoveGenerator {
                     state.getPieceAt(to) :
                     Piece.NONE;
 
-            moves.add(new Move(
+            moveList.add(new Move(
                     from, to, knight, captured,
                     false, false, false, Piece.NONE
             ));
         }
-
-        return moves;
     }
 }

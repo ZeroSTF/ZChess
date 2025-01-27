@@ -11,6 +11,6 @@ public class MoveGeneratorTest {
         int testSquare = 11;
         BoardState testState = new BoardState();
         testState.setRank(ChessConstants.PAWN, ChessConstants.WHITE, 1);
-        System.out.println(PawnMoveGenerator.generate(testState, testSquare));
+        //System.out.println(PawnMoveGenerator.generate(testState, testSquare));
     }
 }

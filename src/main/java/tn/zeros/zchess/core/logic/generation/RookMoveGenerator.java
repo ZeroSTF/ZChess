@@ -5,17 +5,11 @@ import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.util.PrecomputedMoves;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class RookMoveGenerator {
-    public static List<Move> generate(BoardState state, int from) {
-        List<Move> moves = new ArrayList<>();
+    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList) {
         Piece rook = state.getPieceAt(from);
 
-        if (rook == null || !rook.isRook()) {
-            return moves;
-        }
+        if (rook == null || !rook.isRook()) return;
 
         boolean isWhite = rook.isWhite();
         long allPieces = state.getAllPieces();
@@ -31,12 +25,10 @@ public class RookMoveGenerator {
             Piece target = state.getPieceAt(to);
             Piece captured = target.isWhite() != isWhite ? target : Piece.NONE;
 
-            moves.add(new Move(
+            moveList.add(new Move(
                     from, to, rook, captured,
                     false, false, false, Piece.NONE
             ));
         }
-
-        return moves;
     }
 }
