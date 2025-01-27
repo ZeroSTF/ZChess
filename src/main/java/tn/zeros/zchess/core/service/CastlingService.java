@@ -6,24 +6,6 @@ import tn.zeros.zchess.core.util.ChessConstants;
 
 public class CastlingService {
 
-    public static boolean canCastle(BoardState state, int fromSquare, int toSquare) {
-        if (fromSquare == 4) {
-            if (toSquare == 6) {
-                return (state.getCastlingRights() & ChessConstants.WHITE_KINGSIDE) != 0;
-            } else if (toSquare == 2) {
-                return (state.getCastlingRights() & ChessConstants.WHITE_QUEENSIDE) != 0;
-            }
-        }
-        else if (fromSquare == 60) {
-            if (toSquare == 62) {
-                return (state.getCastlingRights() & ChessConstants.BLACK_KINGSIDE) != 0;
-            } else if (toSquare == 58) {
-                return (state.getCastlingRights() & ChessConstants.BLACK_QUEENSIDE) != 0;
-            }
-        }
-        return false;
-    }
-
     public static void updateCastlingRights(BoardState state, Piece movedPiece, int fromSquare) {
         int rights = state.getCastlingRights();
 

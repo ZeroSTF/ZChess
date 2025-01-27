@@ -2,6 +2,7 @@ package tn.zeros.zchess.core.logic.generation;
 
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
+import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.util.ChessConstants;
 import tn.zeros.zchess.core.util.PrecomputedMoves;
 
@@ -22,7 +23,11 @@ public class LegalMoveFilter {
     }
 
     private static boolean isMoveLegal(BoardState state, Move move, boolean isWhite) {
-        return true;
+        var undoInfo = MoveExecutor.makeMove(state, move);
+        int kingSquare = state.getKingSquare(isWhite);
+        boolean inCheck = isSquareAttacked(state, kingSquare, !isWhite);
+        MoveExecutor.unmakeMove(state, undoInfo);
+        return !inCheck;
     }
 
     static boolean isSquareAttacked(BoardState state, int square, boolean byWhite) {
