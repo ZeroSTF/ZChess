@@ -67,6 +67,7 @@ public class ChessBoardView extends GridPane implements ChessView {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 squares[row][col].highlightWithColor(false, null);
+                squares[row][col].setLegalMove(false);
             }
         }
     }
@@ -93,32 +94,38 @@ public class ChessBoardView extends GridPane implements ChessView {
         clearHighlights();
 
         // Highlight last move squares
-        int lastMoveFrom = controller.getInteractionState().getLastMoveFrom();
-        int lastMoveTo = controller.getInteractionState().getLastMoveTo();
-        if (lastMoveFrom != -1) {
-            int fromRow = lastMoveFrom / 8;
-            int fromCol = lastMoveFrom % 8;
-            squares[fromRow][fromCol].highlightWithColor(true, UIConstants.LAST_MOVE_COLOR); // Color for "from" square
-        }
-        if (lastMoveTo != -1) {
-            int toRow = lastMoveTo / 8;
-            int toCol = lastMoveTo % 8;
-            squares[toRow][toCol].highlightWithColor(true, UIConstants.LAST_MOVE_COLOR); // Color for "to" square
-        }
+        highlightLastMove();
 
         // Highlight selected square
-        int selectedSquare = controller.getInteractionState().getSelectedSquare();
-        if (selectedSquare != -1) {
-            int selectedRow = selectedSquare / 8;
-            int selectedCol = selectedSquare % 8;
-            squares[selectedRow][selectedCol].highlightWithColor(true, UIConstants.SELECTED_SQUARE_COLOR); // Color for selected square
-        }
+        highlightSelectedSquare();
 
-        // Highlight legal moves
+        // Set legal moves
         for (int square : legalSquares) {
             int row = square / 8;
             int col = square % 8;
-            squares[row][col].highlightWithColor(true, UIConstants.LEGAL_MOVE_COLOR); // Color for legal moves
+            squares[row][col].setLegalMove(true);
+        }
+    }
+
+    private void highlightLastMove() {
+        int lastMoveFrom = controller.getInteractionState().getLastMoveFrom();
+        int lastMoveTo = controller.getInteractionState().getLastMoveTo();
+
+        if (lastMoveFrom != -1) {
+            squares[lastMoveFrom / 8][lastMoveFrom % 8]
+                    .highlightWithColor(true, UIConstants.LAST_MOVE_COLOR);
+        }
+        if (lastMoveTo != -1) {
+            squares[lastMoveTo / 8][lastMoveTo % 8]
+                    .highlightWithColor(true, UIConstants.LAST_MOVE_COLOR);
+        }
+    }
+
+    private void highlightSelectedSquare() {
+        int selectedSquare = controller.getInteractionState().getSelectedSquare();
+        if (selectedSquare != -1) {
+            squares[selectedSquare / 8][selectedSquare % 8]
+                    .highlightWithColor(true, UIConstants.SELECTED_SQUARE_COLOR);
         }
     }
 

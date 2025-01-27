@@ -5,6 +5,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import tn.zeros.zchess.core.model.Piece;
@@ -14,8 +15,10 @@ import tn.zeros.zchess.ui.util.UIConstants;
 
 public class SquareView extends StackPane {
     private final Rectangle background;
+    private final Circle legalMoveDot;
     private final Color originalColor;
     private Piece currentPiece;
+    private boolean isLegalMove;
 
     public SquareView(Color color, ChessController controller, int squareIndex) {
         setOnMousePressed(e -> {
@@ -40,7 +43,31 @@ public class SquareView extends StackPane {
                 UIConstants.SQUARE_SIZE,
                 color
         );
-        getChildren().add(background);
+        legalMoveDot = new Circle(
+                UIConstants.SQUARE_SIZE * UIConstants.LEGAL_MOVE_DOT_RADIUS,
+                UIConstants.LEGAL_MOVE_DOT_COLOR
+        );
+        legalMoveDot.setVisible(false);
+
+        getChildren().addAll(background, legalMoveDot);
+
+        setOnMouseEntered(e -> {
+            if (isLegalMove) {
+                highlightWithColor(true, UIConstants.LEGAL_MOVE_HOVER_COLOR);
+            }
+        });
+
+        setOnMouseExited(e -> {
+            if (isLegalMove) {
+                background.setFill(originalColor);
+                legalMoveDot.setVisible(true);
+            }
+        });
+    }
+
+    public void setLegalMove(boolean isLegal) {
+        this.isLegalMove = isLegal;
+        legalMoveDot.setVisible(isLegal);
     }
 
     private void refreshDisplay() {
@@ -78,8 +105,14 @@ public class SquareView extends StackPane {
         if (highlight) {
             Color blendedColor = blendColors(originalColor, overlayColor);
             background.setFill(blendedColor);
+            if (isLegalMove) {
+                legalMoveDot.setVisible(false); // Hide dot when square is highlighted
+            }
         } else {
             background.setFill(originalColor);
+            if (isLegalMove) {
+                legalMoveDot.setVisible(true); // Show dot when not highlighted
+            }
         }
     }
 
