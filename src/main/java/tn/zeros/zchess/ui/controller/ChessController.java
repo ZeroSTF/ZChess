@@ -44,7 +44,8 @@ public class ChessController {
             interactionState.setSelectedSquare(square);
             interactionState.clearCurrentLegalMoves();
             generateLegalMoves(square, piece);
-            view.updateHighlights(extractTargetSquares());
+            int kingInCheck = LegalMoveFilter.getKingInCheckSquare(boardState, boardState.isWhiteToMove());
+            view.updateHighlights(extractTargetSquares(), kingInCheck);
         } else {
             resetSelection();
         }
@@ -123,13 +124,16 @@ public class ChessController {
 
         MoveUndoInfo undoInfo = MoveExecutor.makeMove(boardState, move);
         stateManager.saveState(undoInfo);
+        int kingInCheck = LegalMoveFilter.getKingInCheckSquare(boardState, boardState.isWhiteToMove());
         view.refreshEntireBoard();
+        view.updateHighlights(Collections.emptyList(), kingInCheck);
         playMoveSound(move);
         stateManager.clearRedo();
     }
 
     private void resetSelection() {
-        view.updateHighlights(Collections.emptyList());
+        int kingInCheck = LegalMoveFilter.getKingInCheckSquare(boardState, boardState.isWhiteToMove());
+        view.updateHighlights(Collections.emptyList(), kingInCheck);
         interactionState.setSelectedSquare(-1);
         interactionState.clearCurrentLegalMoves();
     }
@@ -157,6 +161,8 @@ public class ChessController {
             interactionState.setLastMoveFrom(move.fromSquare());
             interactionState.setLastMoveTo(move.toSquare());
             interactionState.setSelectedSquare(-1);
+            int kingInCheck = LegalMoveFilter.getKingInCheckSquare(boardState, boardState.isWhiteToMove());
+            view.updateHighlights(Collections.emptyList(), kingInCheck);
         }
     }
 
@@ -167,6 +173,8 @@ public class ChessController {
             interactionState.setLastMoveFrom(move.fromSquare());
             interactionState.setLastMoveTo(move.toSquare());
             interactionState.setSelectedSquare(-1);
+            int kingInCheck = LegalMoveFilter.getKingInCheckSquare(boardState, boardState.isWhiteToMove());
+            view.updateHighlights(Collections.emptyList(), kingInCheck);
         }
     }
 

@@ -11,12 +11,14 @@ import javafx.scene.text.Text;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.ui.controller.ChessController;
 import tn.zeros.zchess.ui.util.AssetLoader;
+import tn.zeros.zchess.ui.util.EffectUtils;
 import tn.zeros.zchess.ui.util.UIConstants;
 
 public class SquareView extends StackPane {
     private final Rectangle background;
     private final Circle legalMoveDot;
     private final Color originalColor;
+    private final Rectangle checkOverlay;
     private Piece currentPiece;
     private boolean isLegalMove;
 
@@ -38,6 +40,7 @@ public class SquareView extends StackPane {
         });
 
         this.originalColor = color;
+
         background = new Rectangle(
                 UIConstants.SQUARE_SIZE,
                 UIConstants.SQUARE_SIZE,
@@ -49,7 +52,14 @@ public class SquareView extends StackPane {
         );
         legalMoveDot.setVisible(false);
 
-        getChildren().addAll(background, legalMoveDot);
+        checkOverlay = new Rectangle(
+                UIConstants.SQUARE_SIZE,
+                UIConstants.SQUARE_SIZE
+        );
+        checkOverlay.setVisible(false);
+        checkOverlay.setFill(EffectUtils.gradient);
+
+        getChildren().addAll(background, legalMoveDot, checkOverlay);
 
         setOnMouseEntered(e -> {
             if (isLegalMove) {
@@ -144,5 +154,9 @@ public class SquareView extends StackPane {
         getChildren().stream()
                 .filter(node -> node instanceof ImageView || node instanceof Text)
                 .forEach(node -> node.setVisible(true));
+    }
+
+    public void setCheck(boolean inCheck) {
+        checkOverlay.setVisible(inCheck);
     }
 }

@@ -21,10 +21,17 @@ public class LegalMoveFilter {
         }
         return legalMoves;
     }
-    
+
     public static boolean inCheck(BoardState state, boolean whiteKing) {
         int kingSquare = state.getKingSquare(whiteKing);
         return isSquareAttacked(state, kingSquare, !whiteKing);
+    }
+
+    public static int getKingInCheckSquare(BoardState state, boolean whiteKing) {
+        int kingSquare = state.getKingSquare(whiteKing);
+        return isSquareAttacked(state, kingSquare, !whiteKing) ?
+                kingSquare :
+                -1;
     }
 
     private static boolean isMoveLegal(BoardState state, Move move, boolean isWhite) {

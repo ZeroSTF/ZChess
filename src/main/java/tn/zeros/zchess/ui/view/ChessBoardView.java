@@ -90,7 +90,7 @@ public class ChessBoardView extends GridPane implements ChessView {
     }
 
     @Override
-    public void updateHighlights(List<Integer> legalSquares) {
+    public void updateHighlights(List<Integer> legalSquares, int kingInCheckSquare) {
         clearHighlights();
 
         // Highlight last move squares
@@ -98,6 +98,11 @@ public class ChessBoardView extends GridPane implements ChessView {
 
         // Highlight selected square
         highlightSelectedSquare();
+
+        // Highlight check square
+        if (kingInCheckSquare != -1) {
+            squares[kingInCheckSquare / 8][kingInCheckSquare % 8].setCheck(true);
+        }
 
         // Set legal moves
         for (int square : legalSquares) {

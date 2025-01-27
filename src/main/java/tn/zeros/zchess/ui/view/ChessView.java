@@ -13,7 +13,7 @@ public interface ChessView {
 
     void showPromotionDialog(boolean isWhite);
 
-    void updateHighlights(List<Integer> legalSquares);
+    void updateHighlights(List<Integer> legalSquares, int kingInCheckSquare);
 
     Node getSquareNode(int square);
 }
