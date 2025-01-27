@@ -26,7 +26,7 @@ public class InputHandler {
             sourceSquare.hideCurrentPiece();
             createDragImage(piece);
             controller.handlePieceSelection(square);
-        } else if (piece == Piece.NONE) {
+        } else if (piece == Piece.NONE || !piece.isWhite() == controller.getBoardState().isWhiteToMove()) {
             if (controller.getInteractionState().getSelectedSquare() == -1) {
                 controller.handlePieceSelection(square);
             } else {
