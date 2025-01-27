@@ -21,11 +21,15 @@ public class LegalMoveFilter {
         }
         return legalMoves;
     }
+    
+    public static boolean inCheck(BoardState state, boolean whiteKing) {
+        int kingSquare = state.getKingSquare(whiteKing);
+        return isSquareAttacked(state, kingSquare, !whiteKing);
+    }
 
     private static boolean isMoveLegal(BoardState state, Move move, boolean isWhite) {
         var undoInfo = MoveExecutor.makeMove(state, move);
-        int kingSquare = state.getKingSquare(isWhite);
-        boolean inCheck = isSquareAttacked(state, kingSquare, !isWhite);
+        boolean inCheck = inCheck(state, isWhite);
         MoveExecutor.unmakeMove(state, undoInfo);
         return !inCheck;
     }

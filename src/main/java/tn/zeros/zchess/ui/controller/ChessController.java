@@ -8,7 +8,6 @@ import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.service.FenService;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.service.StateManager;
-import tn.zeros.zchess.core.service.ThreatDetectionService;
 import tn.zeros.zchess.ui.util.SoundManager;
 import tn.zeros.zchess.ui.view.ChessBoardView;
 import tn.zeros.zchess.ui.view.ChessView;
@@ -136,7 +135,7 @@ public class ChessController {
     }
 
     private void playMoveSound(Move move) {
-        boolean inCheck = ThreatDetectionService.isInCheck(boardState, boardState.isWhiteToMove());
+        boolean inCheck = LegalMoveFilter.inCheck(boardState, boardState.isWhiteToMove());
 
         if (inCheck) {
             SoundManager.playMoveCheck();
