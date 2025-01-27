@@ -85,10 +85,11 @@ public class ChessController {
 
         if (move != null) {
             handleMove(move);
+            resetSelection();
         } else {
-            view.showError("Illegal move");
+            handlePieceSelection(targetSquare);
         }
-        resetSelection();
+
     }
 
     private Move findMoveByTarget(int targetSquare) {
