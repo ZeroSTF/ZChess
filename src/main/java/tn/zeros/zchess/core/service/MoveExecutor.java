@@ -89,7 +89,7 @@ public class MoveExecutor {
         }
     }
 
-    public static void unmakeMove(BoardState state, MoveUndoInfo undoInfo) {
+    public static Move unmakeMove(BoardState state, MoveUndoInfo undoInfo) {
         Move move = undoInfo.move();
 
         // Restore game state
@@ -108,6 +108,7 @@ public class MoveExecutor {
         } else {
             unmakeRegularMove(state, move);
         }
+        return move;
     }
 
     private static void unmakeRegularMove(BoardState state, Move move) {

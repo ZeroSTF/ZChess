@@ -8,11 +8,11 @@ public class UIConstants {
     public static final int SQUARE_SIZE = 95;
 
     // Colors
-    public static final Color LIGHT_SQUARE_COLOR = Color.valueOf("#F0D9B5");
-    public static final Color DARK_SQUARE_COLOR = Color.valueOf("#B58863");
-    public static final Color LAST_MOVE_COLOR = Color.valueOf("#FF0000");
-    public static final Color SELECTED_SQUARE_COLOR = Color.valueOf("#00FFFF");
-    public static final Color LEGAL_MOVE_COLOR = Color.valueOf("#00FF00");
+    public static final Color LIGHT_SQUARE_COLOR = Color.web("#F0D9B5");
+    public static final Color DARK_SQUARE_COLOR = Color.web("#B58863");
+    public static final Color LAST_MOVE_COLOR = Color.web("#9bc700", 0.41);
+    public static final Color SELECTED_SQUARE_COLOR = Color.web("#14551e", 0.5);
+    public static final Color LEGAL_MOVE_COLOR = Color.web("#96BB6D", 0.3);
     // Fonts
     public static final Font PIECE_FONT = Font.font("Arial", 24);
 

@@ -18,7 +18,7 @@ public class SquareView extends StackPane {
 
     public SquareView(Color color, ChessController controller, int squareIndex) {
         setOnMousePressed(e -> {
-            controller.handleSquareInteraction(squareIndex);
+            controller.getInputHandler().handlePress(squareIndex);
             controller.getInputHandler().handleDrag(e.getSceneX(), e.getSceneY());
         });
 
@@ -68,14 +68,15 @@ public class SquareView extends StackPane {
 
     public void highlightWithColor(boolean highlight, Color overlayColor) {
         if (highlight) {
-            Color blendedColor = blendColors(originalColor, overlayColor, 0.5); // Adjustable alpha
+            Color blendedColor = blendColors(originalColor, overlayColor);
             background.setFill(blendedColor);
         } else {
             background.setFill(originalColor);
         }
     }
 
-    private Color blendColors(Color base, Color overlay, double overlayAlpha) {
+    private Color blendColors(Color base, Color overlay) {
+        double overlayAlpha = overlay.getOpacity();
         // Calculate blended color components
         double r = (1 - overlayAlpha) * base.getRed() + overlayAlpha * overlay.getRed();
         double g = (1 - overlayAlpha) * base.getGreen() + overlayAlpha * overlay.getGreen();

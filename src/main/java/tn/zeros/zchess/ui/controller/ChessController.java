@@ -38,10 +38,6 @@ public class ChessController {
         this.view = view;
     }
 
-    public void handleSquareInteraction(int square) {
-        inputHandler.handlePress(square);
-    }
-
     public void handlePieceSelection(int square) {
         Piece piece = boardState.getPieceAt(square);
         if (piece != Piece.NONE && piece.isWhite() == boardState.isWhiteToMove()) {
@@ -154,25 +150,23 @@ public class ChessController {
         }
     }
 
-    private boolean checkEnPassant(Piece piece, int toSquare) {
-        return piece.isPawn() && toSquare == boardState.getEnPassantSquare();
-    }
-
-    private boolean checkCastling(Piece piece, int from, int to) {
-        if (!piece.isKing()) return false;
-        int delta = Math.abs(from - to);
-        return delta == 2 && (from == 4 || from == 60);
-    }
-
     public void undo() {
-        if (stateManager.undo()) {
+        Move move = stateManager.undo();
+        if (move != null) {
             view.refreshEntireBoard();
+            interactionState.setLastMoveFrom(move.fromSquare());
+            interactionState.setLastMoveTo(move.toSquare());
+            interactionState.setSelectedSquare(-1);
         }
     }
 
     public void redo() {
-        if (stateManager.redo()) {
+        Move move = stateManager.redo();
+        if (move != null) {
             view.refreshEntireBoard();
+            interactionState.setLastMoveFrom(move.fromSquare());
+            interactionState.setLastMoveTo(move.toSquare());
+            interactionState.setSelectedSquare(-1);
         }
     }
 
