@@ -12,11 +12,6 @@ import static tn.zeros.zchess.ui.util.UIConstants.*;
 public class SoundManager {
     private static final Map<SoundType, Media> SOUND_CACHE = new EnumMap<>(SoundType.class);
 
-    public enum SoundType {
-        MOVE, MOVE_CHECK, MOVE_OPPONENT,
-        CAPTURE, CASTLE, PROMOTION, PREMOVE
-    }
-
     static {
         SOUND_CACHE.put(SoundType.MOVE, loadSound(MOVE_SOUND));
         SOUND_CACHE.put(SoundType.MOVE_CHECK, loadSound(MOVE_CHECK_SOUND));
@@ -25,6 +20,9 @@ public class SoundManager {
         SOUND_CACHE.put(SoundType.CASTLE, loadSound(CASTLE_SOUND));
         SOUND_CACHE.put(SoundType.PROMOTION, loadSound(PROMOTION_SOUND));
         SOUND_CACHE.put(SoundType.PREMOVE, loadSound(PREMOVE_SOUND));
+    }
+
+    public static void initialize() {
     }
 
     private static Media loadSound(String path) {
@@ -71,5 +69,10 @@ public class SoundManager {
 
     public static void playPremove() {
         playSound(SoundType.PREMOVE);
+    }
+
+    public enum SoundType {
+        MOVE, MOVE_CHECK, MOVE_OPPONENT,
+        CAPTURE, CASTLE, PROMOTION, PREMOVE
     }
 }

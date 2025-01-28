@@ -27,7 +27,7 @@ public class ZChessApp extends Application {
     @Override
     public void start(Stage primaryStage) {
         // Preload sounds
-        SoundManager.class.getName();
+        SoundManager.initialize();
 
         // Initialize core components
         ChessController controller = new ChessController();
