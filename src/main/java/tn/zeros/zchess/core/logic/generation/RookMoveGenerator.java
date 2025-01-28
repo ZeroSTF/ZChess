@@ -7,11 +7,11 @@ import tn.zeros.zchess.core.util.PrecomputedMoves;
 
 public class RookMoveGenerator {
     public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList) {
-        Piece rook = state.getPieceAt(from);
+        int rook = state.getPieceAt(from);
 
-        if (rook == null || !rook.isRook()) return;
+        if (rook == Piece.NONE || !Piece.isRook(rook)) return;
 
-        boolean isWhite = rook.isWhite();
+        boolean isWhite = Piece.isWhite(rook);
         long allPieces = state.getAllPieces();
         long friendlyPieces = state.getFriendlyPieces(isWhite);
 
@@ -22,8 +22,8 @@ public class RookMoveGenerator {
             int to = Long.numberOfTrailingZeros(possibleMoves);
             possibleMoves ^= 1L << to;
 
-            Piece target = state.getPieceAt(to);
-            Piece captured = target.isWhite() != isWhite ? target : Piece.NONE;
+            int target = state.getPieceAt(to);
+            int captured = Piece.isWhite(target) != isWhite ? target : Piece.NONE;
 
             moveList.add(new Move(
                     from, to, rook, captured,

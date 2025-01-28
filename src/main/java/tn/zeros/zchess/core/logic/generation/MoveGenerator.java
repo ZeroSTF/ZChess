@@ -2,11 +2,10 @@ package tn.zeros.zchess.core.logic.generation;
 
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
+import tn.zeros.zchess.core.model.Piece;
 
 import java.util.Arrays;
 import java.util.List;
-
-import static tn.zeros.zchess.core.util.ChessConstants.*;
 
 public abstract class MoveGenerator {
     // Thread-local list pool to avoid allocations
@@ -38,7 +37,7 @@ public abstract class MoveGenerator {
     }
 
     private static void generatePawnMoves(BoardState state, MoveList moveList) {
-        long pawns = state.getPieces(PAWN, state.isWhiteToMove() ? WHITE : BLACK);
+        long pawns = state.getPieces(Piece.PAWN, state.isWhiteToMove() ? Piece.WHITE : Piece.BLACK);
         while (pawns != 0) {
             int from = Long.numberOfTrailingZeros(pawns);
             PawnMoveGenerator.generate(state, from, moveList);
@@ -47,7 +46,7 @@ public abstract class MoveGenerator {
     }
 
     private static void generateKnightMoves(BoardState state, MoveList moveList) {
-        long knights = state.getPieces(KNIGHT, state.isWhiteToMove() ? WHITE : BLACK);
+        long knights = state.getPieces(Piece.KNIGHT, state.isWhiteToMove() ? Piece.WHITE : Piece.BLACK);
         while (knights != 0) {
             int from = Long.numberOfTrailingZeros(knights);
             KnightMoveGenerator.generate(state, from, moveList);
@@ -56,7 +55,7 @@ public abstract class MoveGenerator {
     }
 
     private static void generateBishopMoves(BoardState state, MoveList moveList) {
-        long bishops = state.getPieces(BISHOP, state.isWhiteToMove() ? WHITE : BLACK);
+        long bishops = state.getPieces(Piece.BISHOP, state.isWhiteToMove() ? Piece.WHITE : Piece.BLACK);
         while (bishops != 0) {
             int from = Long.numberOfTrailingZeros(bishops);
             BishopMoveGenerator.generate(state, from, moveList);
@@ -65,7 +64,7 @@ public abstract class MoveGenerator {
     }
 
     private static void generateRookMoves(BoardState state, MoveList moveList) {
-        long rooks = state.getPieces(ROOK, state.isWhiteToMove() ? WHITE : BLACK);
+        long rooks = state.getPieces(Piece.ROOK, state.isWhiteToMove() ? Piece.WHITE : Piece.BLACK);
         while (rooks != 0) {
             int from = Long.numberOfTrailingZeros(rooks);
             RookMoveGenerator.generate(state, from, moveList);
@@ -74,7 +73,7 @@ public abstract class MoveGenerator {
     }
 
     private static void generateQueenMoves(BoardState state, MoveList moveList) {
-        long queens = state.getPieces(QUEEN, state.isWhiteToMove() ? WHITE : BLACK);
+        long queens = state.getPieces(Piece.QUEEN, state.isWhiteToMove() ? Piece.WHITE : Piece.BLACK);
         while (queens != 0) {
             int from = Long.numberOfTrailingZeros(queens);
             QueenMoveGenerator.generate(state, from, moveList);
@@ -83,7 +82,7 @@ public abstract class MoveGenerator {
     }
 
     private static void generateKingMoves(BoardState state, MoveList moveList) {
-        long kings = state.getPieces(KING, state.isWhiteToMove() ? WHITE : BLACK);
+        long kings = state.getPieces(Piece.KING, state.isWhiteToMove() ? Piece.WHITE : Piece.BLACK);
         while (kings != 0) {
             int from = Long.numberOfTrailingZeros(kings);
             KingMoveGenerator.generate(state, from, moveList);

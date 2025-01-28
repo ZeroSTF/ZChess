@@ -39,7 +39,7 @@ public class MoveExecutor {
     }
 
     private static void executeEnPassant(BoardState state, Move move) {
-        int capturedSquare = move.toSquare() + (move.piece().isWhite() ? -8 : 8);
+        int capturedSquare = move.toSquare() + (Piece.isWhite(move.piece()) ? -8 : 8);
         state.movePiece(move.fromSquare(), move.toSquare(), move.piece());
         state.removePiece(capturedSquare, move.capturedPiece());
     }
@@ -52,7 +52,7 @@ public class MoveExecutor {
         int rookTo = kingside ? to - 1 : to + 1;
 
         state.movePiece(from, to, move.piece());
-        Piece rook = move.piece().isWhite() ? Piece.WHITE_ROOK : Piece.BLACK_ROOK;
+        int rook = Piece.isWhite(move.piece()) ? Piece.makePiece(3, 0) : Piece.makePiece(3, 1);
         state.movePiece(rookFrom, rookTo, rook);
     }
 
@@ -69,8 +69,8 @@ public class MoveExecutor {
     }
 
     private static void updateEnPassant(BoardState state, Move move) {
-        if (move.piece().isPawn() && Math.abs(move.toSquare() / 8 - move.fromSquare() / 8) == 2) {
-            int epSquare = move.fromSquare() + (move.piece().isWhite() ? 8 : -8);
+        if (Piece.isPawn(move.piece()) && Math.abs(move.toSquare() / 8 - move.fromSquare() / 8) == 2) {
+            int epSquare = move.fromSquare() + (Piece.isWhite(move.piece()) ? 8 : -8);
             state.setEnPassantSquare(epSquare);
         } else {
             state.setEnPassantSquare(-1);
@@ -78,13 +78,13 @@ public class MoveExecutor {
     }
 
     private static void updateMoveClocks(BoardState state, Move move) {
-        if (move.piece().isPawn() || move.capturedPiece() != Piece.NONE) {
+        if (Piece.isPawn(move.piece()) || move.capturedPiece() != Piece.NONE) {
             state.setHalfMoveClock(0);
         } else {
             state.setHalfMoveClock(state.getHalfMoveClock() + 1);
         }
 
-        if (!move.piece().isWhite()) {
+        if (!Piece.isWhite(move.piece())) {
             state.setFullMoveNumber(state.getFullMoveNumber() + 1);
         }
     }
@@ -122,7 +122,7 @@ public class MoveExecutor {
     }
 
     private static void unmakeEnPassant(BoardState state, Move move) {
-        int capturedSquare = move.toSquare() + (move.piece().isWhite() ? -8 : 8);
+        int capturedSquare = move.toSquare() + (Piece.isWhite(move.piece()) ? -8 : 8);
 
         // Move pawn back
         state.movePiece(move.toSquare(), move.fromSquare(), move.piece());
@@ -142,7 +142,7 @@ public class MoveExecutor {
         // Move rook back (calculate from move data)
         int rookFrom = kingside ? from + 3 : from - 4;
         int rookTo = kingside ? to - 1 : to + 1;
-        Piece rook = move.piece().isWhite() ? Piece.WHITE_ROOK : Piece.BLACK_ROOK;
+        int rook = Piece.isWhite(move.piece()) ? Piece.makePiece(3, 0) : Piece.makePiece(3, 1);
         state.movePiece(rookTo, rookFrom, rook);
     }
 

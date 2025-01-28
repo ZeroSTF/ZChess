@@ -7,13 +7,13 @@ import tn.zeros.zchess.core.util.PrecomputedMoves;
 
 public class BishopMoveGenerator {
     public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList) {
-        Piece bishop = state.getPieceAt(from);
+        int bishop = state.getPieceAt(from);
 
-        if (bishop == null || !bishop.isBishop()) {
+        if (bishop == Piece.NONE || !Piece.isBishop(bishop)) {
             return;
         }
 
-        boolean isWhite = bishop.isWhite();
+        boolean isWhite = Piece.isWhite(bishop);
         long allPieces = state.getAllPieces();
         long friendlyPieces = state.getFriendlyPieces(isWhite);
 
@@ -26,7 +26,7 @@ public class BishopMoveGenerator {
             int to = Long.numberOfTrailingZeros(possibleMoves);
             possibleMoves ^= 1L << to;
 
-            Piece captured = state.getPieceAt(to).isWhite() != isWhite ?
+            int captured = Piece.isWhite(state.getPieceAt(to)) != isWhite ?
                     state.getPieceAt(to) :
                     Piece.NONE;
 

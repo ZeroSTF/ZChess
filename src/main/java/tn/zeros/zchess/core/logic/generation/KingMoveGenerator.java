@@ -8,11 +8,11 @@ import tn.zeros.zchess.core.util.PrecomputedMoves;
 
 public class KingMoveGenerator {
     public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList) {
-        Piece king = state.getPieceAt(from);
+        int king = state.getPieceAt(from);
 
-        if (king == null || !king.isKing()) return;
+        if (king == Piece.NONE || !Piece.isKing(king)) return;
 
-        boolean isWhite = king.isWhite();
+        boolean isWhite = Piece.isWhite(king);
         long friendlyPieces = state.getFriendlyPieces(isWhite);
 
         // Generate regular king moves
@@ -25,12 +25,12 @@ public class KingMoveGenerator {
         }
     }
 
-    private static void processMoves(BoardState state, int from, Piece king, long moveMask, MoveGenerator.MoveList moveList) {
+    private static void processMoves(BoardState state, int from, int king, long moveMask, MoveGenerator.MoveList moveList) {
         while (moveMask != 0) {
             int to = Long.numberOfTrailingZeros(moveMask);
             moveMask ^= 1L << to;
 
-            Piece captured = state.getPieceAt(to).isWhite() != king.isWhite() ?
+            int captured = Piece.isWhite(state.getPieceAt(to)) != Piece.isWhite(king) ?
                     state.getPieceAt(to) :
                     Piece.NONE;
 

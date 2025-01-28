@@ -7,11 +7,11 @@ import tn.zeros.zchess.core.util.PrecomputedMoves;
 
 public class KnightMoveGenerator {
     public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList) {
-        Piece knight = state.getPieceAt(from);
+        int knight = state.getPieceAt(from);
 
-        if (knight == null || !knight.isKnight()) return;
+        if (knight == Piece.NONE || !Piece.isKnight(knight)) return;
 
-        boolean isWhite = knight.isWhite();
+        boolean isWhite = Piece.isWhite(knight);
         long friendlyPieces = state.getFriendlyPieces(isWhite);
         long possibleMoves = PrecomputedMoves.getKnightMoves(from, friendlyPieces);
 
@@ -19,7 +19,7 @@ public class KnightMoveGenerator {
             int to = Long.numberOfTrailingZeros(possibleMoves);
             possibleMoves ^= 1L << to;
 
-            Piece captured = state.getPieceAt(to).isWhite() != isWhite ?
+            int captured = Piece.isWhite(state.getPieceAt(to)) != isWhite ?
                     state.getPieceAt(to) :
                     Piece.NONE;
 

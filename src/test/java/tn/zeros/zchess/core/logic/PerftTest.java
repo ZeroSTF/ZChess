@@ -5,6 +5,7 @@ import tn.zeros.zchess.core.logic.generation.MoveGenerator;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.MoveUndoInfo;
+import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.service.FenService;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.util.ChessConstants;
@@ -94,7 +95,7 @@ public class PerftTest {
         String from = squareToAlgebraic(move.fromSquare());
         String to = squareToAlgebraic(move.toSquare());
         String promotion = move.isPromotion() ?
-                Character.toString(Character.toLowerCase(move.promotionPiece().getSymbol())) : "";
+                Character.toString(Character.toLowerCase(Piece.getSymbol(move.promotionPiece()))) : "";
         return from + to + promotion;
     }
 

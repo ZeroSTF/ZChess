@@ -1,93 +1,106 @@
 package tn.zeros.zchess.core.model;
 
-public enum Piece {
-    WHITE_PAWN(PieceType.PAWN, Color.WHITE),
-    WHITE_KNIGHT(PieceType.KNIGHT, Color.WHITE),
-    WHITE_BISHOP(PieceType.BISHOP, Color.WHITE),
-    WHITE_ROOK(PieceType.ROOK, Color.WHITE),
-    WHITE_QUEEN(PieceType.QUEEN, Color.WHITE),
-    WHITE_KING(PieceType.KING, Color.WHITE),
-    BLACK_PAWN(PieceType.PAWN, Color.BLACK),
-    BLACK_KNIGHT(PieceType.KNIGHT, Color.BLACK),
-    BLACK_BISHOP(PieceType.BISHOP, Color.BLACK),
-    BLACK_ROOK(PieceType.ROOK, Color.BLACK),
-    BLACK_QUEEN(PieceType.QUEEN, Color.BLACK),
-    BLACK_KING(PieceType.KING, Color.BLACK),
-    NONE(null, null);
+public class Piece {
+    public static final int PIECE_MASK = 0x7;
+    public static final int COLOR_MASK = 0x8;
 
-    public final PieceType type;
-    public final Color color;
+    // Pieces (3 bits)
+    public static final int PAWN = 0;
+    public static final int KNIGHT = 1;
+    public static final int BISHOP = 2;
+    public static final int ROOK = 3;
+    public static final int QUEEN = 4;
+    public static final int KING = 5;
+    public static final int NONE = 6;
 
-    private Piece(PieceType type, Color color) {
-        this.type = type;
-        this.color = color;
+
+    // Colors (1 bit)
+    public static final int WHITE = 0;
+    public static final int BLACK = 8;
+
+    public static int getType(int piece) {
+        return piece & PIECE_MASK;
     }
 
-    public static Piece fromSymbol(char symbol) {
-        return switch (symbol) {
-            case 'P' -> WHITE_PAWN;
-            case 'N' -> WHITE_KNIGHT;
-            case 'B' -> WHITE_BISHOP;
-            case 'R' -> WHITE_ROOK;
-            case 'Q' -> WHITE_QUEEN;
-            case 'K' -> WHITE_KING;
-            case 'p' -> BLACK_PAWN;
-            case 'n' -> BLACK_KNIGHT;
-            case 'b' -> BLACK_BISHOP;
-            case 'r' -> BLACK_ROOK;
-            case 'q' -> BLACK_QUEEN;
-            case 'k' -> BLACK_KING;
-            default -> NONE;
-        };
+    public static int getColor(int piece) {
+        return piece & COLOR_MASK;
     }
 
-    public char getSymbol() {
-        return switch (this) {
-            case WHITE_PAWN -> 'P';
-            case WHITE_KNIGHT -> 'N';
-            case WHITE_BISHOP -> 'B';
-            case WHITE_ROOK -> 'R';
-            case WHITE_QUEEN -> 'Q';
-            case WHITE_KING -> 'K';
-            case BLACK_PAWN -> 'p';
-            case BLACK_KNIGHT -> 'n';
-            case BLACK_BISHOP -> 'b';
-            case BLACK_ROOK -> 'r';
-            case BLACK_QUEEN -> 'q';
-            case BLACK_KING -> 'k';
+    public static int makePiece(int type, int color) {
+        return type | color;
+    }
+
+    public static char getSymbol(int piece) {
+        int type = getType(piece);
+        boolean isBlack = getColor(piece) == BLACK;
+        return switch (type) {
+            case PAWN -> isBlack ? 'p' : 'P';
+            case KNIGHT -> isBlack ? 'n' : 'N';
+            case BISHOP -> isBlack ? 'b' : 'B';
+            case ROOK -> isBlack ? 'r' : 'R';
+            case QUEEN -> isBlack ? 'q' : 'Q';
+            case KING -> isBlack ? 'k' : 'K';
             default -> ' ';
         };
     }
 
-    public boolean isWhite() {
-        return color == Color.WHITE;
+    public static String getName(int piece) {
+        int type = getType(piece);
+        boolean isBlack = getColor(piece) == BLACK;
+        return switch (type) {
+            case PAWN -> isBlack ? "BLACK_PAWN" : "WHITE_PAWN";
+            case KNIGHT -> isBlack ? "BLACK_KNIGHT" : "WHITE_KNIGHT";
+            case BISHOP -> isBlack ? "BLACK_BISHOP" : "WHITE_BISHOP";
+            case ROOK -> isBlack ? "BLACK_ROOK" : "WHITE_ROOK";
+            case QUEEN -> isBlack ? "BLACK_QUEEN" : "WHITE_QUEEN";
+            case KING -> isBlack ? "BLACK_KING" : "WHITE_KING";
+            default -> " ";
+        };
     }
 
-    public boolean isPawn() {
-        return type == PieceType.PAWN;
+    public static int fromSymbol(char symbol) {
+        return switch (symbol) {
+            case 'P' -> makePiece(PAWN, WHITE);
+            case 'N' -> makePiece(KNIGHT, WHITE);
+            case 'B' -> makePiece(BISHOP, WHITE);
+            case 'R' -> makePiece(ROOK, WHITE);
+            case 'Q' -> makePiece(QUEEN, WHITE);
+            case 'K' -> makePiece(KING, WHITE);
+            case 'p' -> makePiece(PAWN, BLACK);
+            case 'n' -> makePiece(KNIGHT, BLACK);
+            case 'b' -> makePiece(BISHOP, BLACK);
+            case 'r' -> makePiece(ROOK, BLACK);
+            case 'q' -> makePiece(QUEEN, BLACK);
+            case 'k' -> makePiece(KING, BLACK);
+            default -> 0;
+        };
     }
 
-    public boolean isRook() {
-        return type == PieceType.ROOK;
+    public static boolean isWhite(int piece) {
+        return getColor(piece) == WHITE;
     }
 
-    public boolean isKing() {
-        return type == PieceType.KING;
+    public static boolean isPawn(int piece) {
+        return getType(piece) == PAWN;
     }
 
-    public boolean isKnight() {
-        return type == PieceType.KNIGHT;
+    public static boolean isKnight(int piece) {
+        return getType(piece) == KNIGHT;
     }
 
-    public boolean isBishop() {
-        return type == PieceType.BISHOP;
+    public static boolean isBishop(int piece) {
+        return getType(piece) == BISHOP;
     }
 
-    public boolean isQueen() {
-        return type == PieceType.QUEEN;
+    public static boolean isRook(int piece) {
+        return getType(piece) == ROOK;
     }
 
-    public enum PieceType {PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING}
+    public static boolean isQueen(int piece) {
+        return getType(piece) == QUEEN;
+    }
 
-    public enum Color {WHITE, BLACK}
+    public static boolean isKing(int piece) {
+        return getType(piece) == KING;
+    }
 }

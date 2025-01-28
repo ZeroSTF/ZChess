@@ -7,10 +7,10 @@ import tn.zeros.zchess.core.util.PrecomputedMoves;
 
 public class PawnMoveGenerator {
     public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList) {
-        Piece pawn = state.getPieceAt(from);
-        if (pawn == null || !pawn.isPawn()) return;
+        int pawn = state.getPieceAt(from);
+        if (pawn == Piece.NONE || !Piece.isPawn(pawn)) return;
 
-        boolean isWhite = pawn.isWhite();
+        boolean isWhite = Piece.isWhite(pawn);
         long allPieces = state.getAllPieces();
         long enemyPieces = state.getEnemyPieces(isWhite);
         int enPassantSquare = state.getEnPassantSquare();
@@ -26,7 +26,7 @@ public class PawnMoveGenerator {
             int to = Long.numberOfTrailingZeros(possibleMoves);
             possibleMoves ^= 1L << to;
 
-            Piece captured = getCapturedPiece(state, from, to, enPassantSquare, isWhite);
+            int captured = getCapturedPiece(state, from, to, enPassantSquare, isWhite);
             boolean isEnPassant = (to == enPassantSquare);
             boolean isPromotion = isPromotionRank(to, isWhite);
 
@@ -41,7 +41,7 @@ public class PawnMoveGenerator {
         }
     }
 
-    private static Piece getCapturedPiece(BoardState state, int from, int to, int enPassantSquare, boolean isWhite) {
+    private static int getCapturedPiece(BoardState state, int from, int to, int enPassantSquare, boolean isWhite) {
         if (to == enPassantSquare) {
             int capturedSquare = enPassantSquare + (isWhite ? -8 : 8);
             return state.getPieceAt(capturedSquare);
@@ -53,15 +53,15 @@ public class PawnMoveGenerator {
         return (isWhite && square >= 56) || (!isWhite && square <= 7);
     }
 
-    private static void addPromotionMoves(MoveGenerator.MoveList moveList, int from, int to, Piece pawn, Piece captured) {
-        Piece[] promotions = {
-                pawn.isWhite() ? Piece.WHITE_QUEEN : Piece.BLACK_QUEEN,
-                pawn.isWhite() ? Piece.WHITE_ROOK : Piece.BLACK_ROOK,
-                pawn.isWhite() ? Piece.WHITE_BISHOP : Piece.BLACK_BISHOP,
-                pawn.isWhite() ? Piece.WHITE_KNIGHT : Piece.BLACK_KNIGHT
+    private static void addPromotionMoves(MoveGenerator.MoveList moveList, int from, int to, int pawn, int captured) {
+        int[] promotions = {
+                Piece.isWhite(pawn) ? Piece.makePiece(4, 0) : Piece.makePiece(4, 1),
+                Piece.isWhite(pawn) ? Piece.makePiece(3, 0) : Piece.makePiece(3, 1),
+                Piece.isWhite(pawn) ? Piece.makePiece(2, 0) : Piece.makePiece(2, 1),
+                Piece.isWhite(pawn) ? Piece.makePiece(1, 0) : Piece.makePiece(1, 1)
         };
 
-        for (Piece promotion : promotions) {
+        for (int promotion : promotions) {
             moveList.add(new Move(
                     from, to, pawn, captured,
                     true, false, false, promotion

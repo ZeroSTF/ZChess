@@ -22,7 +22,7 @@ public class SquareView extends StackPane {
     private final Rectangle lastMoveHighlight;
     private final Rectangle selectedHighlight;
 
-    private Piece currentPiece;
+    private int currentPiece;
     private boolean isLegalMove;
     private boolean isCaptureMove;
     private boolean isLastMove;
@@ -101,16 +101,16 @@ public class SquareView extends StackPane {
     }
 
     private void addFallbackText() {
-        Text text = new Text(String.valueOf(currentPiece.getSymbol()));
+        Text text = new Text(String.valueOf(Piece.getSymbol(currentPiece)));
         text.setFont(UIConstants.PIECE_FONT);
         getChildren().add(text);
     }
 
-    public Piece getPiece() {
+    public int getPiece() {
         return currentPiece;
     }
 
-    public void setPiece(Piece piece) {
+    public void setPiece(int piece) {
         currentPiece = piece;
         refreshDisplay();
     }

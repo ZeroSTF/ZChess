@@ -2,8 +2,8 @@ package tn.zeros.zchess.core.logic.generation;
 
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
+import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.service.MoveExecutor;
-import tn.zeros.zchess.core.util.ChessConstants;
 import tn.zeros.zchess.core.util.PrecomputedMoves;
 
 import java.util.ArrayList;
@@ -46,30 +46,30 @@ public class LegalMoveFilter {
     }
 
     private static long getAttackersBitboard(BoardState state, int square, boolean byWhite) {
-        int color = byWhite ? ChessConstants.WHITE : ChessConstants.BLACK;
+        int color = byWhite ? Piece.WHITE : Piece.BLACK;
         long allPieces = state.getAllPieces();
         long attackers = 0;
 
         // Pawn attacks
-        attackers |= state.getPieces(ChessConstants.PAWN, color) &
+        attackers |= state.getPieces(Piece.PAWN, color) &
                 PrecomputedMoves.getPawnAttacks(square, !byWhite);
 
         // Knight attacks
-        attackers |= state.getPieces(ChessConstants.KNIGHT, color) &
+        attackers |= state.getPieces(Piece.KNIGHT, color) &
                 PrecomputedMoves.getKnightMoves(square, 0L);
 
         // Bishop/Queen attacks
         long bishopAttacks = PrecomputedMoves.getMagicBishopAttack(square, allPieces);
-        attackers |= (state.getPieces(ChessConstants.BISHOP, color) |
-                state.getPieces(ChessConstants.QUEEN, color)) & bishopAttacks;
+        attackers |= (state.getPieces(Piece.BISHOP, color) |
+                state.getPieces(Piece.QUEEN, color)) & bishopAttacks;
 
         // Rook/Queen attacks
         long rookAttacks = PrecomputedMoves.getMagicRookAttack(square, allPieces);
-        attackers |= (state.getPieces(ChessConstants.ROOK, color) |
-                state.getPieces(ChessConstants.QUEEN, color)) & rookAttacks;
+        attackers |= (state.getPieces(Piece.ROOK, color) |
+                state.getPieces(Piece.QUEEN, color)) & rookAttacks;
 
         // King attacks
-        attackers |= state.getPieces(ChessConstants.KING, color) &
+        attackers |= state.getPieces(Piece.KING, color) &
                 PrecomputedMoves.getKingMoves(square, 0L);
 
         return attackers;

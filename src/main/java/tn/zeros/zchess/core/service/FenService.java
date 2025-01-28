@@ -16,7 +16,7 @@ public class FenService {
             int emptyCount = 0;
             for (int file = 0; file < 8; file++) {
                 int square = rank * 8 + file;
-                Piece piece = state.getPieceAt(square);
+                int piece = state.getPieceAt(square);
 
                 if (piece == Piece.NONE) {
                     emptyCount++;
@@ -25,7 +25,7 @@ public class FenService {
                         fen.append(emptyCount);
                         emptyCount = 0;
                     }
-                    fen.append(piece.getSymbol());
+                    fen.append(Piece.getSymbol(piece));
                 }
             }
             if (emptyCount > 0) fen.append(emptyCount);
@@ -92,7 +92,7 @@ public class FenService {
 
     private static void clearBoard(BoardState state) {
         for (int i = 0; i < 64; i++) {
-            Piece piece = state.getPieceAt(i);
+            int piece = state.getPieceAt(i);
             if (piece != Piece.NONE) {
                 state.removePiece(i, piece);
             }
@@ -107,7 +107,7 @@ public class FenService {
                 if (Character.isDigit(c)) {
                     file += Character.getNumericValue(c);
                 } else {
-                    Piece piece = Piece.fromSymbol(c);
+                    int piece = Piece.fromSymbol(c);
                     state.addPiece(rank * 8 + file, piece);
                     file++;
                 }

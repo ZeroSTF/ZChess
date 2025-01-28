@@ -7,11 +7,11 @@ import tn.zeros.zchess.core.util.PrecomputedMoves;
 
 public class QueenMoveGenerator {
     public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList) {
-        Piece queen = state.getPieceAt(from);
+        int queen = state.getPieceAt(from);
 
-        if (queen == null || !queen.isQueen()) return;
+        if (queen == Piece.NONE || !Piece.isQueen(queen)) return;
 
-        boolean isWhite = queen.isWhite();
+        boolean isWhite = Piece.isWhite(queen);
         long allPieces = state.getAllPieces();
         long friendlyPieces = state.getFriendlyPieces(isWhite);
 
@@ -24,8 +24,8 @@ public class QueenMoveGenerator {
             int to = Long.numberOfTrailingZeros(possibleMoves);
             possibleMoves ^= 1L << to;
 
-            Piece target = state.getPieceAt(to);
-            Piece captured = target.isWhite() != isWhite ? target : Piece.NONE;
+            int target = state.getPieceAt(to);
+            int captured = Piece.isWhite(target) != isWhite ? target : Piece.NONE;
 
             moveList.add(new Move(
                     from, to, queen, captured,

@@ -19,9 +19,9 @@ public class InputHandler {
 
     public void handlePress(int square) {
         boolean isWhiteToMove = controller.getBoardState().isWhiteToMove();
-        Piece piece = controller.getBoardState().getPieceAt(square);
+        int piece = controller.getBoardState().getPieceAt(square);
 
-        if (piece != Piece.NONE && piece.isWhite() == isWhiteToMove) {
+        if (piece != Piece.NONE && Piece.isWhite(piece) == isWhiteToMove) {
             startSquare = square;
             ChessBoardView boardView = (ChessBoardView) controller.getView();
             sourceSquare = (SquareView) boardView.getSquareNode(square);
@@ -62,7 +62,7 @@ public class InputHandler {
         }
     }
 
-    private void createDragImage(Piece piece) {
+    private void createDragImage(int piece) {
         dragImage = new ImageView(AssetLoader.getPieceImage(piece));
         dragImage.setFitWidth(UIConstants.SQUARE_SIZE - 10);
         dragImage.setFitHeight(UIConstants.SQUARE_SIZE - 10);

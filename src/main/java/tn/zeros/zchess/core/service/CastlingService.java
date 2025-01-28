@@ -6,17 +6,17 @@ import tn.zeros.zchess.core.model.Piece;
 import static tn.zeros.zchess.core.util.ChessConstants.*;
 
 public class CastlingService {
-    public static void updateCastlingRights(BoardState state, Piece movedPiece,
-                                            int fromSquare, Piece capturedPiece,
+    public static void updateCastlingRights(BoardState state, int movedPiece,
+                                            int fromSquare, int capturedPiece,
                                             int toSquare) {
         int rights = state.getCastlingRights();
 
         // Handle moved pieces
-        if (movedPiece.isKing()) {
-            rights &= movedPiece.isWhite() ?
+        if (Piece.isKing(movedPiece)) {
+            rights &= Piece.isWhite(movedPiece) ?
                     ~(WHITE_KINGSIDE | WHITE_QUEENSIDE) :
                     ~(BLACK_KINGSIDE | BLACK_QUEENSIDE);
-        } else if (movedPiece.isRook()) {
+        } else if (Piece.isRook(movedPiece)) {
             if (fromSquare == 0) rights &= ~WHITE_QUEENSIDE;
             else if (fromSquare == 7) rights &= ~WHITE_KINGSIDE;
             else if (fromSquare == 56) rights &= ~BLACK_QUEENSIDE;
@@ -24,7 +24,7 @@ public class CastlingService {
         }
 
         // Handle captured rooks
-        if (capturedPiece != null && capturedPiece.isRook()) {
+        if (capturedPiece != Piece.NONE && Piece.isRook(capturedPiece)) {
             switch (toSquare) {
                 case 0 -> rights &= ~WHITE_QUEENSIDE;
                 case 7 -> rights &= ~WHITE_KINGSIDE;

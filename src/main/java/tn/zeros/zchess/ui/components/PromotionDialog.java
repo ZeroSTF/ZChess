@@ -18,10 +18,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 public class PromotionDialog {
-    private final Dialog<Piece> dialog;
+    private final Dialog<Integer> dialog;
     private final GridPane grid;
     private final ChessController controller;
-    private Piece selectedPiece;
+    private int selectedPiece;
 
     public PromotionDialog(ChessController controller) {
         this.controller = controller;
@@ -47,31 +47,31 @@ public class PromotionDialog {
 
     public void show(boolean isWhite) {
         grid.getChildren().clear();
-        selectedPiece = null;
+        selectedPiece = Piece.NONE;
 
-        Piece[] options = isWhite ?
-                new Piece[]{Piece.WHITE_QUEEN, Piece.WHITE_ROOK,
-                        Piece.WHITE_BISHOP, Piece.WHITE_KNIGHT} :
-                new Piece[]{Piece.BLACK_QUEEN, Piece.BLACK_ROOK,
-                        Piece.BLACK_BISHOP, Piece.BLACK_KNIGHT};
+        int[] options = isWhite ?
+                new int[]{Piece.makePiece(4, 0), Piece.makePiece(3, 0),
+                        Piece.makePiece(2, 0), Piece.makePiece(1, 0)} :
+                new int[]{Piece.makePiece(4, 1), Piece.makePiece(3, 1),
+                        Piece.makePiece(2, 1), Piece.makePiece(1, 1)};
 
         for (int i = 0; i < options.length; i++) {
-            Piece piece = options[i];
+            int piece = options[i];
             Button btn = createPromotionButton(piece);
             grid.add(btn, i, 0);
         }
 
         dialog.setOnCloseRequest(event -> {
-            if (selectedPiece == null) {
+            if (selectedPiece == Piece.NONE) {
                 controller.getInputHandler().restoreSourcePiece();
             }
         });
 
-        Optional<Piece> result = dialog.showAndWait();
+        Optional<Integer> result = dialog.showAndWait();
         result.ifPresent(controller::completePromotion);
     }
 
-    private Button createPromotionButton(Piece piece) {
+    private Button createPromotionButton(int piece) {
         ImageView imageView = new ImageView(AssetLoader.getPieceImage(piece));
         imageView.setFitWidth(50);
         imageView.setFitHeight(50);

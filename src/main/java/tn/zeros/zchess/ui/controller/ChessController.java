@@ -37,8 +37,8 @@ public class ChessController {
     }
 
     public void handlePieceSelection(int square) {
-        Piece piece = boardState.getPieceAt(square);
-        if (piece != Piece.NONE && piece.isWhite() == boardState.isWhiteToMove()) {
+        int piece = boardState.getPieceAt(square);
+        if (piece != Piece.NONE && Piece.isWhite(piece) == boardState.isWhiteToMove()) {
             interactionState.setSelectedSquare(square);
             interactionState.clearCurrentLegalMoves();
             generateLegalMoves(square, piece);
@@ -49,7 +49,7 @@ public class ChessController {
         }
     }
 
-    private void generateLegalMoves(int square, Piece piece) {
+    private void generateLegalMoves(int square, int piece) {
         // Get thread-local MoveList and reuse it
         MoveGenerator.MoveList moveList = MoveGenerator.getThreadLocalMoveList();
         moveList.clear();
@@ -61,13 +61,13 @@ public class ChessController {
         );
     }
 
-    private void getPseudoLegalMoves(int square, Piece piece, MoveGenerator.MoveList moveList) {
-        if (piece.isPawn()) PawnMoveGenerator.generate(boardState, square, moveList);
-        else if (piece.isKnight()) KnightMoveGenerator.generate(boardState, square, moveList);
-        else if (piece.isBishop()) BishopMoveGenerator.generate(boardState, square, moveList);
-        else if (piece.isRook()) RookMoveGenerator.generate(boardState, square, moveList);
-        else if (piece.isQueen()) QueenMoveGenerator.generate(boardState, square, moveList);
-        else if (piece.isKing()) KingMoveGenerator.generate(boardState, square, moveList);
+    private void getPseudoLegalMoves(int square, int piece, MoveGenerator.MoveList moveList) {
+        if (Piece.isPawn(piece)) PawnMoveGenerator.generate(boardState, square, moveList);
+        else if (Piece.isKnight(piece)) KnightMoveGenerator.generate(boardState, square, moveList);
+        else if (Piece.isBishop(piece)) BishopMoveGenerator.generate(boardState, square, moveList);
+        else if (Piece.isRook(piece)) RookMoveGenerator.generate(boardState, square, moveList);
+        else if (Piece.isQueen(piece)) QueenMoveGenerator.generate(boardState, square, moveList);
+        else if (Piece.isKing(piece)) KingMoveGenerator.generate(boardState, square, moveList);
     }
 
     public void handleMoveExecution(int targetSquare) {
@@ -92,13 +92,13 @@ public class ChessController {
     void handleMove(Move move) {
         if (move.isPromotion()) {
             interactionState.setPendingPromotionMove(move);
-            view.showPromotionDialog(move.piece().isWhite());
+            view.showPromotionDialog(Piece.isWhite(move.piece()));
         } else {
             commitMove(move);
         }
     }
 
-    public void completePromotion(Piece promotionPiece) {
+    public void completePromotion(int promotionPiece) {
         if (interactionState.getPendingPromotionMove() == null) return;
 
         // Find the exact promotion move from legal options
