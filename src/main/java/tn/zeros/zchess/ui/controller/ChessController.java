@@ -5,7 +5,6 @@ import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.service.FenService;
-import tn.zeros.zchess.core.service.StateManager;
 import tn.zeros.zchess.ui.matchmaker.GameManager;
 import tn.zeros.zchess.ui.util.SoundManager;
 import tn.zeros.zchess.ui.view.ChessBoardView;
@@ -18,14 +17,12 @@ public class ChessController implements GameListener {
     private final InteractionState interactionState;
     private final InputHandler inputHandler;
     private BoardState boardState;
-    private StateManager stateManager;
     private ChessView view;
 
     public ChessController() {
         this.boardState = new BoardState();
         this.gameManager = new GameManager(boardState);
         this.gameManager.addListener(this);
-        this.stateManager = new StateManager(boardState);
         this.interactionState = new InteractionState();
         this.inputHandler = new InputHandler(this);
     }
@@ -94,12 +91,14 @@ public class ChessController implements GameListener {
     }
 
     public void completePromotion(int promotionPiece) {
-        if (interactionState.getPendingPromotionMove() == -1) return;
-
-        interactionState.getCurrentLegalMoves().stream()
-                .filter(m -> Move.isPromotion(m) && Move.getPromotionPiece(m) == promotionPiece)
-                .findFirst()
-                .ifPresent(gameManager::executeMove);
+        int pendingPromotionMove = interactionState.getPendingPromotionMove();
+        if (pendingPromotionMove == -1) return;
+        int updatedPromotionMove = Move.updatePromotionPiece(pendingPromotionMove, promotionPiece);
+        if (interactionState.getCurrentLegalMoves().contains(updatedPromotionMove)) {
+            gameManager.executeMove(updatedPromotionMove);
+        } else {
+            this.getInputHandler().restoreSourcePiece();
+        }
 
         interactionState.setPendingPromotionMove(-1);
     }
@@ -128,7 +127,7 @@ public class ChessController implements GameListener {
     }
 
     public void undo() {
-        int move = stateManager.undo();
+        int move = gameManager.stateManager.undo();
         if (move != -1) {
             view.refreshEntireBoard();
             interactionState.setLastMoveFrom(Move.getFrom(move));
@@ -140,7 +139,7 @@ public class ChessController implements GameListener {
     }
 
     public void redo() {
-        int move = stateManager.redo();
+        int move = gameManager.stateManager.redo();
         if (move != -1) {
             view.refreshEntireBoard();
             interactionState.setLastMoveFrom(Move.getFrom(move));
@@ -167,7 +166,7 @@ public class ChessController implements GameListener {
 
     private void resetState(BoardState newState) {
         this.boardState = newState;
-        this.stateManager = new StateManager(newState);
+        gameManager.resetStateManager();
     }
 
     public InteractionState getInteractionState() {
@@ -186,7 +185,7 @@ public class ChessController implements GameListener {
     public void onMoveExecuted(int move, BoardState boardState) {
         interactionState.setLastMoveFrom(Move.getFrom(move));
         interactionState.setLastMoveTo(Move.getTo(move));
-        stateManager.clearRedo();
+        gameManager.stateManager.clearRedo();
 
         int kingInCheck = LegalMoveFilter.getKingInCheckSquare(boardState, boardState.isWhiteToMove());
         view.refreshEntireBoard();

@@ -58,6 +58,12 @@ public final class Move {
         return (move & FLAGS_MASK) >> 20;
     }
 
+    public static int updatePromotionPiece(int move, int promotionPiece) {
+        move &= ~PROMOTION_MASK;
+        move |= (promotionPiece << 23) & PROMOTION_MASK;
+        return move;
+    }
+
     public static int getPromotionPiece(int move) {
         return (move & PROMOTION_MASK) >> 23;
     }
@@ -74,7 +80,4 @@ public final class Move {
         return (move & FLAG_ENPASSANT) != 0;
     }
 
-    public static int getMoveValue(int move) {
-        return move;
-    }
 }

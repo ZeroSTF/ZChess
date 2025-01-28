@@ -13,8 +13,8 @@ import java.util.List;
 
 public class GameManager {
     private final BoardState boardState;
-    private final StateManager stateManager;
     private final List<GameListener> listeners = new ArrayList<>();
+    public StateManager stateManager;
     private EngineModel whiteModel;
     private EngineModel blackModel;
     private GameMode gameMode;
@@ -53,6 +53,10 @@ public class GameManager {
         }
     }
 
+    public void resetStateManager() {
+        stateManager = new StateManager(boardState);
+    }
+
     private void playNextModelMove() {
         if (gameMode == GameMode.HUMAN_VS_MODEL && boardState.isWhiteToMove()) return;
 
@@ -75,4 +79,5 @@ public class GameManager {
     private void notifyMoveExecuted(int move) {
         listeners.forEach(l -> l.onMoveExecuted(move, boardState));
     }
+
 }

@@ -70,7 +70,6 @@ public class MoveExecutor {
     }
 
     private static void executePromotion(BoardState state, int move) {
-        int from = Move.getFrom(move);
         int to = Move.getTo(move);
         int piece = Move.getPiece(move);
         int promotionPiece = Move.getPromotionPiece(move);
