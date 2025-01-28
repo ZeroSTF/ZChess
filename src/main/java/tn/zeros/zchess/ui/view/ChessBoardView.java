@@ -1,6 +1,7 @@
 package tn.zeros.zchess.ui.view;
 
 import javafx.animation.PauseTransition;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -27,6 +28,7 @@ public class ChessBoardView extends GridPane implements ChessView {
     private final SquareView[][] squares = new SquareView[8][8];
     private final ChessController controller;
     private final PromotionDialog promotionDialog;
+    private SquareView lastHoveredSquare = null;
 
     public ChessBoardView(ChessController controller) {
         this.promotionDialog = new PromotionDialog(controller);
@@ -187,5 +189,23 @@ public class ChessBoardView extends GridPane implements ChessView {
             return row * 8 + col;
         }
         return -1;
+    }
+
+    public void handleDragHover(double x, double y) {
+        if (lastHoveredSquare != null) {
+            lastHoveredSquare.handleHover(false);
+        }
+
+        Point2D boardPoint = sceneToLocal(x, y);
+        for (Node node : getChildren()) {
+            if (node instanceof SquareView square) {
+                Bounds bounds = square.getBoundsInParent();
+                if (bounds.contains(boardPoint)) {
+                    square.handleHover(true);
+                    lastHoveredSquare = square;
+                    return;
+                }
+            }
+        }
     }
 }

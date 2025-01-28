@@ -43,6 +43,7 @@ public class InputHandler {
             javafx.geometry.Point2D boardPoint = boardView.sceneToLocal(x, y);
             dragImage.setTranslateX(boardPoint.getX() - (double) UIConstants.SQUARE_SIZE / 2);
             dragImage.setTranslateY(boardPoint.getY() - (double) UIConstants.SQUARE_SIZE / 2);
+            boardView.handleDragHover(x, y);
         }
     }
 

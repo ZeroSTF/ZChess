@@ -56,15 +56,9 @@ public class SquareView extends StackPane {
         getChildren().addAll(background, legalMoveDot, checkOverlay, captureHighlight, legalMoveHoverHighlight, lastMoveHighlight, selectedHighlight);
 
         // Events
-        setOnMouseEntered(e -> {
-            isHovered = true;
-            if (isLegalMove) setLegalMoveHover(true);
-        });
+        setOnMouseEntered(e -> handleHover(true));
 
-        setOnMouseExited(e -> {
-            isHovered = false;
-            setLegalMoveHover(false);
-        });
+        setOnMouseExited(e -> handleHover(false));
 
         setOnMousePressed(e -> {
             if (e.getButton() != MouseButton.PRIMARY) return;
@@ -178,5 +172,10 @@ public class SquareView extends StackPane {
 
     public void setSelected(boolean isSelected) {
         selectedHighlight.setVisible(isSelected);
+    }
+
+    public void handleHover(boolean hover) {
+        isHovered = hover;
+        if (isLegalMove) setLegalMoveHover(hover);
     }
 }
