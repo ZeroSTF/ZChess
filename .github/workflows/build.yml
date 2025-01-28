@@ -9,20 +9,34 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: maven
-
-      - name: Add JavaFX to PATH
+      - name: Check for Version Changes
+        id: version_check
         run: |
-          setx PATH "%PATH%;C:\Program Files (x86)\JavaFX\lib"
+          # Fetch the previous commit
+          git fetch origin HEAD^:refs/remotes/origin/prev
+
+          # Get the version from current and previous pom.xml
+          CURR_VERSION=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
+          PREV_VERSION=$(git show origin/prev:pom.xml | xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" -)
+
+          echo "Current Version: $CURR_VERSION"
+          echo "Previous Version: $PREV_VERSION"
+
+          # Compare versions
+          if [ "$CURR_VERSION" != "$PREV_VERSION" ]; then
+            echo "New version detected: $CURR_VERSION"
+            echo "::set-output name=should_build::true"
+          else
+            echo "No new version detected."
+            echo "::set-output name=should_build::false"
+          fi
+        shell: bash
 
       - name: Build with Maven
+        if: steps.version_check.outputs.should_build == 'true'
         run: ./mvnw clean package
 
       - name: Test jpackage
+        if: steps.version_check.outputs.should_build == 'true'
         run: |
           jpackage --version
