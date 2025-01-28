@@ -69,7 +69,7 @@ jobs:
         if: steps.version_check.outputs.should_build == 'false'
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: https://github.com/ZeroSTF/ZChess/releases/tag/v1.0.0
           asset_path: ./target/dist/ZChess-${{ steps.version_check.outputs.version }}.exe
           asset_name: ZChess-${{ steps.version_check.outputs.version }}.exe
           asset_content_type: application/x-msdownload
