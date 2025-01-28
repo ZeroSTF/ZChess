@@ -23,10 +23,7 @@ public class KnightMoveGenerator {
                     state.getPieceAt(to) :
                     Piece.NONE;
 
-            moveList.add(new Move(
-                    from, to, knight, captured,
-                    false, false, false, Piece.NONE
-            ));
+            moveList.add(Move.createMove(from, to, knight, captured, 0, Piece.NONE));
         }
     }
 }

@@ -3,10 +3,8 @@ package tn.zeros.zchess.ui.controller;
 import tn.zeros.zchess.core.logic.generation.*;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
-import tn.zeros.zchess.core.model.MoveUndoInfo;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.service.FenService;
-import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.service.StateManager;
 import tn.zeros.zchess.ui.matchmaker.GameManager;
 import tn.zeros.zchess.ui.util.SoundManager;
@@ -60,9 +58,7 @@ public class ChessController implements GameListener {
 
         getPseudoLegalMoves(square, piece, moveList);
         interactionState.getCurrentLegalMoves().clear();
-        interactionState.getCurrentLegalMoves().addAll(
-                LegalMoveFilter.filterLegalMoves(boardState, moveList.toList())
-        );
+        interactionState.getCurrentLegalMoves().addAll(LegalMoveFilter.filterLegalMoves(boardState, moveList.toList()));
     }
 
     private void getPseudoLegalMoves(int square, int piece, MoveGenerator.MoveList moveList) {
@@ -75,12 +71,12 @@ public class ChessController implements GameListener {
     }
 
     public void handleMoveExecution(int targetSquare) {
-        Move move = findMoveByTarget(targetSquare);
+        int move = findMoveByTarget(targetSquare);
 
-        if (move != null) {
-            if (move.isPromotion()) {
+        if (move != -1) {
+            if (Move.isPromotion(move)) {
                 interactionState.setPendingPromotionMove(move);
-                view.showPromotionDialog(Piece.isWhite(move.piece()));
+                view.showPromotionDialog(Piece.isWhite(Move.getPiece(move)));
             } else {
                 gameManager.executeMove(move);
             }
@@ -90,36 +86,22 @@ public class ChessController implements GameListener {
         }
     }
 
-    private Move findMoveByTarget(int targetSquare) {
+    private int findMoveByTarget(int targetSquare) {
         return interactionState.getCurrentLegalMoves().stream()
-                .filter(m -> m.toSquare() == targetSquare)
+                .filter(m -> Move.getTo(m) == targetSquare)
                 .findFirst()
-                .orElse(null);
+                .orElse(-1);
     }
 
     public void completePromotion(int promotionPiece) {
-        if (interactionState.getPendingPromotionMove() == null) return;
+        if (interactionState.getPendingPromotionMove() == -1) return;
 
         interactionState.getCurrentLegalMoves().stream()
-                .filter(m -> m.isPromotion() && m.promotionPiece() == promotionPiece)
+                .filter(m -> Move.isPromotion(m) && Move.getPromotionPiece(m) == promotionPiece)
                 .findFirst()
                 .ifPresent(gameManager::executeMove);
 
-        interactionState.setPendingPromotionMove(null);
-    }
-
-    private void commitMove(Move move) {
-        interactionState.setLastMoveFrom(move.fromSquare());
-        interactionState.setLastMoveTo(move.toSquare());
-        interactionState.setSelectedSquare(-1);
-
-        MoveUndoInfo undoInfo = MoveExecutor.makeMove(boardState, move);
-        stateManager.saveState(undoInfo);
-        int kingInCheck = LegalMoveFilter.getKingInCheckSquare(boardState, boardState.isWhiteToMove());
-        view.refreshEntireBoard();
-        view.updateHighlights(Collections.emptyList(), kingInCheck);
-        playMoveSound(move);
-        stateManager.clearRedo();
+        interactionState.setPendingPromotionMove(-1);
     }
 
     private void resetSelection() {
@@ -129,16 +111,16 @@ public class ChessController implements GameListener {
         interactionState.clearCurrentLegalMoves();
     }
 
-    private void playMoveSound(Move move) {
+    private void playMoveSound(int move) {
         boolean inCheck = LegalMoveFilter.inCheck(boardState, boardState.isWhiteToMove());
 
         if (inCheck) {
             SoundManager.playMoveCheck();
-        } else if (move.isCastling()) {
+        } else if (Move.isCastling(move)) {
             SoundManager.playCastle();
-        } else if (move.isPromotion()) {
+        } else if (Move.isPromotion(move)) {
             SoundManager.playPromotion();
-        } else if (move.capturedPiece() != Piece.NONE) {
+        } else if (Move.getCapturedPiece(move) != Piece.NONE) {
             SoundManager.playCapture();
         } else {
             SoundManager.playMove();
@@ -146,11 +128,11 @@ public class ChessController implements GameListener {
     }
 
     public void undo() {
-        Move move = stateManager.undo();
-        if (move != null) {
+        int move = stateManager.undo();
+        if (move != -1) {
             view.refreshEntireBoard();
-            interactionState.setLastMoveFrom(move.fromSquare());
-            interactionState.setLastMoveTo(move.toSquare());
+            interactionState.setLastMoveFrom(Move.getFrom(move));
+            interactionState.setLastMoveTo(Move.getTo(move));
             interactionState.setSelectedSquare(-1);
             int kingInCheck = LegalMoveFilter.getKingInCheckSquare(boardState, boardState.isWhiteToMove());
             view.updateHighlights(Collections.emptyList(), kingInCheck);
@@ -158,11 +140,11 @@ public class ChessController implements GameListener {
     }
 
     public void redo() {
-        Move move = stateManager.redo();
-        if (move != null) {
+        int move = stateManager.redo();
+        if (move != -1) {
             view.refreshEntireBoard();
-            interactionState.setLastMoveFrom(move.fromSquare());
-            interactionState.setLastMoveTo(move.toSquare());
+            interactionState.setLastMoveFrom(Move.getFrom(move));
+            interactionState.setLastMoveTo(Move.getTo(move));
             interactionState.setSelectedSquare(-1);
             int kingInCheck = LegalMoveFilter.getKingInCheckSquare(boardState, boardState.isWhiteToMove());
             view.updateHighlights(Collections.emptyList(), kingInCheck);
@@ -201,9 +183,9 @@ public class ChessController implements GameListener {
     }
 
     @Override
-    public void onMoveExecuted(Move move, BoardState boardState) {
-        interactionState.setLastMoveFrom(move.fromSquare());
-        interactionState.setLastMoveTo(move.toSquare());
+    public void onMoveExecuted(int move, BoardState boardState) {
+        interactionState.setLastMoveFrom(Move.getFrom(move));
+        interactionState.setLastMoveTo(Move.getTo(move));
         stateManager.clearRedo();
 
         int kingInCheck = LegalMoveFilter.getKingInCheckSquare(boardState, boardState.isWhiteToMove());

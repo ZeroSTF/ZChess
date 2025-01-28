@@ -25,9 +25,7 @@ public class RookMoveGenerator {
             int target = state.getPieceAt(to);
             int captured = Piece.isWhite(target) != isWhite ? target : Piece.NONE;
 
-            moveList.add(new Move(
-                    from, to, rook, captured,
-                    false, false, false, Piece.NONE
+            moveList.add(Move.createMove(from, to, rook, captured, 0, Piece.NONE
             ));
         }
     }

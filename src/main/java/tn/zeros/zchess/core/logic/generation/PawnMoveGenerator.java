@@ -33,10 +33,7 @@ public class PawnMoveGenerator {
             if (isPromotion) {
                 addPromotionMoves(moveList, from, to, pawn, captured);
             } else {
-                moveList.add(new Move(
-                        from, to, pawn, captured,
-                        false, false, isEnPassant, Piece.NONE
-                ));
+                moveList.add(Move.createMove(from, to, pawn, captured, isEnPassant ? Move.FLAG_ENPASSANT : 0, Piece.NONE));
             }
         }
     }
@@ -62,10 +59,7 @@ public class PawnMoveGenerator {
         };
 
         for (int promotion : promotions) {
-            moveList.add(new Move(
-                    from, to, pawn, captured,
-                    true, false, false, promotion
-            ));
+            moveList.add(Move.createMove(from, to, pawn, captured, Move.FLAG_PROMOTION, promotion));
         }
     }
 }

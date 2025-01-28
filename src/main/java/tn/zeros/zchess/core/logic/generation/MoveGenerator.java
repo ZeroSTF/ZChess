@@ -1,9 +1,9 @@
 package tn.zeros.zchess.core.logic.generation;
 
 import tn.zeros.zchess.core.model.BoardState;
-import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -16,12 +16,12 @@ public class MoveGenerator {
         return MOVE_LIST_POOL.get();
     }
 
-    public static List<Move> generateAllMoves(BoardState state) {
-        List<Move> pseudoLegal = generatePseudoLegalMoves(state);
+    public static List<Integer> generateAllMoves(BoardState state) {
+        List<Integer> pseudoLegal = generatePseudoLegalMoves(state);
         return LegalMoveFilter.filterLegalMoves(state, pseudoLegal);
     }
 
-    private static List<Move> generatePseudoLegalMoves(BoardState state) {
+    private static List<Integer> generatePseudoLegalMoves(BoardState state) {
         MoveList moveList = MOVE_LIST_POOL.get();
         moveList.clear();
 
@@ -91,23 +91,27 @@ public class MoveGenerator {
     }
 
     public static class MoveList {
-        Move[] moves;
+        int[] moves;
         int size;
 
         MoveList(int capacity) {
-            this.moves = new Move[capacity];
+            this.moves = new int[capacity];
             this.size = 0;
         }
 
-        void add(Move move) {
+        void add(int move) {
             if (size == moves.length) {
                 moves = Arrays.copyOf(moves, moves.length * 2);
             }
             moves[size++] = move;
         }
 
-        public List<Move> toList() {
-            return Arrays.asList(Arrays.copyOf(moves, size));
+        public List<Integer> toList() {
+            List<Integer> moveList = new ArrayList<>(size);
+            for (int i = 0; i < size; i++) {
+                moveList.add(moves[i]);
+            }
+            return moveList;
         }
 
         public void clear() {

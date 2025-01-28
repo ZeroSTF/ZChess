@@ -1,7 +1,6 @@
 package tn.zeros.zchess.ui.view;
 
 import javafx.scene.Node;
-import tn.zeros.zchess.core.model.Move;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ public interface ChessView {
 
     void showPromotionDialog(boolean isWhite);
 
-    void updateHighlights(List<Move> legalMoves, int kingInCheckSquare);
+    void updateHighlights(List<Integer> legalMoves, int kingInCheckSquare);
 
     Node getSquareNode(int square);
 }

@@ -3,7 +3,6 @@ package tn.zeros.zchess.core.service;
 import tn.zeros.zchess.core.logic.generation.LegalMoveFilter;
 import tn.zeros.zchess.core.logic.generation.MoveGenerator;
 import tn.zeros.zchess.core.model.BoardState;
-import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
 
 import java.util.List;
@@ -30,12 +29,12 @@ public class GameStateChecker {
     }
 
     private static boolean isCheckmate(BoardState boardState) {
-        List<Move> legalMoves = MoveGenerator.generateAllMoves(boardState);
+        List<Integer> legalMoves = MoveGenerator.generateAllMoves(boardState);
         return legalMoves.isEmpty() && isKingInCheck(boardState);
     }
 
     private static boolean isStalemate(BoardState boardState) {
-        List<Move> legalMoves = MoveGenerator.generateAllMoves(boardState);
+        List<Integer> legalMoves = MoveGenerator.generateAllMoves(boardState);
         return legalMoves.isEmpty() && !isKingInCheck(boardState);
     }
 

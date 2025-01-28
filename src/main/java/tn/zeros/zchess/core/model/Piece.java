@@ -1,6 +1,6 @@
 package tn.zeros.zchess.core.model;
 
-public class Piece {
+public final class Piece {
     public static final int PIECE_MASK = 0x7;
     public static final int COLOR_MASK = 0x8;
 

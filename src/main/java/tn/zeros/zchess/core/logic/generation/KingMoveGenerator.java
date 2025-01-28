@@ -34,10 +34,7 @@ public class KingMoveGenerator {
                     state.getPieceAt(to) :
                     Piece.NONE;
 
-            moveList.add(new Move(
-                    from, to, king, captured,
-                    false, false, false, Piece.NONE
-            ));
+            moveList.add(Move.createMove(from, to, king, captured, 0, Piece.NONE));
         }
     }
 
@@ -58,10 +55,7 @@ public class KingMoveGenerator {
             if ((allPieces & kingsideMask) == 0) {
                 int intermediateSquare = from + 1;
                 if (!LegalMoveFilter.isSquareAttacked(state, intermediateSquare, !isWhite)) {
-                    moveList.add(new Move(
-                            from, from + 2, state.getPieceAt(from), Piece.NONE,
-                            false, true, false, Piece.NONE
-                    ));
+                    moveList.add(Move.createMove(from, from + 2, state.getPieceAt(from), Piece.NONE, Move.FLAG_CASTLING, Piece.NONE));
                 }
             }
         }
@@ -72,10 +66,7 @@ public class KingMoveGenerator {
             if ((allPieces & queensideMask) == 0) {
                 int intermediateSquare = from - 1;
                 if (!LegalMoveFilter.isSquareAttacked(state, intermediateSquare, !isWhite)) {
-                    moveList.add(new Move(
-                            from, from - 2, state.getPieceAt(from), Piece.NONE,
-                            false, true, false, Piece.NONE
-                    ));
+                    moveList.add(Move.createMove(from, from - 2, state.getPieceAt(from), Piece.NONE, Move.FLAG_CASTLING, Piece.NONE));
                 }
             }
         }

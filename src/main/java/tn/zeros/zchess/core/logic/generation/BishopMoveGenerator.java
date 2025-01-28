@@ -30,10 +30,7 @@ public class BishopMoveGenerator {
                     state.getPieceAt(to) :
                     Piece.NONE;
 
-            moveList.add(new Move(
-                    from, to, bishop, captured,
-                    false, false, false, Piece.NONE
-            ));
+            moveList.add(Move.createMove(from, to, bishop, captured, 0, Piece.NONE));
         }
     }
 }

@@ -1,6 +1,7 @@
 package tn.zeros.zchess.ui.controller;
 
 import javafx.scene.image.ImageView;
+import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.ui.util.AssetLoader;
 import tn.zeros.zchess.ui.util.UIConstants;
@@ -53,7 +54,7 @@ public class InputHandler {
             int targetSquare = boardView.getSquareFromSceneCoordinates(x, y);
             if (targetSquare != -1 && controller.getInteractionState().getCurrentLegalMoves()
                     .stream()
-                    .anyMatch(move -> move.toSquare() == targetSquare)) {
+                    .anyMatch(move -> Move.getTo(move) == targetSquare)) {
                 controller.handleMoveExecution(targetSquare);
             } else {
                 sourceSquare.showCurrentPiece();

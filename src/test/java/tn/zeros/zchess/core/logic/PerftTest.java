@@ -48,9 +48,9 @@ public class PerftTest {
         if (depth == 0) return 1L;
 
         long nodes = 0;
-        List<Move> moves = MoveGenerator.generateAllMoves(state);
+        List<Integer> moves = MoveGenerator.generateAllMoves(state);
 
-        for (Move move : moves) {
+        for (int move : moves) {
             MoveUndoInfo undoInfo = MoveExecutor.makeMove(state, move);
             nodes += perft(state, depth - 1);
             MoveExecutor.unmakeMove(state, undoInfo);
@@ -77,9 +77,9 @@ public class PerftTest {
         if (currentDepth == 0) return 1L;
 
         long total = 0;
-        List<Move> moves = MoveGenerator.generateAllMoves(state);
+        List<Integer> moves = MoveGenerator.generateAllMoves(state);
 
-        for (Move move : moves) {
+        for (int move : moves) {
             MoveUndoInfo undoInfo = MoveExecutor.makeMove(state, move);
             long nodes = perft(state, currentDepth - 1);
             total += nodes;
@@ -91,11 +91,11 @@ public class PerftTest {
         return total;
     }
 
-    private String moveToUCI(Move move) {
-        String from = squareToAlgebraic(move.fromSquare());
-        String to = squareToAlgebraic(move.toSquare());
-        String promotion = move.isPromotion() ?
-                Character.toString(Character.toLowerCase(Piece.getSymbol(move.promotionPiece()))) : "";
+    private String moveToUCI(int move) {
+        String from = squareToAlgebraic(Move.getFrom(move));
+        String to = squareToAlgebraic(Move.getTo(move));
+        String promotion = Move.isPromotion(move) ?
+                Character.toString(Character.toLowerCase(Piece.getSymbol(Move.getPromotionPiece(move)))) : "";
         return from + to + promotion;
     }
 

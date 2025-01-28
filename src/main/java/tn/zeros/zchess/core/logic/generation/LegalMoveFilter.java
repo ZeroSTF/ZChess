@@ -1,7 +1,6 @@
 package tn.zeros.zchess.core.logic.generation;
 
 import tn.zeros.zchess.core.model.BoardState;
-import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.util.PrecomputedMoves;
@@ -10,11 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LegalMoveFilter {
-    public static List<Move> filterLegalMoves(BoardState state, List<Move> pseudoLegal) {
-        List<Move> legalMoves = new ArrayList<>(pseudoLegal.size());
+    public static List<Integer> filterLegalMoves(BoardState state, List<Integer> pseudoLegal) {
+        List<Integer> legalMoves = new ArrayList<>(pseudoLegal.size());
         boolean isWhite = state.isWhiteToMove();
 
-        for (Move move : pseudoLegal) {
+        for (int move : pseudoLegal) {
             if (isMoveLegal(state, move, isWhite)) {
                 legalMoves.add(move);
             }
@@ -34,7 +33,7 @@ public class LegalMoveFilter {
                 -1;
     }
 
-    private static boolean isMoveLegal(BoardState state, Move move, boolean isWhite) {
+    private static boolean isMoveLegal(BoardState state, int move, boolean isWhite) {
         var undoInfo = MoveExecutor.makeMove(state, move);
         boolean inCheck = inCheck(state, isWhite);
         MoveExecutor.unmakeMove(state, undoInfo);

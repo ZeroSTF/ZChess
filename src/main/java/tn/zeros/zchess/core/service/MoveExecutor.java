@@ -8,21 +8,21 @@ import tn.zeros.zchess.core.model.Piece;
 import static tn.zeros.zchess.core.util.ChessConstants.*;
 
 public class MoveExecutor {
-    public static MoveUndoInfo makeMove(BoardState state, Move move) {
+    public static MoveUndoInfo makeMove(BoardState state, int move) {
         // Save pre-move state
         MoveUndoInfo undoInfo = new MoveUndoInfo(move, state.getCastlingRights(), state.getEnPassantSquare(), state.getHalfMoveClock());
 
         // Handle special moves
-        if (move.isCastling()) {
+        if (Move.isCastling(move)) {
             executeCastling(state, move);
-        } else if (move.isEnPassant()) {
+        } else if (Move.isEnPassant(move)) {
             executeEnPassant(state, move);
         } else {
             executeRegularMove(state, move);
         }
 
         // Handle promotion
-        if (move.isPromotion()) {
+        if (Move.isPromotion(move)) {
             executePromotion(state, move);
         }
 
@@ -32,56 +32,75 @@ public class MoveExecutor {
         return undoInfo;
     }
 
-    private static void executeRegularMove(BoardState state, Move move) {
+    private static void executeRegularMove(BoardState state, int move) {
+        int from = Move.getFrom(move);
+        int to = Move.getTo(move);
+        int piece = Move.getPiece(move);
+        int capturedPiece = Move.getCapturedPiece(move);
+
         // Remove captured piece first
-        if (move.capturedPiece() != Piece.NONE) {
-            state.removePiece(move.toSquare(), move.capturedPiece());
+        if (capturedPiece != Piece.NONE) {
+            state.removePiece(to, capturedPiece);
         }
-        state.movePiece(move.fromSquare(), move.toSquare(), move.piece());
+        state.movePiece(from, to, piece);
     }
 
-    private static void executeEnPassant(BoardState state, Move move) {
-        int capturedSquare = move.toSquare() + (Piece.isWhite(move.piece()) ? -8 : 8);
-        state.movePiece(move.fromSquare(), move.toSquare(), move.piece());
-        state.removePiece(capturedSquare, move.capturedPiece());
+    private static void executeEnPassant(BoardState state, int move) {
+        int from = Move.getFrom(move);
+        int to = Move.getTo(move);
+        int piece = Move.getPiece(move);
+        int capturedPiece = Move.getCapturedPiece(move);
+        int capturedSquare = to + (Piece.isWhite(piece) ? -8 : 8);
+        state.movePiece(from, Move.getTo(move), piece);
+        state.removePiece(capturedSquare, capturedPiece);
     }
 
-    private static void executeCastling(BoardState state, Move move) {
-        int from = move.fromSquare();
-        int to = move.toSquare();
+    private static void executeCastling(BoardState state, int move) {
+        int from = Move.getFrom(move);
+        int to = Move.getTo(move);
+        int piece = Move.getPiece(move);
+
         boolean kingside = (to % 8) > (from % 8);
         int rookFrom = kingside ? from + 3 : from - 4;
         int rookTo = kingside ? to - 1 : to + 1;
 
-        state.movePiece(from, to, move.piece());
-        int rook = Piece.isWhite(move.piece()) ? Piece.makePiece(3, 0) : Piece.makePiece(3, 1);
+        state.movePiece(from, to, piece);
+        int rook = Piece.isWhite(piece) ? Piece.makePiece(3, 0) : Piece.makePiece(3, 1);
         state.movePiece(rookFrom, rookTo, rook);
     }
 
-    private static void executePromotion(BoardState state, Move move) {
-        state.removePiece(move.toSquare(), move.piece());
-        state.addPiece(move.toSquare(), move.promotionPiece());
+    private static void executePromotion(BoardState state, int move) {
+        int from = Move.getFrom(move);
+        int to = Move.getTo(move);
+        int piece = Move.getPiece(move);
+        int promotionPiece = Move.getPromotionPiece(move);
+
+        state.removePiece(to, piece);
+        state.addPiece(to, promotionPiece);
     }
 
-    private static void updateGameState(BoardState state, Move move) {
-        updateEnPassant(state, move);
-        updateCastlingRights(state, move.piece(), move.fromSquare(), move.capturedPiece(), move.toSquare());
-        updateMoveClocks(state, move);
+    private static void updateGameState(BoardState state, int move) {
+        int from = Move.getFrom(move);
+        int to = Move.getTo(move);
+        int piece = Move.getPiece(move);
+        int capturedPiece = Move.getCapturedPiece(move);
+
+        updateEnPassant(state, piece, from, to);
+        updateCastlingRights(state, piece, from, capturedPiece, to);
+        updateMoveClocks(state, piece, capturedPiece);
         state.setWhiteToMove(!state.isWhiteToMove());
     }
 
-    private static void updateEnPassant(BoardState state, Move move) {
-        if (Piece.isPawn(move.piece()) && Math.abs(move.toSquare() / 8 - move.fromSquare() / 8) == 2) {
-            int epSquare = move.fromSquare() + (Piece.isWhite(move.piece()) ? 8 : -8);
+    private static void updateEnPassant(BoardState state, int movedPiece, int fromSquare, int toSquare) {
+        if (Piece.isPawn(movedPiece) && Math.abs(toSquare / 8 - fromSquare / 8) == 2) {
+            int epSquare = fromSquare + (Piece.isWhite(movedPiece) ? 8 : -8);
             state.setEnPassantSquare(epSquare);
         } else {
             state.setEnPassantSquare(-1);
         }
     }
 
-    public static void updateCastlingRights(BoardState state, int movedPiece,
-                                            int fromSquare, int capturedPiece,
-                                            int toSquare) {
+    public static void updateCastlingRights(BoardState state, int movedPiece, int fromSquare, int capturedPiece, int toSquare) {
         int rights = state.getCastlingRights();
 
         // Handle moved pieces
@@ -109,20 +128,25 @@ public class MoveExecutor {
         state.setCastlingRights(rights);
     }
 
-    private static void updateMoveClocks(BoardState state, Move move) {
-        if (Piece.isPawn(move.piece()) || move.capturedPiece() != Piece.NONE) {
+    private static void updateMoveClocks(BoardState state, int movedPiece, int capturedPiece) {
+        if (Piece.isPawn(movedPiece) || capturedPiece != Piece.NONE) {
             state.setHalfMoveClock(0);
         } else {
             state.setHalfMoveClock(state.getHalfMoveClock() + 1);
         }
 
-        if (!Piece.isWhite(move.piece())) {
+        if (!Piece.isWhite(movedPiece)) {
             state.setFullMoveNumber(state.getFullMoveNumber() + 1);
         }
     }
 
-    public static Move unmakeMove(BoardState state, MoveUndoInfo undoInfo) {
-        Move move = undoInfo.move();
+    public static int unmakeMove(BoardState state, MoveUndoInfo undoInfo) {
+        int move = undoInfo.move();
+        int from = Move.getFrom(move);
+        int to = Move.getTo(move);
+        int piece = Move.getPiece(move);
+        int capturedPiece = Move.getCapturedPiece(move);
+        int promotionPiece = Move.getPromotionPiece(move);
 
         // Restore game state
         state.setCastlingRights(undoInfo.previousCastlingRights());
@@ -131,63 +155,61 @@ public class MoveExecutor {
         state.setWhiteToMove(!state.isWhiteToMove());
 
         // Reverse special moves
-        if (move.isCastling()) {
-            unmakeCastling(state, move);
-        } else if (move.isEnPassant()) {
-            unmakeEnPassant(state, move);
-        } else if (move.isPromotion()) {
-            unmakePromotion(state, move);
+        if (Move.isCastling(move)) {
+            unmakeCastling(state, from, to, piece);
+        } else if (Move.isEnPassant(move)) {
+            unmakeEnPassant(state, from, to, piece, capturedPiece);
+        } else if (Move.isPromotion(move)) {
+            unmakePromotion(state, from, to, piece, capturedPiece, promotionPiece);
         } else {
-            unmakeRegularMove(state, move);
+            unmakeRegularMove(state, from, to, piece, capturedPiece);
         }
         return move;
     }
 
-    private static void unmakeRegularMove(BoardState state, Move move) {
+    private static void unmakeRegularMove(BoardState state, int from, int to, int piece, int capturedPiece) {
         // Move piece back
-        state.movePiece(move.toSquare(), move.fromSquare(), move.piece());
+        state.movePiece(to, from, piece);
 
         // Restore captured piece
-        if (move.capturedPiece() != Piece.NONE) {
-            state.addPiece(move.toSquare(), move.capturedPiece());
+        if (capturedPiece != Piece.NONE) {
+            state.addPiece(to, capturedPiece);
         }
     }
 
-    private static void unmakeEnPassant(BoardState state, Move move) {
-        int capturedSquare = move.toSquare() + (Piece.isWhite(move.piece()) ? -8 : 8);
+    private static void unmakeEnPassant(BoardState state, int from, int to, int piece, int capturedPiece) {
+        int capturedSquare = to + (Piece.isWhite(piece) ? -8 : 8);
 
         // Move pawn back
-        state.movePiece(move.toSquare(), move.fromSquare(), move.piece());
+        state.movePiece(to, from, piece);
 
         // Restore captured pawn
-        state.addPiece(capturedSquare, move.capturedPiece());
+        state.addPiece(capturedSquare, capturedPiece);
     }
 
-    private static void unmakeCastling(BoardState state, Move move) {
-        int from = move.fromSquare();
-        int to = move.toSquare();
+    private static void unmakeCastling(BoardState state, int from, int to, int piece) {
         boolean kingside = (to % 8) > (from % 8);
 
         // Move king back
-        state.movePiece(to, from, move.piece());
+        state.movePiece(to, from, piece);
 
         // Move rook back (calculate from move data)
         int rookFrom = kingside ? from + 3 : from - 4;
         int rookTo = kingside ? to - 1 : to + 1;
-        int rook = Piece.isWhite(move.piece()) ? Piece.makePiece(3, 0) : Piece.makePiece(3, 1);
+        int rook = Piece.isWhite(piece) ? Piece.makePiece(3, 0) : Piece.makePiece(3, 1);
         state.movePiece(rookTo, rookFrom, rook);
     }
 
-    private static void unmakePromotion(BoardState state, Move move) {
+    private static void unmakePromotion(BoardState state, int from, int to, int piece, int capturedPiece, int promotionPiece) {
         // Remove promoted piece
-        state.removePiece(move.toSquare(), move.promotionPiece());
+        state.removePiece(to, promotionPiece);
 
         // Restore pawn
-        state.addPiece(move.fromSquare(), move.piece());
+        state.addPiece(from, piece);
 
         // Restore captured piece if any
-        if (move.capturedPiece() != Piece.NONE) {
-            state.addPiece(move.toSquare(), move.capturedPiece());
+        if (capturedPiece != Piece.NONE) {
+            state.addPiece(to, capturedPiece);
         }
     }
 }

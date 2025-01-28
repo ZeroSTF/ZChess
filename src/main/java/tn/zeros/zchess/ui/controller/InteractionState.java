@@ -1,14 +1,12 @@
 package tn.zeros.zchess.ui.controller;
 
-import tn.zeros.zchess.core.model.Move;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class InteractionState {
-    private final List<Move> currentLegalMoves = new ArrayList<>(32);
+    private final List<Integer> currentLegalMoves = new ArrayList<>(32);
     private int selectedSquare = -1;
-    private Move pendingPromotionMove;
+    private int pendingPromotionMove;
     private int lastMoveFrom = -1;
     private int lastMoveTo = -1;
 
@@ -21,15 +19,15 @@ public class InteractionState {
         this.selectedSquare = square;
     }
 
-    public Move getPendingPromotionMove() {
+    public int getPendingPromotionMove() {
         return pendingPromotionMove;
     }
 
-    public void setPendingPromotionMove(Move move) {
+    public void setPendingPromotionMove(int move) {
         this.pendingPromotionMove = move;
     }
 
-    public List<Move> getCurrentLegalMoves() {
+    public List<Integer> getCurrentLegalMoves() {
         return currentLegalMoves;
     }
 

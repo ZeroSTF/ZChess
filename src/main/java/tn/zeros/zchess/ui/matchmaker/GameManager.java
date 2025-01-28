@@ -1,7 +1,6 @@
 package tn.zeros.zchess.ui.matchmaker;
 
 import tn.zeros.zchess.core.model.BoardState;
-import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.MoveUndoInfo;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.service.StateManager;
@@ -42,7 +41,7 @@ public class GameManager {
         }
     }
 
-    public void executeMove(Move move) {
+    public void executeMove(int move) {
         if (!gameInProgress) return;
 
         MoveUndoInfo undoInfo = MoveExecutor.makeMove(boardState, move);
@@ -58,9 +57,9 @@ public class GameManager {
         if (gameMode == GameMode.HUMAN_VS_MODEL && boardState.isWhiteToMove()) return;
 
         EngineModel currentModel = boardState.isWhiteToMove() ? whiteModel : blackModel;
-        Move modelMove = currentModel.generateMove(boardState);
+        int modelMove = currentModel.generateMove(boardState);
 
-        if (modelMove != null) {
+        if (modelMove != -1) {
             executeMove(modelMove);
         }
     }
@@ -73,7 +72,7 @@ public class GameManager {
         listeners.add(listener);
     }
 
-    private void notifyMoveExecuted(Move move) {
+    private void notifyMoveExecuted(int move) {
         listeners.forEach(l -> l.onMoveExecuted(move, boardState));
     }
 }
