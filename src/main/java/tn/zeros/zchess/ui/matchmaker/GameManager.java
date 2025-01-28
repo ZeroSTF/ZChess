@@ -5,7 +5,7 @@ import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.MoveUndoInfo;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.service.StateManager;
-import tn.zeros.zchess.engine.models.MoveModel;
+import tn.zeros.zchess.engine.models.EngineModel;
 import tn.zeros.zchess.engine.models.RandomMoveModel;
 import tn.zeros.zchess.ui.controller.GameListener;
 
@@ -16,8 +16,8 @@ public class GameManager {
     private final BoardState boardState;
     private final StateManager stateManager;
     private final List<GameListener> listeners = new ArrayList<>();
-    private MoveModel whiteModel;
-    private MoveModel blackModel;
+    private EngineModel whiteModel;
+    private EngineModel blackModel;
     private GameMode gameMode;
     private boolean gameInProgress;
 
@@ -28,7 +28,7 @@ public class GameManager {
         this.blackModel = new RandomMoveModel();
     }
 
-    public void setGameMode(GameMode mode, MoveModel whiteModel, MoveModel blackModel) {
+    public void setGameMode(GameMode mode, EngineModel whiteModel, EngineModel blackModel) {
         this.gameMode = mode;
         this.whiteModel = whiteModel;
         this.blackModel = blackModel;
@@ -57,7 +57,7 @@ public class GameManager {
     private void playNextModelMove() {
         if (gameMode == GameMode.HUMAN_VS_MODEL && boardState.isWhiteToMove()) return;
 
-        MoveModel currentModel = boardState.isWhiteToMove() ? whiteModel : blackModel;
+        EngineModel currentModel = boardState.isWhiteToMove() ? whiteModel : blackModel;
         Move modelMove = currentModel.generateMove(boardState);
 
         if (modelMove != null) {
