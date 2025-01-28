@@ -8,16 +8,17 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # Fetch the current and previous commit
 
       - name: Check for Version Changes
         id: version_check
         run: |
-          # Fetch the previous commit
-          git fetch origin HEAD^:refs/remotes/origin/prev
-
-          # Get the version from current and previous pom.xml
+          # Extract the current version from pom.xml
           CURR_VERSION=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
-          PREV_VERSION=$(git show origin/prev:pom.xml | xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" -)
+
+          # Extract the previous version from the previous commit's pom.xml
+          PREV_VERSION=$(git show HEAD~1:pom.xml | xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" -)
 
           echo "Current Version: $CURR_VERSION"
           echo "Previous Version: $PREV_VERSION"
