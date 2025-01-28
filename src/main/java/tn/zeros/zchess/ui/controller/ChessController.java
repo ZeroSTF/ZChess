@@ -8,14 +8,15 @@ import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.service.FenService;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.service.StateManager;
-import tn.zeros.zchess.engine.models.RandomMoveModel;
+import tn.zeros.zchess.ui.matchmaker.GameManager;
 import tn.zeros.zchess.ui.util.SoundManager;
 import tn.zeros.zchess.ui.view.ChessBoardView;
 import tn.zeros.zchess.ui.view.ChessView;
 
 import java.util.Collections;
 
-public class ChessController {
+public class ChessController implements GameListener {
+    private final GameManager gameManager;
     private final InteractionState interactionState;
     private final InputHandler inputHandler;
     private BoardState boardState;
@@ -24,6 +25,8 @@ public class ChessController {
 
     public ChessController() {
         this.boardState = new BoardState();
+        this.gameManager = new GameManager(boardState);
+        this.gameManager.addListener(this);
         this.stateManager = new StateManager(boardState);
         this.interactionState = new InteractionState();
         this.inputHandler = new InputHandler(this);
@@ -75,15 +78,13 @@ public class ChessController {
         Move move = findMoveByTarget(targetSquare);
 
         if (move != null) {
-            boolean moveCompleted = handleMove(move);
-            resetSelection();
-
-            // Only make random move if the original move was completed
-            if (moveCompleted) {
-                Move randomMove = RandomMoveModel.playRandomMove(boardState);
-                assert randomMove != null;
-                commitMove(randomMove);
+            if (move.isPromotion()) {
+                interactionState.setPendingPromotionMove(move);
+                view.showPromotionDialog(Piece.isWhite(move.piece()));
+            } else {
+                gameManager.executeMove(move);
             }
+            resetSelection();
         } else {
             handlePieceSelection(targetSquare);
         }
@@ -96,32 +97,13 @@ public class ChessController {
                 .orElse(null);
     }
 
-    boolean handleMove(Move move) {
-        if (move.isPromotion()) {
-            interactionState.setPendingPromotionMove(move);
-            view.showPromotionDialog(Piece.isWhite(move.piece()));
-            // Return false since move is pending promotion
-            return false;
-        } else {
-            commitMove(move);
-            return true;
-        }
-    }
-
     public void completePromotion(int promotionPiece) {
         if (interactionState.getPendingPromotionMove() == null) return;
 
-        // Find the exact promotion move from legal options
         interactionState.getCurrentLegalMoves().stream()
                 .filter(m -> m.isPromotion() && m.promotionPiece() == promotionPiece)
                 .findFirst()
-                .ifPresent(move -> {
-                    commitMove(move);
-                    // Make random move after promotion is completed
-                    Move randomMove = RandomMoveModel.playRandomMove(boardState);
-                    assert randomMove != null;
-                    commitMove(randomMove);
-                });
+                .ifPresent(gameManager::executeMove);
 
         interactionState.setPendingPromotionMove(null);
     }
@@ -218,9 +200,19 @@ public class ChessController {
         return inputHandler;
     }
 
-    public void updateHighlights() {
+    @Override
+    public void onMoveExecuted(Move move, BoardState boardState) {
+        interactionState.setLastMoveFrom(move.fromSquare());
+        interactionState.setLastMoveTo(move.toSquare());
+        stateManager.clearRedo();
+
         int kingInCheck = LegalMoveFilter.getKingInCheckSquare(boardState, boardState.isWhiteToMove());
-        view.updateHighlights(interactionState.getCurrentLegalMoves(), kingInCheck);
+        view.refreshEntireBoard();
+        view.updateHighlights(Collections.emptyList(), kingInCheck);
+        playMoveSound(move);
     }
 
+    public void startGame() {
+        this.gameManager.startGame();
+    }
 }
