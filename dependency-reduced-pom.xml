@@ -46,29 +46,6 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>io.github.fvarrui</groupId>
-        <artifactId>javapackager</artifactId>
-        <version>1.7.6</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals>
-              <goal>package</goal>
-            </goals>
-            <configuration>
-              <mainClass>tn.zeros.zchess.ZChessApp</mainClass>
-              <bundleJre>true</bundleJre>
-              <platform>windows</platform>
-              <generateInstaller>true</generateInstaller>
-              <outputDirectory>target/installer</outputDirectory>
-              <winConfig>
-                <icoFile>src/main/resources/icons/app-icon.ico</icoFile>
-              </winConfig>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.6.0</version>
         <executions>
@@ -83,14 +60,39 @@
                   <mainClass>tn.zeros.zchess.ZChessApp</mainClass>
                 </transformer>
               </transformers>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>module-info.class</exclude>
-                  </excludes>
-                </filter>
-              </filters>
+              <artifactSet>
+                <includes>
+                  <include>org.openjfx:*</include>
+                </includes>
+              </artifactSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>io.github.fvarrui</groupId>
+        <artifactId>javapackager</artifactId>
+        <version>1.7.6</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>package</goal>
+            </goals>
+            <configuration>
+              <mainClass>tn.zeros.zchess.ZChessApp</mainClass>
+              <bundleJre>true</bundleJre>
+              <platform>windows</platform>
+              <additionalModules>javafx.controls,javafx.fxml,javafx.media</additionalModules>
+              <jvmArgs>
+                <arg>--module-path</arg>
+                <arg>${project.build.directory}/dependency</arg>
+                <arg>--add-modules</arg>
+                <arg>ALL-MODULE-PATH</arg>
+              </jvmArgs>
+              <winConfig>
+                <icoFile>src/main/resources/icons/app-icon.ico</icoFile>
+              </winConfig>
             </configuration>
           </execution>
         </executions>
@@ -98,6 +100,36 @@
     </plugins>
   </build>
   <dependencies>
+    <dependency>
+      <groupId>net.synedra</groupId>
+      <artifactId>validatorfx</artifactId>
+      <version>0.5.0</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>org.openjfx</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.kordamp.ikonli</groupId>
+      <artifactId>ikonli-javafx</artifactId>
+      <version>12.3.1</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.almasb</groupId>
+      <artifactId>fxgl</artifactId>
+      <version>17.3</version>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>*</artifactId>
+          <groupId>org.openjfx</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>

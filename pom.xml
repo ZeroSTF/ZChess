@@ -103,33 +103,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>io.github.fvarrui</groupId>
-                <artifactId>javapackager</artifactId>
-                <version>1.7.6</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>package</goal>
-                        </goals>
-                        <configuration>
-                            <!-- Required Settings -->
-                            <mainClass>tn.zeros.zchess.ZChessApp</mainClass>
-                            <bundleJre>true</bundleJre> <!-- Bundle a JRE with the app -->
-                            <platform>windows</platform> <!-- Target platform: windows, linux, mac -->
-
-                            <!-- Optional Settings -->
-                            <generateInstaller>true</generateInstaller> <!-- Generate EXE installer -->
-                            <outputDirectory>target/installer</outputDirectory> <!-- Output folder -->
-                            <!-- Windows-specific settings -->
-                            <winConfig>
-                                <icoFile>src/main/resources/icons/app-icon.ico</icoFile> <!-- App icon (optional) -->
-                            </winConfig>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.6.0</version>
@@ -143,19 +116,42 @@
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <!-- Fully qualified main class -->
                                     <mainClass>tn.zeros.zchess.ZChessApp</mainClass>
                                 </transformer>
                             </transformers>
-                            <!-- Explicitly include JavaFX dependencies -->
-                            <filters>
-                                <filter>
-                                    <artifact>*:*</artifact>
-                                    <excludes>
-                                        <exclude>module-info.class</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
+                            <artifactSet>
+                                <includes>
+                                    <include>org.openjfx:*</include>
+                                </includes>
+                            </artifactSet>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>io.github.fvarrui</groupId>
+                <artifactId>javapackager</artifactId>
+                <version>1.7.6</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>tn.zeros.zchess.ZChessApp</mainClass>
+                            <bundleJre>true</bundleJre>
+                            <platform>windows</platform>
+                            <generateInstaller>true</generateInstaller>
+                            <administratorRequired>false</administratorRequired>
+                            <runnableJar>${project.build.directory}/${project.artifactId}-${project.version}.jar
+                            </runnableJar>
+                            <copyDependencies>true</copyDependencies>
+                            <jvmArgs>
+                                <arg>--add-opens</arg>
+                                <arg>java.base/java.lang=ALL-UNNAMED</arg>
+                            </jvmArgs>
                         </configuration>
                     </execution>
                 </executions>
