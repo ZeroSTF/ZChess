@@ -156,7 +156,11 @@ public class SquareView extends StackPane {
     public void setLastMove(boolean isLast) {
         this.isLastMove = isLast;
 
-        lastMoveHighlight.setVisible(isLast);
+        if (isCaptureMove) {
+            lastMoveHighlight.setVisible(false);
+        } else {
+            lastMoveHighlight.setVisible(isLast);
+        }
     }
 
     public void setLegalMoveHover(boolean isHovered) {
