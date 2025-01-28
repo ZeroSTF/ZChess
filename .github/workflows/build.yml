@@ -13,7 +13,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -22,51 +22,58 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Check for Version Changes
-        id: version_check
+      - name: Get Current Version
+        id: version
         run: |
-          # Extract the current version from pom.xml
-          CURR_VERSION=$(xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" pom.xml)
+          CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          echo "Current version: $CURRENT_VERSION"
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
 
-          # Extract the previous version from the previous commit's pom.xml
-          PREV_VERSION=$(git show HEAD~1:pom.xml | xmllint --xpath "//*[local-name()='project']/*[local-name()='version']/text()" -)
+      - name: Check Against Latest Release
+        id: version_check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get latest release version from GitHub API
+          RESPONSE=$(curl -sSL \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer $GITHUB_TOKEN" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest")
 
-          echo "Current Version: $CURR_VERSION"
-          echo "Previous Version: $PREV_VERSION"
-
-          # Compare versions
-          if [ "$CURR_VERSION" != "$PREV_VERSION" ]; then
-            echo "New version detected: $CURR_VERSION"
-            echo "::set-output name=should_build::true"
-            echo "::set-output name=version::$CURR_VERSION"
+          if echo "$RESPONSE" | grep -q "Not Found"; then
+            LATEST_VERSION="0.0.0"
           else
-            echo "No new version detected."
-            echo "::set-output name=should_build::false"
-            echo "::set-output name=version::$CURR_VERSION"
+            LATEST_VERSION=$(echo "$RESPONSE" | jq -r '.tag_name | sub("^v"; "")')
           fi
-        shell: bash
 
-      - name: Build with Maven
-        if: steps.version_check.outputs.should_build == 'true'
+          echo "Latest release version: $LATEST_VERSION"
+          echo "Current version: ${{ steps.version.outputs.version }}"
+
+          if [ "${{ steps.version.outputs.version }}" != "$LATEST_VERSION" ]; then
+            echo "::notice::New version detected! Triggering release"
+            echo "should_release=true" >> $GITHUB_OUTPUT
+          else
+            echo "::notice::No version change detected"
+            echo "should_release=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build Package and Create Installer
+        if: steps.version_check.outputs.should_release == 'true'
         run: ./mvnw clean package
 
-      - name: Create GitHub Release & Upload Asset
-        if: steps.version_check.outputs.should_build == 'true'
+      - name: Create Release
+        if: steps.version_check.outputs.should_release == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.version_check.outputs.version }}
-          name: Release v${{ steps.version_check.outputs.version }}
+          tag_name: v${{ steps.version.outputs.version }}
+          name: ZChess v${{ steps.version.outputs.version }}
           body: |
-            This release includes the latest build of the application.
-            - Version: ${{ steps.version_check.outputs.version }}
+            Automated release for version ${{ steps.version.outputs.version }}
+            - Built with Java 17
+            - Installer generated using jpackage
+          files: |
+            target/dist/ZChess-${{ steps.version.outputs.version }}.exe
           draft: false
           prerelease: false
-          files: |
-            ./target/dist/ZChess-${{ steps.version_check.outputs.version }}.exe
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      - name: Test jpackage
-        if: steps.version_check.outputs.should_build == 'true'
-        run: |
-          jpackage --version
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
