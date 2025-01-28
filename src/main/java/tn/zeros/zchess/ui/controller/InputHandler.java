@@ -79,4 +79,11 @@ public class InputHandler {
         }
         startSquare = -1;
     }
+
+    public void restoreSourcePiece() {
+        if (sourceSquare != null) {
+            sourceSquare.showCurrentPiece();
+            cleanup();
+        }
+    }
 }
