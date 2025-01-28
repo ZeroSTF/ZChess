@@ -5,6 +5,8 @@ import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.MoveUndoInfo;
 import tn.zeros.zchess.core.model.Piece;
 
+import static tn.zeros.zchess.core.util.ChessConstants.*;
+
 public class MoveExecutor {
     public static MoveUndoInfo makeMove(BoardState state, Move move) {
         // Save pre-move state
@@ -63,7 +65,7 @@ public class MoveExecutor {
 
     private static void updateGameState(BoardState state, Move move) {
         updateEnPassant(state, move);
-        CastlingService.updateCastlingRights(state, move.piece(), move.fromSquare(), move.capturedPiece(), move.toSquare());
+        updateCastlingRights(state, move.piece(), move.fromSquare(), move.capturedPiece(), move.toSquare());
         updateMoveClocks(state, move);
         state.setWhiteToMove(!state.isWhiteToMove());
     }
@@ -75,6 +77,36 @@ public class MoveExecutor {
         } else {
             state.setEnPassantSquare(-1);
         }
+    }
+
+    public static void updateCastlingRights(BoardState state, int movedPiece,
+                                            int fromSquare, int capturedPiece,
+                                            int toSquare) {
+        int rights = state.getCastlingRights();
+
+        // Handle moved pieces
+        if (Piece.isKing(movedPiece)) {
+            rights &= Piece.isWhite(movedPiece) ?
+                    ~(WHITE_KINGSIDE | WHITE_QUEENSIDE) :
+                    ~(BLACK_KINGSIDE | BLACK_QUEENSIDE);
+        } else if (Piece.isRook(movedPiece)) {
+            if (fromSquare == 0) rights &= ~WHITE_QUEENSIDE;
+            else if (fromSquare == 7) rights &= ~WHITE_KINGSIDE;
+            else if (fromSquare == 56) rights &= ~BLACK_QUEENSIDE;
+            else if (fromSquare == 63) rights &= ~BLACK_KINGSIDE;
+        }
+
+        // Handle captured rooks
+        if (capturedPiece != Piece.NONE && Piece.isRook(capturedPiece)) {
+            switch (toSquare) {
+                case 0 -> rights &= ~WHITE_QUEENSIDE;
+                case 7 -> rights &= ~WHITE_KINGSIDE;
+                case 56 -> rights &= ~BLACK_QUEENSIDE;
+                case 63 -> rights &= ~BLACK_KINGSIDE;
+            }
+        }
+
+        state.setCastlingRights(rights);
     }
 
     private static void updateMoveClocks(BoardState state, Move move) {

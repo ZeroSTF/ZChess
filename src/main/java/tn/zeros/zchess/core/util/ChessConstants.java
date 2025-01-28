@@ -6,12 +6,15 @@ public class ChessConstants {
     public static final int WHITE_QUEENSIDE = 0b0010;
     public static final int BLACK_KINGSIDE = 0b0100;
     public static final int BLACK_QUEENSIDE = 0b1000;
+    public static final long[] ROOK_FROM_DELTA = {-4, 3};
+    public static final long[] ROOK_TO_DELTA = {1, -1};
 
     // Board Geometry Masks
     public static final long RANK_1 = 0xFFL;
     public static final long RANK_8 = 0xFF00000000000000L;
     public static final long FILE_A = 0x0101010101010101L;
     public static final long FILE_H = 0x8080808080808080L;
+    public static final int COLOR_SHIFT = 3;
 
     // FEN Constants
     public static final String DEFAULT_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -20,6 +23,7 @@ public class ChessConstants {
     public static final String FEN_WHITE_ACTIVE = "w";
     public static final String FEN_BLACK_ACTIVE = "b";
     public static final String FEN_SEPARATOR = "/";
+
     // Generated magic numbers
     // Rook Magics
     public static final long[] ROOK_MAGICS = {
@@ -40,6 +44,7 @@ public class ChessConstants {
             0x4080008040102101L, 0x40002080411D01L, 0x2005524060000901L, 0x502001008400422L,
             0x489A000810200402L, 0x1004400080A13L, 0x4000011008020084L, 0x26002114058042L
     };
+
     // Bishop Magics
     public static final long[] BISHOP_MAGICS = {
             0x89A1121896040240L, 0x2004844802002010L, 0x2068080051921000L, 0x62880A0220200808L,

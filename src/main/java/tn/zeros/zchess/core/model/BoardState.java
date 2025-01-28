@@ -7,14 +7,6 @@ import java.util.Arrays;
 import static tn.zeros.zchess.core.util.ChessConstants.*;
 
 public class BoardState {
-    private static final long[] SQUARE_MASKS = new long[64];
-
-    static {
-        for (int i = 0; i < 64; i++) {
-            SQUARE_MASKS[i] = 1L << i;
-        }
-    }
-
     private final long[] pieceBitboards = new long[6]; // Indexed by piece type
     private final long[] colorBitboards = new long[2]; // Indexed by color
     private final int[] pieceSquare = new int[64];
@@ -136,26 +128,21 @@ public class BoardState {
     }
 
     public void movePiece(int from, int to, int piece) {
-        final long fromMask = SQUARE_MASKS[from];
-        final long toMask = SQUARE_MASKS[to];
-        final int type = Piece.getType(piece);
-        final int color = Piece.getColor(piece);
-        final int colorIndex = getColorIndex(color);
+        final long combinedMask = (1L << from) | (1L << to);
+        final int type = piece & 0x7;
+        final int colorIndex = piece >>> COLOR_SHIFT;
 
-        pieceBitboards[type] ^= fromMask | toMask;
-        colorBitboards[colorIndex] ^= fromMask | toMask;
-
+        pieceBitboards[type] ^= combinedMask;
+        colorBitboards[colorIndex] ^= combinedMask;
         pieceSquare[from] = Piece.NONE;
         pieceSquare[to] = piece;
     }
 
     public void removePiece(int square, int piece) {
         if (piece == Piece.NONE) return;
-
-        final long mask = SQUARE_MASKS[square];
-        final int type = Piece.getType(piece);
-        final int color = Piece.getColor(piece);
-        final int colorIndex = getColorIndex(color);
+        final long mask = 1L << square;
+        final int type = piece & 0x7;
+        final int colorIndex = piece >>> COLOR_SHIFT;
 
         pieceBitboards[type] &= ~mask;
         colorBitboards[colorIndex] &= ~mask;
@@ -163,10 +150,9 @@ public class BoardState {
     }
 
     public void addPiece(int square, int piece) {
-        final long mask = SQUARE_MASKS[square];
-        final int type = Piece.getType(piece);
-        final int color = Piece.getColor(piece);
-        final int colorIndex = getColorIndex(color);
+        final long mask = 1L << square;
+        final int type = piece & 0x7;
+        final int colorIndex = piece >>> COLOR_SHIFT;
 
         pieceBitboards[type] |= mask;
         colorBitboards[colorIndex] |= mask;
