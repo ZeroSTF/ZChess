@@ -98,6 +98,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Acknowledgments
 
-- Magic bitboard implementation inspired by Chess Programming Wiki
-- JavaFX design patterns from [FXExperience](https://fxexperience.com/)
-- Test positions from [Chess Problem Database](https://www.chessproblem.net/)
+- Magic bitboard implementation inspired by [Chess Programming Wiki](https://www.chessprogramming.org/Magic_Bitboards)
+- JavaFX documentation from [FXExperience](https://openjfx.io/javadoc/23/)
+- Test positions from [Chess Programming Perft Results](https://www.chessprogramming.org/Perft_Results)
