@@ -1,5 +1,7 @@
 package tn.zeros.zchess.core.model;
 
+import tn.zeros.zchess.core.service.GameStateChecker;
+
 import java.util.Arrays;
 
 import static tn.zeros.zchess.core.util.ChessConstants.*;
@@ -176,6 +178,10 @@ public class BoardState {
     }
 
     private int getColorIndex(int color) {
-        return color == Piece.WHITE ? 0 : 1;
+        return color >> 3;
+    }
+
+    public boolean isGameOver() {
+        return GameStateChecker.isGameOver(this);
     }
 }

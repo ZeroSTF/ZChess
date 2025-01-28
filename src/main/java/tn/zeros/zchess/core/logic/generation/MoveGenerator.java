@@ -7,7 +7,7 @@ import tn.zeros.zchess.core.model.Piece;
 import java.util.Arrays;
 import java.util.List;
 
-public abstract class MoveGenerator {
+public class MoveGenerator {
     // Thread-local list pool to avoid allocations
     private static final ThreadLocal<MoveList> MOVE_LIST_POOL =
             ThreadLocal.withInitial(() -> new MoveList(128));

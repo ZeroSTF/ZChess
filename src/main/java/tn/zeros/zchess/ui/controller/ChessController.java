@@ -8,6 +8,7 @@ import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.service.FenService;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.service.StateManager;
+import tn.zeros.zchess.engine.models.RandomMoveModel;
 import tn.zeros.zchess.ui.util.SoundManager;
 import tn.zeros.zchess.ui.view.ChessBoardView;
 import tn.zeros.zchess.ui.view.ChessView;
@@ -74,12 +75,18 @@ public class ChessController {
         Move move = findMoveByTarget(targetSquare);
 
         if (move != null) {
-            handleMove(move);
+            boolean moveCompleted = handleMove(move);
             resetSelection();
+
+            // Only make random move if the original move was completed
+            if (moveCompleted) {
+                Move randomMove = RandomMoveModel.playRandomMove(boardState);
+                assert randomMove != null;
+                commitMove(randomMove);
+            }
         } else {
             handlePieceSelection(targetSquare);
         }
-
     }
 
     private Move findMoveByTarget(int targetSquare) {
@@ -89,12 +96,15 @@ public class ChessController {
                 .orElse(null);
     }
 
-    void handleMove(Move move) {
+    boolean handleMove(Move move) {
         if (move.isPromotion()) {
             interactionState.setPendingPromotionMove(move);
             view.showPromotionDialog(Piece.isWhite(move.piece()));
+            // Return false since move is pending promotion
+            return false;
         } else {
             commitMove(move);
+            return true;
         }
     }
 
@@ -104,7 +114,14 @@ public class ChessController {
         // Find the exact promotion move from legal options
         interactionState.getCurrentLegalMoves().stream()
                 .filter(m -> m.isPromotion() && m.promotionPiece() == promotionPiece)
-                .findFirst().ifPresent(this::commitMove);
+                .findFirst()
+                .ifPresent(move -> {
+                    commitMove(move);
+                    // Make random move after promotion is completed
+                    Move randomMove = RandomMoveModel.playRandomMove(boardState);
+                    assert randomMove != null;
+                    commitMove(randomMove);
+                });
 
         interactionState.setPendingPromotionMove(null);
     }

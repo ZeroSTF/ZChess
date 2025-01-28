@@ -75,4 +75,10 @@ public class ChessConstants {
         }
         System.out.println("  ---------------");
     }
+
+    public static String squareName(int square) {
+        char file = (char) ('a' + (square % 8));
+        int rank = (square / 8) + 1;
+        return "" + file + rank;
+    }
 }

@@ -74,7 +74,6 @@ public class ChessBoardView extends GridPane implements ChessView {
             for (int col = 0; col < 8; col++) {
                 int square = row * 8 + col;
                 squares[row][col].setPiece(state.getPieceAt(square));
-                System.out.println("the piece at square " + square + " is " + state.getPieceAt(square));
             }
         }
     }
