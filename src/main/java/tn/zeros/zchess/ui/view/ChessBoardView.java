@@ -65,15 +65,6 @@ public class ChessBoardView extends GridPane implements ChessView {
         pause.play();
     }
 
-    public void clearHighlights() {
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                squares[row][col].highlightWithColor(false, null);
-                squares[row][col].setLegalMove(false, false);
-            }
-        }
-    }
-
     @Override
     public void refreshEntireBoard() {
         BoardState state = controller.getBoardState();
@@ -81,7 +72,6 @@ public class ChessBoardView extends GridPane implements ChessView {
             for (int col = 0; col < 8; col++) {
                 int square = row * 8 + col;
                 squares[row][col].setPiece(state.getPieceAt(square));
-                squares[row][col].highlightWithColor(false, null);
             }
         }
     }
@@ -99,7 +89,7 @@ public class ChessBoardView extends GridPane implements ChessView {
 
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                squares[row][col].setCheck(false);
+                squares[row][col].setCheckOverlay(false);
             }
         }
 
@@ -109,14 +99,14 @@ public class ChessBoardView extends GridPane implements ChessView {
             int col = move.toSquare() % 8;
             boolean isCapture = move.capturedPiece() != Piece.NONE;
 
-            squares[row][col].setLegalMove(true, isCapture);
+            squares[row][col].setLegalMoveOverlay(true, isCapture);
         }
 
         // Set check highlight
         if (kingInCheckSquare != -1) {
             int row = kingInCheckSquare / 8;
             int col = kingInCheckSquare % 8;
-            squares[row][col].setCheck(true);
+            squares[row][col].setCheckOverlay(true);
         }
     }
 
@@ -126,19 +116,28 @@ public class ChessBoardView extends GridPane implements ChessView {
 
         if (lastMoveFrom != -1) {
             squares[lastMoveFrom / 8][lastMoveFrom % 8]
-                    .highlightWithColor(true, UIConstants.LAST_MOVE_COLOR);
+                    .setLastMove(true);
         }
         if (lastMoveTo != -1) {
             squares[lastMoveTo / 8][lastMoveTo % 8]
-                    .highlightWithColor(true, UIConstants.LAST_MOVE_COLOR);
+                    .setLastMove(true);
         }
     }
 
     private void highlightSelectedSquare() {
         int selectedSquare = controller.getInteractionState().getSelectedSquare();
         if (selectedSquare != -1) {
-            squares[selectedSquare / 8][selectedSquare % 8]
-                    .highlightWithColor(true, UIConstants.SELECTED_SQUARE_COLOR);
+            squares[selectedSquare / 8][selectedSquare % 8].setSelected(true);
+        }
+    }
+
+    public void clearHighlights() {
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                squares[row][col].setLegalMoveOverlay(false, false);
+                squares[row][col].setSelected(false);
+                squares[row][col].setLastMove(false);
+            }
         }
     }
 

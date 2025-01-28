@@ -15,40 +15,52 @@ import tn.zeros.zchess.ui.util.EffectUtils;
 import tn.zeros.zchess.ui.util.UIConstants;
 
 public class SquareView extends StackPane {
-    private final Rectangle background;
     private final Circle legalMoveDot;
-    private final Color originalColor;
     private final Rectangle checkOverlay;
     private final Rectangle captureHighlight;
+    private final Rectangle legalMoveHoverHighlight;
+    private final Rectangle lastMoveHighlight;
+    private final Rectangle selectedHighlight;
+
     private Piece currentPiece;
     private boolean isLegalMove;
     private boolean isCaptureMove;
+    private boolean isLastMove;
 
     public SquareView(Color color, ChessController controller, int squareIndex) {
         // Initialisation
-        this.originalColor = color;
+        Rectangle background = new Rectangle(UIConstants.SQUARE_SIZE, UIConstants.SQUARE_SIZE, color);
 
-        background = new Rectangle(UIConstants.SQUARE_SIZE, UIConstants.SQUARE_SIZE, color);
-        legalMoveDot = new Circle(UIConstants.SQUARE_SIZE * UIConstants.LEGAL_MOVE_DOT_RADIUS, UIConstants.LEGAL_MOVE_DOT_COLOR);
+        legalMoveDot = new Circle(UIConstants.SQUARE_SIZE * UIConstants.LEGAL_MOVE_DOT_RADIUS);
         checkOverlay = new Rectangle(UIConstants.SQUARE_SIZE, UIConstants.SQUARE_SIZE);
         captureHighlight = new Rectangle(UIConstants.SQUARE_SIZE, UIConstants.SQUARE_SIZE);
+        legalMoveHoverHighlight = new Rectangle(UIConstants.SQUARE_SIZE, UIConstants.SQUARE_SIZE);
+        lastMoveHighlight = new Rectangle(UIConstants.SQUARE_SIZE, UIConstants.SQUARE_SIZE);
+        selectedHighlight = new Rectangle(UIConstants.SQUARE_SIZE, UIConstants.SQUARE_SIZE);
 
         legalMoveDot.setVisible(false);
         checkOverlay.setVisible(false);
         captureHighlight.setVisible(false);
+        legalMoveHoverHighlight.setVisible(false);
+        lastMoveHighlight.setVisible(false);
+        selectedHighlight.setVisible(false);
+
+        legalMoveDot.setFill(UIConstants.LEGAL_MOVE_DOT_COLOR);
         checkOverlay.setFill(EffectUtils.gradient);
         captureHighlight.setFill(UIConstants.CAPTURE_HIGHLIGHT);
+        legalMoveHoverHighlight.setFill(UIConstants.LEGAL_MOVE_HOVER_COLOR);
+        lastMoveHighlight.setFill(UIConstants.LAST_MOVE_COLOR);
+        selectedHighlight.setFill(UIConstants.SELECTED_SQUARE_COLOR);
 
-
-        getChildren().addAll(background, legalMoveDot, captureHighlight, checkOverlay);
+        getChildren().addAll(background, legalMoveDot, checkOverlay, captureHighlight, legalMoveHoverHighlight, lastMoveHighlight, selectedHighlight);
 
         // Events
         setOnMouseEntered(e -> {
-            if (isLegalMove) highlightWithColor(true, UIConstants.LEGAL_MOVE_HOVER_COLOR);
+            if (isLegalMove) setLegalMoveHover(true);
         });
 
         setOnMouseExited(e -> {
-            setLegalMove(isLegalMove, isCaptureMove);
+            setLegalMoveHover(false);
         });
 
         setOnMousePressed(e -> {
@@ -66,14 +78,6 @@ public class SquareView extends StackPane {
             if (e.getButton() != MouseButton.PRIMARY) return;
             controller.getInputHandler().handleRelease(e.getSceneX(), e.getSceneY());
         });
-    }
-
-    public void setLegalMove(boolean isLegal, boolean isCapture) {
-        this.isLegalMove = isLegal;
-        this.isCaptureMove = isCapture;
-
-        legalMoveDot.setVisible(isLegal && !isCapture);
-        captureHighlight.setVisible(isLegal && isCapture);
     }
 
     private void refreshDisplay() {
@@ -105,32 +109,6 @@ public class SquareView extends StackPane {
         getChildren().add(text);
     }
 
-    public void highlightWithColor(boolean highlight, Color overlayColor) {
-        if (highlight) {
-            Color blendedColor = blendColors(originalColor, overlayColor);
-            background.setFill(blendedColor);
-            if (isLegalMove) {
-                legalMoveDot.setVisible(false);
-                captureHighlight.setVisible(false);
-            }
-        } else {
-            background.setFill(originalColor);
-            if (isLegalMove) {
-                legalMoveDot.setVisible(!isCaptureMove);
-                captureHighlight.setVisible(isCaptureMove);
-            }
-        }
-    }
-
-    private Color blendColors(Color base, Color overlay) {
-        double overlayAlpha = overlay.getOpacity();
-        // Calculate blended color components
-        double r = (1 - overlayAlpha) * base.getRed() + overlayAlpha * overlay.getRed();
-        double g = (1 - overlayAlpha) * base.getGreen() + overlayAlpha * overlay.getGreen();
-        double b = (1 - overlayAlpha) * base.getBlue() + overlayAlpha * overlay.getBlue();
-        return new Color(r, g, b, 1.0);
-    }
-
     public Piece getPiece() {
         return currentPiece;
     }
@@ -152,7 +130,37 @@ public class SquareView extends StackPane {
                 .forEach(node -> node.setVisible(true));
     }
 
-    public void setCheck(boolean inCheck) {
+    public void setCheckOverlay(boolean inCheck) {
         checkOverlay.setVisible(inCheck);
+    }
+
+    public void setLegalMoveOverlay(boolean isLegal, boolean isCapture) {
+        this.isLegalMove = isLegal;
+        this.isCaptureMove = isCapture;
+
+        legalMoveDot.setVisible(isLegal && !isCapture);
+        captureHighlight.setVisible(isLegal && isCapture);
+    }
+
+    public void setLastMove(boolean isLast) {
+        this.isLastMove = isLast;
+
+        lastMoveHighlight.setVisible(isLast);
+    }
+
+    public void setLegalMoveHover(boolean isHovered) {
+        legalMoveHoverHighlight.setVisible(isHovered);
+        if (isHovered) {
+            legalMoveDot.setVisible(false);
+            captureHighlight.setVisible(false);
+            lastMoveHighlight.setVisible(false);
+        } else {
+            setLegalMoveOverlay(isLegalMove, isCaptureMove);
+            setLastMove(isLastMove);
+        }
+    }
+
+    public void setSelected(boolean isSelected) {
+        selectedHighlight.setVisible(isSelected);
     }
 }
