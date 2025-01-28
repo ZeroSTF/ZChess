@@ -16,9 +16,6 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Verify JDK Installation
-        run: java --version
-
       - name: Add JavaFX to PATH
         run: |
           setx PATH "%PATH%;C:\Program Files (x86)\JavaFX\lib"
