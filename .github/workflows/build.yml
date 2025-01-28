@@ -63,6 +63,14 @@ jobs:
         if: steps.version_check.outputs.should_release == 'true'
         run: ./mvnw clean package
 
+      - name: Get Latest Commit Message
+        id: latest_commit
+        run: |
+          # Get the latest commit message
+          COMMIT_MESSAGE=$(git log -1 --pretty=%s)
+           echo "Latest commit message: $COMMIT_MESSAGE"
+           echo "commit_message=$COMMIT_MESSAGE" >> $GITHUB_OUTPUT
+
       - name: Create Release
         if: steps.version_check.outputs.should_release == 'true'
         uses: softprops/action-gh-release@v2
@@ -73,6 +81,9 @@ jobs:
             Automated release for version ${{ steps.version.outputs.version }}
             - Built with Java 17
             - Installer generated using jpackage
+            
+            **Changelog:**
+            ${{ steps.latest_commit.outputs.commit_message }}
           files: |
             target/dist/ZChess-${{ steps.version.outputs.version }}.exe
           draft: false
