@@ -41,6 +41,7 @@ jobs:
             echo "::set-output name=version::$CURR_VERSION"
           else
             echo "No new version detected."
+            echo "::set-output name=version::$CURR_VERSION"
             echo "::set-output name=should_build::false"
           fi
         shell: bash
@@ -69,7 +70,7 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./target/dist/ZChess-${{ steps.version_check.outputs.version }}.exe  # Path to your .exe file
+          asset_path: ./target/dist/ZChess-${{ steps.version_check.outputs.version }}.exe
           asset_name: ZChess-${{ steps.version_check.outputs.version }}.exe
           asset_content_type: application/x-msdownload
 
