@@ -41,8 +41,8 @@ jobs:
             echo "::set-output name=version::$CURR_VERSION"
           else
             echo "No new version detected."
-            echo "::set-output name=version::$CURR_VERSION"
             echo "::set-output name=should_build::false"
+            echo "::set-output name=version::$CURR_VERSION"
           fi
         shell: bash
 
@@ -63,7 +63,7 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Upload Release Asset
         if: steps.version_check.outputs.should_build == 'false'
