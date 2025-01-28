@@ -14,15 +14,15 @@ capabilities, and future networking support.
 
 - **JavaFX UI**
     - Interactive chess board with piece dragging
-    - Move highlighting and animation
+    - Move highlighting
     - Game history tracking
     - Move undo/redo functionality
-    - Multiple theme support
 
 - **Future Development**
     - Chess engine with AI opponents (planned)
     - Network multiplayer functionality (planned)
     - Tournament mode (planned)
+    - Multiple theme support (planned)
 
 ## Prerequisites
 
