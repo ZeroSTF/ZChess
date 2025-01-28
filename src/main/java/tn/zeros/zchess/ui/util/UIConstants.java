@@ -15,7 +15,6 @@ public class UIConstants {
     public static final Color LEGAL_MOVE_DOT_COLOR = Color.web("#14551E", 0.5);
     public static final double LEGAL_MOVE_DOT_RADIUS = 0.14;
     public static final Color LEGAL_MOVE_HOVER_COLOR = Color.web("#14551E", 0.3);
-    //public static final Color CAPTURE_HIGHLIGHT = Color.web("#145500", 0.3);
     public static final Paint CAPTURE_HIGHLIGHT = new RadialGradient(
             0, 0,
             0.5, 0.5,
