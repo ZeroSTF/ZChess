@@ -26,6 +26,7 @@ public class SquareView extends StackPane {
     private boolean isLegalMove;
     private boolean isCaptureMove;
     private boolean isLastMove;
+    private boolean isHovered;
 
     public SquareView(Color color, ChessController controller, int squareIndex) {
         // Initialisation
@@ -56,10 +57,12 @@ public class SquareView extends StackPane {
 
         // Events
         setOnMouseEntered(e -> {
+            isHovered = true;
             if (isLegalMove) setLegalMoveHover(true);
         });
 
         setOnMouseExited(e -> {
+            isHovered = false;
             setLegalMoveHover(false);
         });
 
@@ -140,6 +143,14 @@ public class SquareView extends StackPane {
 
         legalMoveDot.setVisible(isLegal && !isCapture);
         captureHighlight.setVisible(isLegal && isCapture);
+
+        if (isHovered) {
+            setLegalMoveHover(isHovered);
+        }
+
+        if (isLegal && isCapture) {
+            lastMoveHighlight.setVisible(false);
+        }
     }
 
     public void setLastMove(boolean isLast) {
@@ -149,7 +160,8 @@ public class SquareView extends StackPane {
     }
 
     public void setLegalMoveHover(boolean isHovered) {
-        legalMoveHoverHighlight.setVisible(isHovered);
+        legalMoveHoverHighlight.setVisible(isHovered && isLegalMove);
+
         if (isHovered) {
             legalMoveDot.setVisible(false);
             captureHighlight.setVisible(false);
