@@ -42,6 +42,7 @@ jobs:
           else
             echo "No new version detected."
             echo "::set-output name=should_build::false"
+            echo "::set-output name=version::$CURR_VERSION"
           fi
         shell: bash
 
