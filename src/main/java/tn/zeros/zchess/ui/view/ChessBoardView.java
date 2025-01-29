@@ -121,6 +121,8 @@ public class ChessBoardView extends GridPane implements ChessView {
         BoardState state = controller.getBoardState();
         if (controller.getInteractionState().getSelectedSquare() != -1) {
             updateBitboardOverlay(LegalMoveFilter.getAttackersBitboard(state, controller.getInteractionState().getSelectedSquare(), !state.isWhiteToMove()));
+        } else {
+            clearBitboardOverlay();
         }
     }
 
@@ -227,5 +229,9 @@ public class ChessBoardView extends GridPane implements ChessView {
 
     public void updateBitboardOverlay(long bitboard) {
         bitboardOverlay.updateBitboard(bitboard);
+    }
+
+    public void clearBitboardOverlay() {
+        bitboardOverlay.updateBitboard(0L);
     }
 }
