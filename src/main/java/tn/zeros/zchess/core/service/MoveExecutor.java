@@ -65,7 +65,7 @@ public class MoveExecutor {
         int rookTo = kingside ? to - 1 : to + 1;
 
         state.movePiece(from, to, piece);
-        int rook = Piece.isWhite(piece) ? Piece.makePiece(3, 0) : Piece.makePiece(3, 1);
+        int rook = Piece.isWhite(piece) ? Piece.makePiece(Piece.ROOK, Piece.WHITE) : Piece.makePiece(Piece.ROOK, Piece.BLACK);
         state.movePiece(rookFrom, rookTo, rook);
     }
 
@@ -195,7 +195,7 @@ public class MoveExecutor {
         // Move rook back (calculate from move data)
         int rookFrom = kingside ? from + 3 : from - 4;
         int rookTo = kingside ? to - 1 : to + 1;
-        int rook = Piece.isWhite(piece) ? Piece.makePiece(3, 0) : Piece.makePiece(3, 1);
+        int rook = Piece.isWhite(piece) ? Piece.makePiece(Piece.ROOK, Piece.WHITE) : Piece.makePiece(Piece.ROOK, Piece.BLACK);
         state.movePiece(rookTo, rookFrom, rook);
     }
 
