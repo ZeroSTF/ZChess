@@ -65,6 +65,7 @@ jobs:
 
       - name: Get Latest Commit Message
         id: latest_commit
+        shell: bash
         run: |
           # Get the latest commit message
           COMMIT_MESSAGE=$(git log -1 --pretty=%s)
