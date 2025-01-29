@@ -141,14 +141,14 @@ public class PrecomputedMoves {
 
             // White pawn attacks
             if (rank < 7) {
-                if (file > 0 && isWithinBounds(square + 7)) WHITE_PAWN_ATTACKS[square] |= 1L << (square + 7);
-                if (file < 7 && isWithinBounds(square + 9)) WHITE_PAWN_ATTACKS[square] |= 1L << (square + 9);
+                if (file > 0) WHITE_PAWN_ATTACKS[square] |= 1L << (square + 7);
+                if (file < 7) WHITE_PAWN_ATTACKS[square] |= 1L << (square + 9);
             }
 
             // Black pawn attacks
             if (rank > 0) {
-                if (file > 0 && isWithinBounds(square - 9)) BLACK_PAWN_ATTACKS[square] |= 1L << (square - 9);
-                if (file < 7 && isWithinBounds(square - 7)) BLACK_PAWN_ATTACKS[square] |= 1L << (square - 7);
+                if (file > 0) BLACK_PAWN_ATTACKS[square] |= 1L << (square - 9);
+                if (file < 7) BLACK_PAWN_ATTACKS[square] |= 1L << (square - 7);
             }
         }
     }

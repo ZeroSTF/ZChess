@@ -2,7 +2,7 @@ package tn.zeros.zchess.engine.evaluate;
 
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Piece;
-import tn.zeros.zchess.engine.util.EvalVars;
+import tn.zeros.zchess.engine.util.EvalUtils;
 
 public class EvaluationService {
     public static int evaluate(BoardState state) {
@@ -13,16 +13,16 @@ public class EvaluationService {
 
         int perspective = state.isWhiteToMove() ? 1 : -1;
 
-        return perspective * eval;
+        return eval;
     }
 
     static int countMaterial(int color, BoardState state) {
         int material = 0;
-        material += Long.bitCount(state.getPieces(Piece.PAWN, color)) * EvalVars.PAWN_VALUE;
-        material += Long.bitCount(state.getPieces(Piece.KNIGHT, color)) * EvalVars.KNIGHT_VALUE;
-        material += Long.bitCount(state.getPieces(Piece.BISHOP, color)) * EvalVars.BISHOP_VALUE;
-        material += Long.bitCount(state.getPieces(Piece.ROOK, color)) * EvalVars.ROOK_VALUE;
-        material += Long.bitCount(state.getPieces(Piece.QUEEN, color)) * EvalVars.QUEEN_VALUE;
+        material += Long.bitCount(state.getPieces(Piece.PAWN, color)) * EvalUtils.PAWN_VALUE;
+        material += Long.bitCount(state.getPieces(Piece.KNIGHT, color)) * EvalUtils.KNIGHT_VALUE;
+        material += Long.bitCount(state.getPieces(Piece.BISHOP, color)) * EvalUtils.BISHOP_VALUE;
+        material += Long.bitCount(state.getPieces(Piece.ROOK, color)) * EvalUtils.ROOK_VALUE;
+        material += Long.bitCount(state.getPieces(Piece.QUEEN, color)) * EvalUtils.QUEEN_VALUE;
         return material;
     }
 }
