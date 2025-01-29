@@ -14,6 +14,7 @@ import javafx.util.Duration;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
+import tn.zeros.zchess.ui.components.BitboardOverlay;
 import tn.zeros.zchess.ui.components.PromotionDialog;
 import tn.zeros.zchess.ui.controller.ChessController;
 import tn.zeros.zchess.ui.util.BoardGeometry;
@@ -29,12 +30,15 @@ public class ChessBoardView extends GridPane implements ChessView {
     private final ChessController controller;
     private final PromotionDialog promotionDialog;
     private SquareView lastHoveredSquare = null;
+    private BitboardOverlay bitboardOverlay;
 
     public ChessBoardView(ChessController controller) {
         this.promotionDialog = new PromotionDialog(controller);
         this.controller = controller;
         this.controller.registerView(this);
+        this.bitboardOverlay = new BitboardOverlay();
         initializeBoard();
+        addBitboardOverlay();
         refreshEntireBoard();
     }
 
@@ -76,6 +80,7 @@ public class ChessBoardView extends GridPane implements ChessView {
                 squares[row][col].setPiece(state.getPieceAt(square));
             }
         }
+        updateBitboardOverlay(state.getAllPieces());
     }
 
     @Override
@@ -208,5 +213,13 @@ public class ChessBoardView extends GridPane implements ChessView {
                 }
             }
         }
+    }
+
+    private void addBitboardOverlay() {
+        add(bitboardOverlay, 0, 0, 8, 8);
+    }
+
+    public void updateBitboardOverlay(long bitboard) {
+        bitboardOverlay.updateBitboard(bitboard);
     }
 }
