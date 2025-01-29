@@ -23,7 +23,7 @@ public class GameManager {
     public GameManager(BoardState boardState) {
         this.boardState = boardState;
         this.stateManager = new StateManager(boardState);
-        this.gameMode = GameMode.HUMAN_VS_MODEL;
+        this.gameMode = GameMode.HUMAN_VS_HUMAN;
         this.blackModel = new RandomMoveModel();
     }
 
@@ -48,7 +48,7 @@ public class GameManager {
         stateManager.saveState(undoInfo);
         notifyMoveExecuted(move);
 
-        if (!isGameOver()) {
+        if (!isGameOver() && gameMode != GameMode.HUMAN_VS_HUMAN) {
             playNextModelMove();
         }
     }
