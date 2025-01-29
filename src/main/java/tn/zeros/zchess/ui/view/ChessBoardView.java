@@ -11,6 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import tn.zeros.zchess.core.logic.generation.LegalMoveFilter;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
@@ -80,7 +81,6 @@ public class ChessBoardView extends GridPane implements ChessView {
                 squares[row][col].setPiece(state.getPieceAt(square));
             }
         }
-        updateBitboardOverlay(state.getAllPieces());
     }
 
     @Override
@@ -115,6 +115,12 @@ public class ChessBoardView extends GridPane implements ChessView {
             int row = kingInCheckSquare / 8;
             int col = kingInCheckSquare % 8;
             squares[row][col].setCheckOverlay(true);
+        }
+
+        // Update bitboard overlay
+        BoardState state = controller.getBoardState();
+        if (controller.getInteractionState().getSelectedSquare() != -1) {
+            updateBitboardOverlay(LegalMoveFilter.getAttackersBitboard(state, controller.getInteractionState().getSelectedSquare(), !state.isWhiteToMove()));
         }
     }
 
