@@ -30,8 +30,8 @@ public class ChessBoardView extends GridPane implements ChessView {
     private final SquareView[][] squares = new SquareView[8][8];
     private final ChessController controller;
     private final PromotionDialog promotionDialog;
+    private final BitboardOverlay bitboardOverlay;
     private SquareView lastHoveredSquare = null;
-    private BitboardOverlay bitboardOverlay;
 
     public ChessBoardView(ChessController controller) {
         this.promotionDialog = new PromotionDialog(controller);

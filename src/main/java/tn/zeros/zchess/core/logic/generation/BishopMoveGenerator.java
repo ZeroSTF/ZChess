@@ -6,31 +6,32 @@ import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.util.PrecomputedMoves;
 
 public class BishopMoveGenerator {
-    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList) {
+    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList,
+                                long pinned, long checkingRay) {
         int bishop = state.getPieceAt(from);
+        boolean isWhite = Piece.isWhite(bishop);
+        long fromBit = 1L << from;
 
-        if (bishop == Piece.NONE || !Piece.isBishop(bishop)) {
-            return;
+        // Get all possible bishop moves
+        long moves = PrecomputedMoves.getMagicBishopAttack(from, state.getAllPieces());
+        moves &= ~state.getFriendlyPieces(isWhite);
+
+        // If pinned, restrict to pin ray
+        if ((fromBit & pinned) != 0) {
+            long pinRay = MoveGenerator.calculatePinRay(from, state.getKingSquare(isWhite), state);
+            moves &= pinRay;
         }
 
-        boolean isWhite = Piece.isWhite(bishop);
-        long allPieces = state.getAllPieces();
-        long friendlyPieces = state.getFriendlyPieces(isWhite);
+        // If in check, only moves that block or capture checker
+        if (checkingRay != -1L) {
+            moves &= checkingRay;
+        }
 
-        // Get magic bitboard attacks
-        long possibleMoves = PrecomputedMoves.getMagicBishopAttack(from, allPieces);
-        possibleMoves &= ~friendlyPieces; // Remove friendly blocking pieces
-
-        // Convert bitmask to moves
-        while (possibleMoves != 0) {
-            int to = Long.numberOfTrailingZeros(possibleMoves);
-            possibleMoves ^= 1L << to;
-
-            int captured = Piece.isWhite(state.getPieceAt(to)) != isWhite ?
-                    state.getPieceAt(to) :
-                    Piece.NONE;
-
+        while (moves != 0) {
+            int to = Long.numberOfTrailingZeros(moves);
+            int captured = state.getPieceAt(to);
             moveList.add(Move.createMove(from, to, bishop, captured, 0, Piece.NONE));
+            moves &= moves - 1;
         }
     }
 }

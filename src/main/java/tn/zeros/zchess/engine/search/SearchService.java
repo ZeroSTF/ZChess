@@ -16,7 +16,7 @@ public class SearchService {
     public int minimax(int depth, BoardState state) {
         if (depth == 0) return EvaluationService.evaluate(state);
 
-        List<Integer> moves = MoveGenerator.generateAllMoves(state);
+        MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state);
 
         if (moves.isEmpty()) {
             if (LegalMoveFilter.inCheck(state, state.isWhiteToMove()))
@@ -26,7 +26,8 @@ public class SearchService {
 
         int bestEval = Integer.MIN_VALUE;
 
-        for (int move : moves) {
+        for (int i = 0; i < moves.size; i++) {
+            int move = moves.moves[i];
             MoveUndoInfo undoInfo = MoveExecutor.makeMove(state, move);
             int eval = -minimax(depth - 1, state);
             bestEval = Math.max(bestEval, eval);
@@ -39,7 +40,7 @@ public class SearchService {
     public int alphaBetaPrune(int depth, int alpha, int beta, BoardState state) {
         if (depth == 0) return EvaluationService.evaluate(state);
 
-        List<Integer> moves = MoveGenerator.generateAllMoves(state);
+        MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state);
 
         if (moves.isEmpty()) {
             if (LegalMoveFilter.inCheck(state, state.isWhiteToMove()))
@@ -47,7 +48,8 @@ public class SearchService {
             return 0;
         }
 
-        for (int move : moves) {
+        for (int i = 0; i < moves.size; i++) {
+            int move = moves.moves[i];
             MoveUndoInfo undoInfo = MoveExecutor.makeMove(state, move);
             int eval = -alphaBetaPrune(depth - 1, -beta, -alpha, state);
             MoveExecutor.unmakeMove(state, undoInfo);

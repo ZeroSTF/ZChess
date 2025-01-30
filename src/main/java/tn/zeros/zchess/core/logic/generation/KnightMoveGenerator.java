@@ -6,24 +6,24 @@ import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.util.PrecomputedMoves;
 
 public class KnightMoveGenerator {
-    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList) {
-        int knight = state.getPieceAt(from);
+    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList, long pinned, long checkingRay) {
+        // Pinned knights can't move
+        if ((1L << from & pinned) != 0) {
+            return;
+        }
 
-        if (knight == Piece.NONE || !Piece.isKnight(knight)) return;
+        long possibleMoves = PrecomputedMoves.getKnightMoves(from, state.getFriendlyPieces(state.isWhiteToMove()));
 
-        boolean isWhite = Piece.isWhite(knight);
-        long friendlyPieces = state.getFriendlyPieces(isWhite);
-        long possibleMoves = PrecomputedMoves.getKnightMoves(from, friendlyPieces);
+        // Filter moves by checking ray if in check
+        if (checkingRay != -1L) {
+            possibleMoves &= checkingRay;
+        }
 
         while (possibleMoves != 0) {
             int to = Long.numberOfTrailingZeros(possibleMoves);
-            possibleMoves ^= 1L << to;
-
-            int captured = Piece.isWhite(state.getPieceAt(to)) != isWhite ?
-                    state.getPieceAt(to) :
-                    Piece.NONE;
-
-            moveList.add(Move.createMove(from, to, knight, captured, 0, Piece.NONE));
+            int captured = state.getPieceAt(to);
+            moveList.add(Move.createMove(from, to, state.getPieceAt(from), captured, 0, Piece.NONE));
+            possibleMoves &= possibleMoves - 1;
         }
     }
 }

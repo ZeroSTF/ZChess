@@ -32,9 +32,34 @@ public final class Move {
                 | ((promotionPiece << 23) & PROMOTION_MASK);
     }
 
-    // Static method to compare moves
-    public static boolean sameMove(int a, int b) {
-        return a == b;
+    public static int createCastling(int fromSquare, int toSquare, int piece) {
+        return createMove(fromSquare, toSquare, piece, Piece.NONE, FLAG_CASTLING, Piece.NONE);
+    }
+
+    public static int getRookFrom(int move) {
+        if (!isCastling(move)) return -1;
+        int kingFrom = getFrom(move);
+        int kingTo = getTo(move);
+
+        // Determine if it's kingside or queenside castling based on king's movement
+        if (kingTo > kingFrom) {  // Kingside castling
+            return kingFrom + 3;  // Rook starts 3 squares right of king
+        } else {  // Queenside castling
+            return kingFrom - 4;  // Rook starts 4 squares left of king
+        }
+    }
+
+    public static int getRookTo(int move) {
+        if (!isCastling(move)) return -1;
+        int kingFrom = getFrom(move);
+        int kingTo = getTo(move);
+
+        // Determine rook's destination based on king's movement
+        if (kingTo > kingFrom) {  // Kingside castling
+            return kingTo - 1;    // Rook ends up 1 square left of king's final position
+        } else {  // Queenside castling
+            return kingTo + 1;    // Rook ends up 1 square right of king's final position
+        }
     }
 
     // Getters

@@ -2,6 +2,7 @@ package tn.zeros.zchess.core.logic.generation;
 
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Piece;
+import tn.zeros.zchess.core.util.PrecomputedMoves;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,90 +10,155 @@ import java.util.List;
 
 public class MoveGenerator {
     // Thread-local list pool to avoid allocations
+    private static final int DEFAULT_CAPACITY = 128;
     private static final ThreadLocal<MoveList> MOVE_LIST_POOL =
-            ThreadLocal.withInitial(() -> new MoveList(128));
+            ThreadLocal.withInitial(() -> new MoveList(DEFAULT_CAPACITY));
+
+    private static final ThreadLocal<BoardState> VALIDATION_STATE =
+            ThreadLocal.withInitial(BoardState::new);
 
     public static MoveList getThreadLocalMoveList() {
         return MOVE_LIST_POOL.get();
     }
 
-    public static List<Integer> generateAllMoves(BoardState state) {
-        List<Integer> pseudoLegal = generatePseudoLegalMoves(state);
-        return LegalMoveFilter.filterLegalMoves(state, pseudoLegal);
-    }
-
-    private static List<Integer> generatePseudoLegalMoves(BoardState state) {
-        MoveList moveList = MOVE_LIST_POOL.get();
+    public static MoveList generateAllMoves(BoardState state) {
+        MoveList moveList = new MoveList(DEFAULT_CAPACITY);
         moveList.clear();
 
-        // Generate for each piece type
-        generatePawnMoves(state, moveList);
-        generateKnightMoves(state, moveList);
-        generateBishopMoves(state, moveList);
-        generateRookMoves(state, moveList);
-        generateQueenMoves(state, moveList);
-        generateKingMoves(state, moveList);
+        // Get king square and check info early
+        boolean isWhite = state.isWhiteToMove();
+        int kingSquare = state.getKingSquare(isWhite);
+        long checkers = LegalMoveFilter.getAttackersBitboard(state, kingSquare, !isWhite);
+        int checkCount = Long.bitCount(checkers);
 
-        return moveList.toList();
+        // If double check, only generate king moves
+        if (checkCount >= 2) {
+            generateKingMoves(state, kingSquare, moveList, checkers);
+            return moveList;
+        }
+
+        long pinned = calculatePinnedPieces(state, kingSquare, isWhite);
+        long checkingRay = checkCount == 1 ? PrecomputedMoves.getBetweenBitboard(kingSquare, Long.numberOfTrailingZeros(checkers)) | checkers : -1L;
+
+        long pieces = state.getFriendlyPieces(isWhite);
+
+        while (pieces != 0) {
+            int square = Long.numberOfTrailingZeros(pieces);
+            int piece = state.getPieceAt(square);
+
+            if (Piece.isPawn(piece)) {
+                PawnMoveGenerator.generate(state, square, moveList, pinned, checkingRay);
+            } else if (Piece.isKnight(piece)) {
+                KnightMoveGenerator.generate(state, square, moveList, pinned, checkingRay);
+            } else if (Piece.isBishop(piece)) {
+                BishopMoveGenerator.generate(state, square, moveList, pinned, checkingRay);
+            } else if (Piece.isRook(piece)) {
+                RookMoveGenerator.generate(state, square, moveList, pinned, checkingRay);
+            } else if (Piece.isQueen(piece)) {
+                QueenMoveGenerator.generate(state, square, moveList, pinned, checkingRay);
+            } else if (Piece.isKing(piece)) {
+                generateKingMoves(state, square, moveList, checkers);
+            }
+
+            pieces &= pieces - 1;
+        }
+
+        return moveList;
     }
 
-    private static void generatePawnMoves(BoardState state, MoveList moveList) {
-        long pawns = state.getPieces(Piece.PAWN, state.isWhiteToMove() ? Piece.WHITE : Piece.BLACK);
-        while (pawns != 0) {
-            int from = Long.numberOfTrailingZeros(pawns);
-            PawnMoveGenerator.generate(state, from, moveList);
-            pawns ^= 1L << from;
+    public static long calculatePinRay(int pieceSquare, int kingSquare, BoardState state) {
+        int kingColor = Piece.getColor(state.getPieceAt(kingSquare));
+        int dx = Integer.signum((pieceSquare % 8) - (kingSquare % 8));
+        int dy = Integer.signum((pieceSquare / 8) - (kingSquare / 8));
+
+        int attackerType;
+        if (dx != 0 && dy != 0) {
+            attackerType = Piece.BISHOP;
+        } else {
+            attackerType = Piece.ROOK;
         }
+
+        int current = pieceSquare;
+        while (true) {
+            int nextFile = (current % 8) + dx;
+            int nextRank = (current / 8) + dy;
+            if (nextFile < 0 || nextFile >= 8 || nextRank < 0 || nextRank >= 8) break;
+            current = nextRank * 8 + nextFile;
+            int piece = state.getPieceAt(current);
+            if (piece == Piece.NONE) continue;
+
+            if (Piece.getColor(piece) != kingColor &&
+                    (Piece.getType(piece) == attackerType || Piece.isQueen(piece))) {
+                // Found the attacker, compute ray between king and attacker
+                return PrecomputedMoves.getBetweenBitboard(kingSquare, current)
+                        | (1L << kingSquare) | (1L << current);
+            } else {
+                break; // Blocked by another piece
+            }
+        }
+
+        // Fallback if attacker not found (shouldn't occur for valid pins)
+        return PrecomputedMoves.getBetweenBitboard(kingSquare, pieceSquare)
+                | (1L << kingSquare) | (1L << pieceSquare);
     }
 
-    private static void generateKnightMoves(BoardState state, MoveList moveList) {
-        long knights = state.getPieces(Piece.KNIGHT, state.isWhiteToMove() ? Piece.WHITE : Piece.BLACK);
-        while (knights != 0) {
-            int from = Long.numberOfTrailingZeros(knights);
-            KnightMoveGenerator.generate(state, from, moveList);
-            knights ^= 1L << from;
-        }
+    private static long calculatePinnedPieces(BoardState state, int kingSquare, boolean isWhite) {
+        long pinned = 0L;
+        long allPieces = state.getAllPieces();
+        long friendlyPieces = state.getFriendlyPieces(isWhite);
+        int enemyColor = isWhite ? Piece.BLACK : Piece.WHITE;
+
+        // Check for pins by enemy bishops/queens along diagonals
+        long bishopQueens = state.getPieces(Piece.BISHOP, enemyColor) |
+                state.getPieces(Piece.QUEEN, enemyColor);
+        long bishopPins = calculateDirectionalPins(kingSquare, allPieces, friendlyPieces,
+                bishopQueens, PrecomputedMoves::getMagicBishopAttack);
+
+        // Check for pins by enemy rooks/queens along ranks/files
+        long rookQueens = state.getPieces(Piece.ROOK, enemyColor) |
+                state.getPieces(Piece.QUEEN, enemyColor);
+        long rookPins = calculateDirectionalPins(kingSquare, allPieces, friendlyPieces,
+                rookQueens, PrecomputedMoves::getMagicRookAttack);
+
+        return bishopPins | rookPins;
     }
 
-    private static void generateBishopMoves(BoardState state, MoveList moveList) {
-        long bishops = state.getPieces(Piece.BISHOP, state.isWhiteToMove() ? Piece.WHITE : Piece.BLACK);
-        while (bishops != 0) {
-            int from = Long.numberOfTrailingZeros(bishops);
-            BishopMoveGenerator.generate(state, from, moveList);
-            bishops ^= 1L << from;
+    private static long calculateDirectionalPins(int kingSquare, long allPieces, long friendlyPieces,
+                                                 long attackers, AttackFunction attackFunc) {
+        long pins = 0L;
+
+        while (attackers != 0) {
+            int attackerSquare = Long.numberOfTrailingZeros(attackers);
+            // Get ray between king and attacker using magic bitboard attacks
+            long kingAttacks = attackFunc.getAttacks(kingSquare, 0L);
+            long attackerAttacks = attackFunc.getAttacks(attackerSquare, 0L);
+            long rayMask = kingAttacks & attackerAttacks;
+
+            long between = PrecomputedMoves.getBetweenBitboard(kingSquare, attackerSquare) & rayMask;
+            long blockers = between & allPieces;
+
+            // If exactly one friendly piece is between king and attacker, it's pinned
+            if (Long.bitCount(blockers) == 1 && (blockers & friendlyPieces) != 0) {
+                pins |= blockers;
+            }
+
+            attackers &= attackers - 1;
         }
+        return pins;
     }
 
-    private static void generateRookMoves(BoardState state, MoveList moveList) {
-        long rooks = state.getPieces(Piece.ROOK, state.isWhiteToMove() ? Piece.WHITE : Piece.BLACK);
-        while (rooks != 0) {
-            int from = Long.numberOfTrailingZeros(rooks);
-            RookMoveGenerator.generate(state, from, moveList);
-            rooks ^= 1L << from;
-        }
+    private static void generateKingMoves(BoardState state, int square, MoveGenerator.MoveList moveList, long checkers) {
+        KingMoveGenerator.generate(state, square, moveList, checkers);
     }
 
-    private static void generateQueenMoves(BoardState state, MoveList moveList) {
-        long queens = state.getPieces(Piece.QUEEN, state.isWhiteToMove() ? Piece.WHITE : Piece.BLACK);
-        while (queens != 0) {
-            int from = Long.numberOfTrailingZeros(queens);
-            QueenMoveGenerator.generate(state, from, moveList);
-            queens ^= 1L << from;
-        }
-    }
-
-    private static void generateKingMoves(BoardState state, MoveList moveList) {
-        long kings = state.getPieces(Piece.KING, state.isWhiteToMove() ? Piece.WHITE : Piece.BLACK);
-        while (kings != 0) {
-            int from = Long.numberOfTrailingZeros(kings);
-            KingMoveGenerator.generate(state, from, moveList);
-            kings ^= 1L << from;
-        }
+    @FunctionalInterface
+    private interface AttackFunction {
+        long getAttacks(int square, long occupied);
     }
 
     public static class MoveList {
-        int[] moves;
-        int size;
+        public int[] moves;
+        public int size;
 
         MoveList(int capacity) {
             this.moves = new int[capacity];
@@ -116,6 +182,10 @@ public class MoveGenerator {
 
         public void clear() {
             size = 0;
+        }
+
+        public boolean isEmpty() {
+            return size == 0;
         }
     }
 }

@@ -50,10 +50,10 @@ public class PromotionDialog {
         selectedPiece = Piece.NONE;
 
         int[] options = isWhite ?
-                new int[]{Piece.makePiece(4, 0), Piece.makePiece(3, 0),
-                        Piece.makePiece(2, 0), Piece.makePiece(1, 0)} :
-                new int[]{Piece.makePiece(4, 1), Piece.makePiece(3, 1),
-                        Piece.makePiece(2, 1), Piece.makePiece(1, 1)};
+                new int[]{Piece.makePiece(Piece.QUEEN, Piece.WHITE), Piece.makePiece(Piece.ROOK, Piece.WHITE),
+                        Piece.makePiece(Piece.BISHOP, Piece.WHITE), Piece.makePiece(Piece.KNIGHT, Piece.WHITE)} :
+                new int[]{Piece.makePiece(Piece.QUEEN, Piece.BLACK), Piece.makePiece(Piece.ROOK, Piece.BLACK),
+                        Piece.makePiece(Piece.BISHOP, Piece.BLACK), Piece.makePiece(Piece.KNIGHT, Piece.BLACK)};
 
         for (int i = 0; i < options.length; i++) {
             int piece = options[i];

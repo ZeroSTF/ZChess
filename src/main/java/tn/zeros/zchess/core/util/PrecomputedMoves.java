@@ -1,22 +1,21 @@
 package tn.zeros.zchess.core.util;
 
 public class PrecomputedMoves {
-    public static final long[] KNIGHT_MOVES = new long[64];
-    public static final long[] KING_MOVES = new long[64];
-    public static final long[] WHITE_PAWN_ATTACKS = new long[64];
-    public static final long[] BLACK_PAWN_ATTACKS = new long[64];
-    public static final long[] WHITE_PAWN_MOVES = new long[64];
-    public static final long[] BLACK_PAWN_MOVES = new long[64];
+    private static final long[] KNIGHT_MOVES = new long[64];
+    private static final long[] KING_MOVES = new long[64];
+    private static final long[] WHITE_PAWN_ATTACKS = new long[64];
+    private static final long[] BLACK_PAWN_ATTACKS = new long[64];
+    private static final long[] WHITE_PAWN_MOVES = new long[64];
+    private static final long[] BLACK_PAWN_MOVES = new long[64];
+    private static final long[][] BETWEEN_BITBOARDS = new long[64][64];
 
     // Magic Bitboard Data
-    public static final long[][] BISHOP_ATTACKS = new long[64][];
-    public static final long[][] ROOK_ATTACKS = new long[64][];
-
-    public static final int[] BISHOP_SHIFTS = new int[64];
-    public static final int[] ROOK_SHIFTS = new int[64];
-
-    public static final long[] BISHOP_MASKS = new long[64];
-    public static final long[] ROOK_MASKS = new long[64];
+    private static final long[][] BISHOP_ATTACKS = new long[64][];
+    private static final long[][] ROOK_ATTACKS = new long[64][];
+    private static final int[] BISHOP_SHIFTS = new int[64];
+    private static final int[] ROOK_SHIFTS = new int[64];
+    private static final long[] BISHOP_MASKS = new long[64];
+    private static final long[] ROOK_MASKS = new long[64];
 
     static {
         initializeMagicBitboards();
@@ -24,6 +23,7 @@ public class PrecomputedMoves {
         initializeKingMoves();
         initializePawnAttacks();
         initializePawnMoves();
+        initializeBetweenBitboards();
     }
 
     public static long getKnightMoves(int square, long friendlyBlockers) {
@@ -56,7 +56,7 @@ public class PrecomputedMoves {
         long pushes = isWhite ? WHITE_PAWN_MOVES[square] : BLACK_PAWN_MOVES[square];
         long validPushes = 0;
 
-        // Calculate valid pushes (existing code)
+        // Calculate valid pushes
         int singleStepOffset = isWhite ? 8 : -8;
         long singleStepBit = 1L << (square + singleStepOffset);
         if ((blockers & singleStepBit) == 0) {
@@ -79,6 +79,10 @@ public class PrecomputedMoves {
 
     public static long getPawnAttacks(int square, boolean isWhite) {
         return isWhite ? WHITE_PAWN_ATTACKS[square] : BLACK_PAWN_ATTACKS[square];
+    }
+
+    public static long getBetweenBitboard(int sq1, int sq2) {
+        return BETWEEN_BITBOARDS[sq1][sq2];
     }
 
     private static void initializeMagicBitboards() {
@@ -178,6 +182,46 @@ public class PrecomputedMoves {
         }
     }
 
+    private static void initializeBetweenBitboards() {
+        for (int sq1 = 0; sq1 < 64; sq1++) {
+            for (int sq2 = 0; sq2 < 64; sq2++) {
+                BETWEEN_BITBOARDS[sq1][sq2] = calculateBetweenBitboard(sq1, sq2);
+            }
+        }
+    }
+
+    private static long calculateBetweenBitboard(int sq1, int sq2) {
+        if (sq1 == sq2) return 0L;
+
+        int f1 = sq1 & 7, r1 = sq1 >> 3;
+        int f2 = sq2 & 7, r2 = sq2 >> 3;
+        int df = f2 - f1, dr = r2 - r1;
+
+        // Check if squares are aligned (same rank, file, or diagonal)
+        if (dr == 0 || df == 0 || Math.abs(df) == Math.abs(dr)) {
+            long result = 0L;
+
+            // Normalize direction
+            int fileStep = Integer.compare(df, 0);
+            int rankStep = Integer.compare(dr, 0);
+
+            // Start from sq1 + step
+            int f = f1 + fileStep;
+            int r = r1 + rankStep;
+
+            // Add all squares between sq1 and sq2
+            while (f != f2 || r != r2) {
+                result |= 1L << (r * 8 + f);
+                f += fileStep;
+                r += rankStep;
+            }
+
+            return result;
+        }
+
+        return 0L; // Return empty bitboard for non-aligned squares
+    }
+
     // Helper methods
     private static boolean isWithinBounds(int targetSquare) {
         return targetSquare >= 0 && targetSquare < 64;
@@ -222,7 +266,7 @@ public class PrecomputedMoves {
 
     private static void initializeAttackTables(long[][] attackTable, long[] magics, long[] masks, int[] shifts, boolean isBishop) {
         for (int square = 0; square < 64; square++) {
-            int numBits = Long.bitCount(masks[square]);
+            //int numBits = Long.bitCount(masks[square]);
             int size = 1 << (64 - shifts[square]);
             attackTable[square] = new long[size];
 

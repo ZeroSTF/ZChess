@@ -3,14 +3,10 @@ package tn.zeros.zchess.core.logic;
 import org.junit.jupiter.api.Test;
 import tn.zeros.zchess.core.logic.generation.MoveGenerator;
 import tn.zeros.zchess.core.model.BoardState;
-import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.MoveUndoInfo;
-import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.service.FenService;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.util.ChessConstants;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -29,7 +25,7 @@ public class PerftTest {
     @Test
     void debugProblemPosition() {
         String fen = ChessConstants.POSITION_5_FEN;
-        debugPerft(fen, 4);
+        debugPerft(fen, 2);
     }
 
     public void testPerft(String fen, int depth, long expectedNodes) {
@@ -48,9 +44,11 @@ public class PerftTest {
         if (depth == 0) return 1L;
 
         long nodes = 0;
-        List<Integer> moves = MoveGenerator.generateAllMoves(state);
 
-        for (int move : moves) {
+        MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state);
+
+        for (int i = 0; i < moves.size; i++) {
+            int move = moves.moves[i];
             MoveUndoInfo undoInfo = MoveExecutor.makeMove(state, move);
             nodes += perft(state, depth - 1);
             MoveExecutor.unmakeMove(state, undoInfo);
@@ -77,32 +75,19 @@ public class PerftTest {
         if (currentDepth == 0) return 1L;
 
         long total = 0;
-        List<Integer> moves = MoveGenerator.generateAllMoves(state);
+        MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state);
 
-        for (int move : moves) {
+        for (int i = 0; i < moves.size; i++) {
+            int move = moves.moves[i];
             MoveUndoInfo undoInfo = MoveExecutor.makeMove(state, move);
             long nodes = perft(state, currentDepth - 1);
             total += nodes;
             if (currentDepth == maxDepth) {
-                System.out.printf("%-6s %,d%n", moveToUCI(move), nodes);
+                System.out.printf("%-6s %,d%n", ChessConstants.moveToUCI(move), nodes);
             }
             MoveExecutor.unmakeMove(state, undoInfo);
         }
         return total;
-    }
-
-    private String moveToUCI(int move) {
-        String from = squareToAlgebraic(Move.getFrom(move));
-        String to = squareToAlgebraic(Move.getTo(move));
-        String promotion = Move.isPromotion(move) ?
-                Character.toString(Character.toLowerCase(Piece.getSymbol(Move.getPromotionPiece(move)))) : "";
-        return from + to + promotion;
-    }
-
-    private String squareToAlgebraic(int square) {
-        char file = (char) ('a' + (square % 8));
-        int rank = (square / 8) + 1;
-        return "" + file + rank;
     }
 
 }

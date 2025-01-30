@@ -60,12 +60,14 @@ public class MoveExecutor {
         int to = Move.getTo(move);
         int piece = Move.getPiece(move);
 
-        boolean kingside = (to % 8) > (from % 8);
-        int rookFrom = kingside ? from + 3 : from - 4;
-        int rookTo = kingside ? to - 1 : to + 1;
+        // Get rook positions FROM THE MOVE ITSELF
+        int rookFrom = Move.getRookFrom(move);
+        int rookTo = Move.getRookTo(move);
 
         state.movePiece(from, to, piece);
-        int rook = Piece.isWhite(piece) ? Piece.makePiece(Piece.ROOK, Piece.WHITE) : Piece.makePiece(Piece.ROOK, Piece.BLACK);
+        int rook = Piece.isWhite(piece) ?
+                Piece.makePiece(Piece.ROOK, Piece.WHITE) :
+                Piece.makePiece(Piece.ROOK, Piece.BLACK);
         state.movePiece(rookFrom, rookTo, rook);
     }
 
@@ -152,10 +154,13 @@ public class MoveExecutor {
         state.setEnPassantSquare(undoInfo.previousEnPassantSquare());
         state.setHalfMoveClock(undoInfo.previousHalfMoveClock());
         state.setWhiteToMove(!state.isWhiteToMove());
+        if (!Piece.isWhite(piece)) {
+            state.setFullMoveNumber(state.getFullMoveNumber() - 1);
+        }
 
         // Reverse special moves
         if (Move.isCastling(move)) {
-            unmakeCastling(state, from, to, piece);
+            unmakeCastling(state, move);
         } else if (Move.isEnPassant(move)) {
             unmakeEnPassant(state, from, to, piece, capturedPiece);
         } else if (Move.isPromotion(move)) {
@@ -178,7 +183,6 @@ public class MoveExecutor {
 
     private static void unmakeEnPassant(BoardState state, int from, int to, int piece, int capturedPiece) {
         int capturedSquare = to + (Piece.isWhite(piece) ? -8 : 8);
-
         // Move pawn back
         state.movePiece(to, from, piece);
 
@@ -186,16 +190,22 @@ public class MoveExecutor {
         state.addPiece(capturedSquare, capturedPiece);
     }
 
-    private static void unmakeCastling(BoardState state, int from, int to, int piece) {
-        boolean kingside = (to % 8) > (from % 8);
+    private static void unmakeCastling(BoardState state, int move) {
+        int kingFrom = Move.getFrom(move);
+        int kingTo = Move.getTo(move);
+        int piece = Move.getPiece(move);
+
+        // Retrieve exact rook positions from the move
+        int rookFrom = Move.getRookFrom(move);
+        int rookTo = Move.getRookTo(move);
 
         // Move king back
-        state.movePiece(to, from, piece);
+        state.movePiece(kingTo, kingFrom, piece);
 
-        // Move rook back (calculate from move data)
-        int rookFrom = kingside ? from + 3 : from - 4;
-        int rookTo = kingside ? to - 1 : to + 1;
-        int rook = Piece.isWhite(piece) ? Piece.makePiece(Piece.ROOK, Piece.WHITE) : Piece.makePiece(Piece.ROOK, Piece.BLACK);
+        // Move rook back using stored positions
+        int rook = Piece.isWhite(piece) ?
+                Piece.makePiece(Piece.ROOK, Piece.WHITE) :
+                Piece.makePiece(Piece.ROOK, Piece.BLACK);
         state.movePiece(rookTo, rookFrom, rook);
     }
 

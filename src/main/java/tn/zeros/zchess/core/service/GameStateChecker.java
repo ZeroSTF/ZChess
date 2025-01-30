@@ -5,8 +5,6 @@ import tn.zeros.zchess.core.logic.generation.MoveGenerator;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Piece;
 
-import java.util.List;
-
 public class GameStateChecker {
 
     /**
@@ -22,19 +20,16 @@ public class GameStateChecker {
         if (isInsufficientMaterial(boardState) || isFiftyMoveRule(boardState)) {
             return true;
         }
-        if (isThreefoldRepetition(boardState)) {
-            return true;
-        }
-        return false;
+        return isThreefoldRepetition(boardState);
     }
 
     private static boolean isCheckmate(BoardState boardState) {
-        List<Integer> legalMoves = MoveGenerator.generateAllMoves(boardState);
+        MoveGenerator.MoveList legalMoves = MoveGenerator.generateAllMoves(boardState);
         return legalMoves.isEmpty() && isKingInCheck(boardState);
     }
 
     private static boolean isStalemate(BoardState boardState) {
-        List<Integer> legalMoves = MoveGenerator.generateAllMoves(boardState);
+        MoveGenerator.MoveList legalMoves = MoveGenerator.generateAllMoves(boardState);
         return legalMoves.isEmpty() && !isKingInCheck(boardState);
     }
 

@@ -2,23 +2,11 @@ package tn.zeros.zchess.core.logic.generation;
 
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Piece;
-import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.util.PrecomputedMoves;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class LegalMoveFilter {
-    public static List<Integer> filterLegalMoves(BoardState state, List<Integer> pseudoLegal) {
-        List<Integer> legalMoves = new ArrayList<>(pseudoLegal.size());
-        boolean isWhite = state.isWhiteToMove();
-
-        for (int move : pseudoLegal) {
-            if (isMoveLegal(state, move, isWhite)) {
-                legalMoves.add(move);
-            }
-        }
-        return legalMoves;
+    static boolean isSquareAttacked(BoardState state, int square, boolean byWhite) {
+        return getAttackersBitboard(state, square, byWhite) != 0;
     }
 
     public static boolean inCheck(BoardState state, boolean whiteKing) {
@@ -26,25 +14,7 @@ public class LegalMoveFilter {
         return isSquareAttacked(state, kingSquare, !whiteKing);
     }
 
-    public static int getKingInCheckSquare(BoardState state, boolean whiteKing) {
-        int kingSquare = state.getKingSquare(whiteKing);
-        return isSquareAttacked(state, kingSquare, !whiteKing) ?
-                kingSquare :
-                -1;
-    }
-
-    private static boolean isMoveLegal(BoardState state, int move, boolean isWhite) {
-        var undoInfo = MoveExecutor.makeMove(state, move);
-        boolean inCheck = inCheck(state, isWhite);
-        MoveExecutor.unmakeMove(state, undoInfo);
-        return !inCheck;
-    }
-
-    static boolean isSquareAttacked(BoardState state, int square, boolean byWhite) {
-        return getAttackersBitboard(state, square, byWhite) != 0;
-    }
-
-    private static long getAttackersBitboard(BoardState state, int square, boolean byWhite) {
+    public static long getAttackersBitboard(BoardState state, int square, boolean byWhite) {
         int color = byWhite ? Piece.WHITE : Piece.BLACK;
         long allPieces = state.getAllPieces();
         long attackers = 0;
@@ -72,5 +42,14 @@ public class LegalMoveFilter {
                 PrecomputedMoves.getKingMoves(square, 0L);
 
         return attackers;
+    }
+
+
+    // For controller
+    public static int getKingInCheckSquare(BoardState state, boolean whiteKing) {
+        int kingSquare = state.getKingSquare(whiteKing);
+        return isSquareAttacked(state, kingSquare, !whiteKing) ?
+                kingSquare :
+                -1;
     }
 }

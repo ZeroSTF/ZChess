@@ -1,5 +1,9 @@
 package tn.zeros.zchess.core.util;
 
+import tn.zeros.zchess.core.logic.generation.MoveGenerator;
+import tn.zeros.zchess.core.model.Move;
+import tn.zeros.zchess.core.model.Piece;
+
 public class ChessConstants {
     // Castling Rights
     public static final int WHITE_KINGSIDE = 0b0001;
@@ -86,4 +90,24 @@ public class ChessConstants {
         int rank = (square / 8) + 1;
         return "" + file + rank;
     }
+
+    public static String moveToUCI(int move) {
+        String from = squareName(Move.getFrom(move));
+        String to = squareName(Move.getTo(move));
+        String promotion = Move.isPromotion(move) ?
+                Character.toString(Character.toLowerCase(Piece.getSymbol(Move.getPromotionPiece(move)))) : "";
+        return from + to + promotion;
+    }
+
+    public static void moveListToUCI(MoveGenerator.MoveList moveList) {
+        int[] moves = moveList.moves;
+        for (int move : moves) {
+            String from = squareName(Move.getFrom(move));
+            String to = squareName(Move.getTo(move));
+            String promotion = Move.isPromotion(move) ?
+                    Character.toString(Character.toLowerCase(Piece.getSymbol(Move.getPromotionPiece(move)))) : "";
+            System.out.println(from + to + promotion);
+        }
+    }
+
 }

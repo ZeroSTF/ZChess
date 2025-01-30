@@ -1,6 +1,7 @@
 package tn.zeros.zchess.ui.controller;
 
-import tn.zeros.zchess.core.logic.generation.*;
+import tn.zeros.zchess.core.logic.generation.LegalMoveFilter;
+import tn.zeros.zchess.core.logic.generation.MoveGenerator;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
@@ -11,6 +12,7 @@ import tn.zeros.zchess.ui.view.ChessBoardView;
 import tn.zeros.zchess.ui.view.ChessView;
 
 import java.util.Collections;
+import java.util.List;
 
 public class ChessController implements GameListener {
     private final GameManager gameManager;
@@ -40,7 +42,15 @@ public class ChessController implements GameListener {
         if (piece != Piece.NONE && Piece.isWhite(piece) == boardState.isWhiteToMove()) {
             interactionState.setSelectedSquare(square);
             interactionState.clearCurrentLegalMoves();
-            generateLegalMoves(square, piece);
+
+            // Get legal moves for the selected piece using new move generator
+            MoveGenerator.MoveList moveList = MoveGenerator.generateAllMoves(boardState);
+            List<Integer> legalMoves = moveList.toList().stream()
+                    .filter(move -> Move.getFrom(move) == square)
+                    .toList();
+
+            interactionState.getCurrentLegalMoves().addAll(legalMoves);
+
             int kingInCheck = LegalMoveFilter.getKingInCheckSquare(boardState, boardState.isWhiteToMove());
             view.updateHighlights(interactionState.getCurrentLegalMoves(), kingInCheck);
         } else {
@@ -48,36 +58,17 @@ public class ChessController implements GameListener {
         }
     }
 
-    private void generateLegalMoves(int square, int piece) {
-        // Get thread-local MoveList and reuse it
-        MoveGenerator.MoveList moveList = MoveGenerator.getThreadLocalMoveList();
-        moveList.clear();
-
-        getPseudoLegalMoves(square, piece, moveList);
-        interactionState.getCurrentLegalMoves().clear();
-        interactionState.getCurrentLegalMoves().addAll(LegalMoveFilter.filterLegalMoves(boardState, moveList.toList()));
-    }
-
-    private void getPseudoLegalMoves(int square, int piece, MoveGenerator.MoveList moveList) {
-        if (Piece.isPawn(piece)) PawnMoveGenerator.generate(boardState, square, moveList);
-        else if (Piece.isKnight(piece)) KnightMoveGenerator.generate(boardState, square, moveList);
-        else if (Piece.isBishop(piece)) BishopMoveGenerator.generate(boardState, square, moveList);
-        else if (Piece.isRook(piece)) RookMoveGenerator.generate(boardState, square, moveList);
-        else if (Piece.isQueen(piece)) QueenMoveGenerator.generate(boardState, square, moveList);
-        else if (Piece.isKing(piece)) KingMoveGenerator.generate(boardState, square, moveList);
-    }
-
     public void handleMoveExecution(int targetSquare) {
         int move = findMoveByTarget(targetSquare);
 
         if (move != -1) {
+            resetSelection();
             if (Move.isPromotion(move)) {
                 interactionState.setPendingPromotionMove(move);
                 view.showPromotionDialog(Piece.isWhite(Move.getPiece(move)));
             } else {
                 gameManager.executeMove(move);
             }
-            resetSelection();
         } else {
             handlePieceSelection(targetSquare);
         }
