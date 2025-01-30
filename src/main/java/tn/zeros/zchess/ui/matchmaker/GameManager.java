@@ -4,8 +4,8 @@ import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.MoveUndoInfo;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.service.StateManager;
+import tn.zeros.zchess.engine.models.AlphaBetaModel;
 import tn.zeros.zchess.engine.models.EngineModel;
-import tn.zeros.zchess.engine.models.MiniMaxModel;
 import tn.zeros.zchess.ui.controller.GameListener;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class GameManager {
         this.boardState = boardState;
         this.stateManager = new StateManager(boardState);
         this.gameMode = GameMode.HUMAN_VS_MODEL;
-        this.blackModel = new MiniMaxModel();
+        this.blackModel = new AlphaBetaModel();
     }
 
     public void setGameMode(GameMode mode, EngineModel whiteModel, EngineModel blackModel) {
