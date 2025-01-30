@@ -174,7 +174,7 @@ public class ChessBoardView extends GridPane implements ChessView {
 
     private Label createLabel(String text) {
         Label label = new Label(text);
-        label.setStyle("-fx-font-size: 14; -fx-font-weight: bold;");
+        label.setStyle("-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #000000;");
         label.setPadding(new Insets(5));
         return label;
     }
