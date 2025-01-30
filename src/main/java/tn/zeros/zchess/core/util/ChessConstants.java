@@ -1,8 +1,9 @@
 package tn.zeros.zchess.core.util;
 
-import tn.zeros.zchess.core.logic.generation.MoveGenerator;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
+
+import java.util.List;
 
 public class ChessConstants {
     // Castling Rights
@@ -10,8 +11,6 @@ public class ChessConstants {
     public static final int WHITE_QUEENSIDE = 0b0010;
     public static final int BLACK_KINGSIDE = 0b0100;
     public static final int BLACK_QUEENSIDE = 0b1000;
-    public static final long[] ROOK_FROM_DELTA = {-4, 3};
-    public static final long[] ROOK_TO_DELTA = {1, -1};
 
     // Board Geometry Masks
     public static final long RANK_1 = 0xFFL;
@@ -99,8 +98,7 @@ public class ChessConstants {
         return from + to + promotion;
     }
 
-    public static void moveListToUCI(MoveGenerator.MoveList moveList) {
-        int[] moves = moveList.moves;
+    public static void moveListToUCI(List<Integer> moves) {
         for (int move : moves) {
             String from = squareName(Move.getFrom(move));
             String to = squareName(Move.getTo(move));

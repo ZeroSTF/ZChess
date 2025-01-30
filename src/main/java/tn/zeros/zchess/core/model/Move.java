@@ -15,12 +15,6 @@ public final class Move {
     public static final int FLAG_ENPASSANT = 1 << 21;
     public static final int FLAG_PROMOTION = 1 << 22;
 
-    // Promotion piece types (can be adjusted as needed)
-    public static final int PROMOTE_TO_QUEEN = 0b000000001;
-    public static final int PROMOTE_TO_ROOK = 0b000000010;
-    public static final int PROMOTE_TO_KNIGHT = 0b000000011;
-    public static final int PROMOTE_TO_BISHOP = 0b000000100;
-
     // Constructor for creating a move
     public static int createMove(int fromSquare, int toSquare, int piece, int capturedPiece, int flags, int promotionPiece) {
         // Pack the move information into a single integer

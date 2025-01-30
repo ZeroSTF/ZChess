@@ -25,11 +25,12 @@ public class PerftTest {
     @Test
     void debugProblemPosition() {
         String fen = ChessConstants.POSITION_5_FEN;
-        debugPerft(fen, 2);
+        debugPerft(fen, 6);
     }
 
     public void testPerft(String fen, int depth, long expectedNodes) {
-        BoardState state = FenService.parseFEN(fen);
+        BoardState state = new BoardState();
+        FenService.parseFEN(fen, state);
         long startTime = System.nanoTime();
 
         long nodeCount = perft(state, depth);
@@ -64,7 +65,8 @@ public class PerftTest {
     }
 
     public void debugPerft(String fen, int depth) {
-        BoardState state = FenService.parseFEN(fen);
+        BoardState state = new BoardState();
+        FenService.parseFEN(fen, state);
         System.out.println("Debugging FEN: " + fen);
         System.out.println("For Depth " + depth);
         long total = divide(state, depth, depth);

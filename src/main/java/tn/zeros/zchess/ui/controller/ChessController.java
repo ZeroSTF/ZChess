@@ -62,11 +62,11 @@ public class ChessController implements GameListener {
         int move = findMoveByTarget(targetSquare);
 
         if (move != -1) {
-            resetSelection();
             if (Move.isPromotion(move)) {
                 interactionState.setPendingPromotionMove(move);
                 view.showPromotionDialog(Piece.isWhite(Move.getPiece(move)));
             } else {
+                resetSelection();
                 gameManager.executeMove(move);
             }
         } else {
@@ -86,6 +86,7 @@ public class ChessController implements GameListener {
         if (pendingPromotionMove == -1) return;
         int updatedPromotionMove = Move.updatePromotionPiece(pendingPromotionMove, promotionPiece);
         if (interactionState.getCurrentLegalMoves().contains(updatedPromotionMove)) {
+            resetSelection();
             gameManager.executeMove(updatedPromotionMove);
         } else {
             this.getInputHandler().restoreSourcePiece();
