@@ -10,7 +10,7 @@ import tn.zeros.zchess.engine.util.SearchResult;
 
 public class MiniMaxModel implements EngineModel {
     private static final SearchService searchService = new SearchService();
-    private static final int MAX_DEPTH = 4;
+    private static final int MAX_DEPTH = 3;
 
     @Override
     public int generateMove(BoardState boardState) {
@@ -25,7 +25,7 @@ public class MiniMaxModel implements EngineModel {
                 for (int i = 0; i < legalMoves.size; i++) {
                     int move = legalMoves.moves[i];
                     MoveUndoInfo undoInfo = MoveExecutor.makeMove(boardState, move);
-                    int eval = -searchService.minimax(MAX_DEPTH - 1, boardState);
+                    int eval = -searchService.minimax(MAX_DEPTH, boardState);
                     MoveExecutor.unmakeMove(boardState, undoInfo);
 
                     if (eval > bestEval) {
