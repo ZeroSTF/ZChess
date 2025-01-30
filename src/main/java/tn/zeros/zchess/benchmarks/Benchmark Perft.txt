@@ -1,0 +1,152 @@
+Depth 1: 44 nodes in 0,302 ms (145,7 N/ms)
+
+Depth 2: 1486 nodes in 6,973 ms (213,1 N/ms)
+
+Depth 3: 62379 nodes in 167,154 ms (373,2 N/ms)
+
+Depth 4: 2103487 nodes in 4147,972 ms (507,1 N/ms)
+
+Depth 5: 89941194 nodes in 142469,424 ms (631,3 N/ms)
+
+//////////////////////////////////////////////////////////////////////
+
+Depth 1: 44 nodes in 0,471 ms (93,4 N/ms)
+
+Depth 2: 1486 nodes in 6,701 ms (221,8 N/ms)
+
+Depth 3: 62379 nodes in 176,108 ms (354,2 N/ms)
+
+Depth 4: 2103487 nodes in 3768,715 ms (558,1 N/ms)
+
+Depth 5: 89941194 nodes in 137774,896 ms (652,8 N/ms)
+
+/////////////////////////////////////////////////////////////////////
+
+Depth 1: 44 nodes in 0,417 ms (105,6 N/ms)
+
+Depth 2: 1486 nodes in 7,929 ms (187,4 N/ms)
+
+Depth 3: 62379 nodes in 176,556 ms (353,3 N/ms)
+
+Depth 4: 2103487 nodes in 3702,942 ms (568,1 N/ms)
+
+Depth 5: 89941194 nodes in 134287,649 ms (669,8 N/ms)
+/////////////////////////////////////////////////////////////////
+
+Depth 1: 44 nodes in 0,492 ms (89,4 N/ms)
+
+Depth 2: 1486 nodes in 6,253 ms (237,6 N/ms)
+
+Depth 3: 62379 nodes in 139,639 ms (446,7 N/ms)
+
+Depth 4: 2103487 nodes in 3432,996 ms (612,7 N/ms)
+
+Depth 5: 89941194 nodes in 121689,665 ms (739,1 N/ms)
+
+/////////////////////////////////////////////////////////////////
+
+Depth 1: 44 nodes in 0,424 ms (103,8 N/ms)
+
+Depth 2: 1486 nodes in 8,336 ms (178,3 N/ms)
+
+Depth 3: 62379 nodes in 126,386 ms (493,6 N/ms)
+
+Depth 4: 2103487 nodes in 3005,856 ms (699,8 N/ms)
+
+Depth 5: 89941194 nodes in 104204,303 ms (863,1 N/ms)
+
+/////////////////////////////////////////////////////////////////
+
+Depth 1: 44 nodes in 0,395 ms (111,4 N/ms)
+
+Depth 2: 1486 nodes in 6,536 ms (227,3 N/ms)
+
+Depth 3: 62379 nodes in 106,059 ms (588,2 N/ms)
+
+Depth 4: 2103487 nodes in 2225,799 ms (945,0 N/ms)
+
+Depth 5: 89941194 nodes in 79501,057 ms (1131,3 N/ms)
+
+////////////////////////////////////////////////////////////////
+
+Depth 1: 44 nodes in 41,051 ms (1,1 N/ms)
+
+Depth 2: 1486 nodes in 19,591 ms (75,9 N/ms)
+
+Depth 3: 62379 nodes in 155,833 ms (400,3 N/ms)
+
+Depth 4: 2103487 nodes in 2775,454 ms (757,9 N/ms)
+
+Depth 5: 89941194 nodes in 78568,880 ms (1144,7 N/ms)
+
+////////////////////////////////////////////////////////////////
+
+Depth 1: 44 nodes in 22,879 ms (1,9 N/ms)
+
+Depth 2: 1486 nodes in 4,907 ms (302,8 N/ms)
+
+Depth 3: 62379 nodes in 37,516 ms (1662,7 N/ms)
+
+Depth 4: 2103487 nodes in 457,929 ms (4593,5 N/ms)
+
+Depth 5: 89941194 nodes in 13196,709 ms (6815,4 N/ms)
+
+////////////////////////////////////////////////////////////////
+
+Depth 1: 44 nodes in 22,295 ms (2,0 N/ms)
+
+Depth 2: 1486 nodes in 4,516 ms (329,1 N/ms)
+
+Depth 3: 62379 nodes in 37,914 ms (1645,3 N/ms)
+
+Depth 4: 2103487 nodes in 415,349 ms (5064,4 N/ms)
+
+Depth 5: 89941194 nodes in 11241,158 ms (8001,1 N/ms)
+
+///////////////////////////////////////////////////////////////
+
+Depth 1: 44 nodes in 20,495 ms (2,1 N/ms)
+
+Depth 2: 1486 nodes in 4,551 ms (326,5 N/ms)
+
+Depth 3: 62379 nodes in 32,743 ms (1905,1 N/ms)
+
+Depth 4: 2103487 nodes in 319,525 ms (6583,2 N/ms)
+
+Depth 5: 89941194 nodes in 7220,168 ms (12456,9 N/ms)
+
+///////////////////////////////////////////////////////////////
+
+Depth 1: 44 nodes in 34,940 ms (1,3 N/ms)
+
+Depth 2: 1486 nodes in 7,279 ms (204,1 N/ms)
+
+Depth 3: 62379 nodes in 50,044 ms (1246,5 N/ms)
+
+Depth 4: 2103487 nodes in 364,990 ms (5763,1 N/ms)
+
+Depth 5: 89941194 nodes in 7762,521 ms (11586,6 N/ms)
+
+///////////////////////////////////////////////////////////////
+
+Depth 1: 44 nodes in 29,029 ms (1,5 N/ms)
+
+Depth 2: 1486 nodes in 5,462 ms (272,1 N/ms)
+
+Depth 3: 62379 nodes in 32,659 ms (1910,0 N/ms)
+
+Depth 4: 2103487 nodes in 326,332 ms (6445,8 N/ms)
+
+Depth 5: 89941194 nodes in 5927,210 ms (15174,3 N/ms)
+
+///////////////////////////////////////////////////////////////
+
+Depth 1: 44 nodes in 24,988 ms (1,8 N/ms)
+
+Depth 2: 1486 nodes in 3,539 ms (419,9 N/ms)
+
+Depth 3: 62379 nodes in 19,497 ms (3199,4 N/ms)
+
+Depth 4: 2103487 nodes in 151,505 ms (13884,0 N/ms)
+
+Depth 5: 89941194 nodes in 2822,963 ms (31860,6 N/ms)

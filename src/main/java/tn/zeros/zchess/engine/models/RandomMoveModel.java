@@ -9,7 +9,7 @@ public class RandomMoveModel implements EngineModel {
     private static final Random random = new Random();
 
     public int generateMove(BoardState boardState) {
-        if (!boardState.isGameOver()) { // Check if the game is not over
+        if (!boardState.isGameOver()) {
             MoveGenerator.MoveList legalMoves = MoveGenerator.generateAllMoves(boardState);
             if (!legalMoves.isEmpty()) {
                 return legalMoves.moves[random.nextInt(legalMoves.size)];

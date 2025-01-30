@@ -9,12 +9,15 @@ import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.engine.evaluate.EvaluationService;
 import tn.zeros.zchess.engine.util.EvalUtils;
-
-import java.util.List;
+import tn.zeros.zchess.engine.util.SearchMetrics;
 
 public class SearchService {
     public int minimax(int depth, BoardState state) {
-        if (depth == 0) return EvaluationService.evaluate(state);
+        if (depth == 0) {
+            SearchMetrics.getInstance().incrementPositions();
+            return EvaluationService.evaluate(state);
+        }
+        ;
 
         MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state);
 
@@ -38,7 +41,11 @@ public class SearchService {
     }
 
     public int alphaBetaPrune(int depth, int alpha, int beta, BoardState state) {
-        if (depth == 0) return EvaluationService.evaluate(state);
+        if (depth == 0) {
+            SearchMetrics.getInstance().incrementPositions();
+            return EvaluationService.evaluate(state);
+        }
+        ;
 
         MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state);
 
@@ -63,8 +70,8 @@ public class SearchService {
     }
 
     // Helper methods
-    private void orderMoves(List<Integer> moves) {
-        moves.forEach(move -> {
+    private void orderMoves(int[] moves) {
+        for (int move : moves) {
             int moveScoreGuess = 0;
             int movePieceType = Piece.getType(Move.getPiece(move));
             int capturedPieceType = Piece.getType(Move.getCapturedPiece(move));
@@ -81,6 +88,6 @@ public class SearchService {
 
             // Penalize moving to a square that is attacked by an enemy pawn
             // TODO add board attack maps by color and piece type
-        });
+        }
     }
 }

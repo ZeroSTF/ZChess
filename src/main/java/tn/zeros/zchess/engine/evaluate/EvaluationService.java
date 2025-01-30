@@ -13,7 +13,7 @@ public class EvaluationService {
 
         int perspective = state.isWhiteToMove() ? 1 : -1;
 
-        return eval;
+        return eval * perspective;
     }
 
     static int countMaterial(int color, BoardState state) {
