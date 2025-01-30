@@ -72,8 +72,7 @@ public class FenService {
         return "" + file + rank;
     }
 
-    public static BoardState parseFEN(String fen) {
-        BoardState state = new BoardState();
+    public static BoardState parseFEN(String fen, BoardState state) {
         clearBoard(state);
 
         String[] parts = fen.split(" ");

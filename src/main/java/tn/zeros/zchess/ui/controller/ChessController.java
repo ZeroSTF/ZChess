@@ -119,18 +119,15 @@ public class ChessController implements GameListener {
 
     public void undo() {
         int move = gameManager.stateManager.undo();
-        if (move != -1) {
-            view.refreshEntireBoard();
-            interactionState.setLastMoveFrom(Move.getFrom(move));
-            interactionState.setLastMoveTo(Move.getTo(move));
-            interactionState.setSelectedSquare(-1);
-            int kingInCheck = LegalMoveFilter.getKingInCheckSquare(boardState, boardState.isWhiteToMove());
-            view.updateHighlights(Collections.emptyList(), kingInCheck);
-        }
+        undoRedoRefresh(move);
     }
 
     public void redo() {
         int move = gameManager.stateManager.redo();
+        undoRedoRefresh(move);
+    }
+
+    private void undoRedoRefresh(int move) {
         if (move != -1) {
             view.refreshEntireBoard();
             interactionState.setLastMoveFrom(Move.getFrom(move));
@@ -147,7 +144,7 @@ public class ChessController implements GameListener {
 
     public void loadFEN(String fen) {
         try {
-            BoardState newState = FenService.parseFEN(fen);
+            BoardState newState = FenService.parseFEN(fen, boardState);
             resetState(newState);
             view.refreshEntireBoard();
         } catch (IllegalArgumentException e) {
