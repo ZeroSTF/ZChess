@@ -23,7 +23,7 @@ public class GameManager {
     public GameManager(BoardState boardState) {
         this.boardState = boardState;
         this.stateManager = new StateManager(boardState);
-        this.gameMode = GameMode.HUMAN_VS_HUMAN;
+        this.gameMode = GameMode.HUMAN_VS_MODEL;
         this.blackModel = new OrderedAlphaBetaModel();
     }
 

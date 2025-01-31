@@ -14,7 +14,6 @@ public class PerftTest {
 
     @Test
     void testPerftPositions() {
-        //testPerft(ChessConstants.DEFAULT_FEN, 3, 8902);
         testPerft(ChessConstants.POSITION_5_FEN, 1, 44);
         testPerft(ChessConstants.POSITION_5_FEN, 2, 1486);
         testPerft(ChessConstants.POSITION_5_FEN, 3, 62379);
@@ -22,6 +21,8 @@ public class PerftTest {
         testPerft(ChessConstants.POSITION_5_FEN, 5, 89941194);
 
         // New tests
+        testPerft(ChessConstants.DEFAULT_FEN, 3, 8902);
+        
         testPerft(ChessConstants.POSITION_2_FEN, 1, 48);
         testPerft(ChessConstants.POSITION_2_FEN, 2, 2039);
         testPerft(ChessConstants.POSITION_2_FEN, 3, 97862);
@@ -43,9 +44,8 @@ public class PerftTest {
 
     @Test
     void debugProblemPosition() {
-        //String fen = ChessConstants.POSITION_3_FEN;
-        String fen = "8/8/3p4/1Pp4r/1K5k/5p2/4P1P1/1R6 w - c6 0 3";
-        debugPerft(fen, 1);
+        String fen = ChessConstants.POSITION_3_FEN;
+        debugPerft(fen, 4);
     }
 
     public void testPerft(String fen, int depth, long expectedNodes) {
