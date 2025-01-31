@@ -20,12 +20,32 @@ public class PerftTest {
         testPerft(ChessConstants.POSITION_5_FEN, 3, 62379);
         testPerft(ChessConstants.POSITION_5_FEN, 4, 2103487);
         testPerft(ChessConstants.POSITION_5_FEN, 5, 89941194);
+
+        // New tests
+        testPerft(ChessConstants.POSITION_2_FEN, 1, 48);
+        testPerft(ChessConstants.POSITION_2_FEN, 2, 2039);
+        testPerft(ChessConstants.POSITION_2_FEN, 3, 97862);
+        testPerft(ChessConstants.POSITION_2_FEN, 4, 4085603);
+        testPerft(ChessConstants.POSITION_2_FEN, 5, 193690690);
+
+        testPerft(ChessConstants.POSITION_3_FEN, 1, 14);
+        testPerft(ChessConstants.POSITION_3_FEN, 2, 191);
+        testPerft(ChessConstants.POSITION_3_FEN, 3, 2812);
+        testPerft(ChessConstants.POSITION_3_FEN, 4, 43238);
+        testPerft(ChessConstants.POSITION_3_FEN, 5, 674624);
+
+        testPerft(ChessConstants.POSITION_4_FEN, 1, 6);
+        testPerft(ChessConstants.POSITION_4_FEN, 2, 264);
+        testPerft(ChessConstants.POSITION_4_FEN, 3, 9467);
+        testPerft(ChessConstants.POSITION_4_FEN, 4, 422333);
+        testPerft(ChessConstants.POSITION_4_FEN, 5, 15833292);
     }
 
     @Test
     void debugProblemPosition() {
-        String fen = ChessConstants.POSITION_5_FEN;
-        debugPerft(fen, 6);
+        //String fen = ChessConstants.POSITION_3_FEN;
+        String fen = "8/8/3p4/1Pp4r/1K5k/5p2/4P1P1/1R6 w - c6 0 3";
+        debugPerft(fen, 1);
     }
 
     public void testPerft(String fen, int depth, long expectedNodes) {

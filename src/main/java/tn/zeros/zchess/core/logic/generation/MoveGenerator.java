@@ -33,7 +33,7 @@ public class MoveGenerator {
 
         // If double check, only generate king moves
         if (checkCount >= 2) {
-            generateKingMoves(state, kingSquare, moveList, checkers);
+            KingMoveGenerator.generate(state, kingSquare, moveList, checkers);
             return moveList;
         }
 
@@ -47,7 +47,7 @@ public class MoveGenerator {
             int piece = state.getPieceAt(square);
 
             if (Piece.isPawn(piece)) {
-                PawnMoveGenerator.generate(state, square, moveList, pinned, checkingRay);
+                PawnMoveGenerator.generate(state, square, moveList, pinned, checkingRay, checkers);
             } else if (Piece.isKnight(piece)) {
                 KnightMoveGenerator.generate(state, square, moveList, pinned, checkingRay);
             } else if (Piece.isBishop(piece)) {
@@ -57,7 +57,7 @@ public class MoveGenerator {
             } else if (Piece.isQueen(piece)) {
                 QueenMoveGenerator.generate(state, square, moveList, pinned, checkingRay);
             } else if (Piece.isKing(piece)) {
-                generateKingMoves(state, square, moveList, checkers);
+                KingMoveGenerator.generate(state, square, moveList, checkers);
             }
 
             pieces &= pieces - 1;
@@ -145,10 +145,6 @@ public class MoveGenerator {
             attackers &= attackers - 1;
         }
         return pins;
-    }
-
-    private static void generateKingMoves(BoardState state, int square, MoveGenerator.MoveList moveList, long checkers) {
-        KingMoveGenerator.generate(state, square, moveList, checkers);
     }
 
     @FunctionalInterface

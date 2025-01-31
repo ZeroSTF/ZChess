@@ -6,7 +6,7 @@ import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.util.PrecomputedMoves;
 
 public class PawnMoveGenerator {
-    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList, long pinned, long checkingRay) {
+    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList, long pinned, long checkingRay, long checkers) {
         int pawn = state.getPieceAt(from);
         if (pawn == Piece.NONE || !Piece.isPawn(pawn)) return;
 
@@ -44,6 +44,21 @@ public class PawnMoveGenerator {
         // If in check, only allow moves that block or capture the checker
         if (checkingRay != -1L) {
             possibleMoves &= checkingRay;
+            if (enPassantSquare != -1) {
+                int capturedPawnSquare = enPassantSquare + (isWhite ? -8 : 8);
+                long checkerMask = 1L << capturedPawnSquare;
+
+                // Check if the captured pawn is the checker
+                if ((checkers & checkerMask) != 0) {
+                    long enPassantMoveBit = 1L << enPassantSquare;
+                    long pawnAttacks = PrecomputedMoves.getPawnAttacks(from, isWhite);
+
+                    // If this pawn can attack the en passant square, re-add the move
+                    if ((pawnAttacks & enPassantMoveBit) != 0) {
+                        possibleMoves |= enPassantMoveBit;
+                    }
+                }
+            }
         }
 
         // Special handling for en passant captures

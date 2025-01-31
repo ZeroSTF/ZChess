@@ -1,7 +1,5 @@
 package tn.zeros.zchess.engine.util;
 
-import tn.zeros.zchess.core.model.Piece;
-
 public class EvalUtils {
     public static final int PAWN_VALUE = 100;
     public static final int KNIGHT_VALUE = 300;
@@ -10,15 +8,20 @@ public class EvalUtils {
     public static final int QUEEN_VALUE = 900;
     public static final int KING_VALUE = 10000;
 
+    private static final int[] PIECE_VALUES = {
+            PAWN_VALUE, // 0: pawn
+            KNIGHT_VALUE,    // 1: knight
+            BISHOP_VALUE,  // 2: bishop
+            ROOK_VALUE,  // 3: rook
+            QUEEN_VALUE,    // 4: queen
+            KING_VALUE,   // 5: queen
+            0     // 6: none
+    };
+
     public static int getPieceTypeValue(int pieceType) {
-        return switch (pieceType) {
-            case Piece.PAWN -> PAWN_VALUE;
-            case Piece.KNIGHT -> KNIGHT_VALUE;
-            case Piece.BISHOP -> BISHOP_VALUE;
-            case Piece.ROOK -> ROOK_VALUE;
-            case Piece.QUEEN -> QUEEN_VALUE;
-            case Piece.KING -> KING_VALUE;
-            default -> 0;
-        };
+        if (pieceType >= 0 && pieceType < 7) {
+            return PIECE_VALUES[pieceType];
+        }
+        return 0;
     }
 }

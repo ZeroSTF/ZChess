@@ -290,7 +290,7 @@ public class PrecomputedMoves {
         }
     }
 
-    public static long generateBishopAttacks(int square, long occupancy) {
+    private static long generateBishopAttacks(int square, long occupancy) {
         long attacks = 0L;
         int r = square / 8;
         int f = square % 8;
@@ -322,7 +322,7 @@ public class PrecomputedMoves {
         return attacks;
     }
 
-    public static long generateRookAttacks(int square, long occupancy) {
+    private static long generateRookAttacks(int square, long occupancy) {
         long attacks = 0L;
         int r = square / 8;
         int f = square % 8;

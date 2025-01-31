@@ -1,2 +1,2 @@
-MiniMax: Search complete: 286ms, 3553501 positions (depth 3)
-AlphaBeta: Search complete: 76ms, 419140 positions (depth 3)
+MiniMax: Search complete: 304ms, 3553501 positions (depth 3)
+AlphaBeta: Search complete: 268ms, 854392 positions (depth 4)
