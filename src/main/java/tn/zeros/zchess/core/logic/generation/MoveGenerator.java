@@ -9,17 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class MoveGenerator {
-    // Thread-local list pool to avoid allocations
     private static final int DEFAULT_CAPACITY = 128;
-    private static final ThreadLocal<MoveList> MOVE_LIST_POOL =
-            ThreadLocal.withInitial(() -> new MoveList(DEFAULT_CAPACITY));
-
-    private static final ThreadLocal<BoardState> VALIDATION_STATE =
-            ThreadLocal.withInitial(BoardState::new);
-
-    public static MoveList getThreadLocalMoveList() {
-        return MOVE_LIST_POOL.get();
-    }
 
     public static MoveList generateAllMoves(BoardState state) {
         MoveList moveList = new MoveList(DEFAULT_CAPACITY);

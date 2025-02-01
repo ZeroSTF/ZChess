@@ -1,5 +1,6 @@
 package tn.zeros.zchess.engine.search;
 
+import tn.zeros.zchess.core.logic.generation.MoveGenerator;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
@@ -14,8 +15,10 @@ public class MoveOrderingService {
         moveScores = new int[SearchUtils.MAX_MOVES];
     }
 
-    public void orderMoves(int[] moves, BoardState state) {
-        for (int i = 0; i < moves.length; i++) {
+    public void orderMoves(MoveGenerator.MoveList moveList, BoardState state) {
+        int[] moves = moveList.moves;
+        int size = moveList.size;
+        for (int i = 0; i < size; i++) {
             int move = moves[i];
             int moveScoreGuess = 0;
             int movePieceType = Piece.getType(Move.getPiece(move));
@@ -41,13 +44,13 @@ public class MoveOrderingService {
             moveScores[i] = moveScoreGuess;
         }
 
-        sort(moves);
+        sort(moves, size);
     }
 
-    private void sort(int[] moves) {
-        for (int i = 0; i < moves.length - 1; i++) {
+    private void sort(int[] moves, int size) {
+        for (int i = 0; i < size - 1; i++) {
             int maxIndex = i;
-            for (int j = i + 1; j < moves.length; j++) {
+            for (int j = i + 1; j < size; j++) {
                 if (moveScores[j] > moveScores[maxIndex]) {
                     maxIndex = j;
                 }

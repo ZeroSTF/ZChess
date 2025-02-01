@@ -7,6 +7,7 @@ import tn.zeros.zchess.core.model.MoveUndoInfo;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.engine.evaluate.EvaluationService;
 import tn.zeros.zchess.engine.util.SearchMetrics;
+import tn.zeros.zchess.engine.util.SearchUtils;
 
 public class SearchService {
     private final MoveOrderingService moveOrderingService = new MoveOrderingService();
@@ -22,11 +23,11 @@ public class SearchService {
 
         if (moves.isEmpty()) {
             if (LegalMoveFilter.inCheck(state, state.isWhiteToMove()))
-                return Integer.MIN_VALUE;
+                return SearchUtils.MIN_EVAL;
             return 0;
         }
 
-        int bestEval = Integer.MIN_VALUE;
+        int bestEval = SearchUtils.MIN_EVAL;
 
         for (int i = 0; i < moves.size; i++) {
             int move = moves.moves[i];
@@ -45,12 +46,11 @@ public class SearchService {
             return EvaluationService.evaluate(state);
         }
 
-
         MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state);
 
         if (moves.isEmpty()) {
             if (LegalMoveFilter.inCheck(state, state.isWhiteToMove()))
-                return Integer.MIN_VALUE;
+                return SearchUtils.MIN_EVAL;
             return 0;
         }
 
@@ -73,16 +73,16 @@ public class SearchService {
             SearchMetrics.getInstance().incrementPositions();
             return EvaluationService.evaluate(state);
         }
-
         MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state);
 
         if (moves.isEmpty()) {
-            if (LegalMoveFilter.inCheck(state, state.isWhiteToMove()))
-                return Integer.MIN_VALUE;
+            if (LegalMoveFilter.inCheck(state, state.isWhiteToMove())) {
+                return SearchUtils.MIN_EVAL;
+            }
             return 0;
         }
 
-        moveOrderingService.orderMoves(moves.moves, state);
+        moveOrderingService.orderMoves(moves, state);
 
         for (int i = 0; i < moves.size; i++) {
             int move = moves.moves[i];

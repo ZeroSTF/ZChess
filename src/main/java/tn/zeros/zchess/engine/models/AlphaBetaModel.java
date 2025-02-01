@@ -7,6 +7,7 @@ import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.engine.search.SearchService;
 import tn.zeros.zchess.engine.util.SearchMetrics;
 import tn.zeros.zchess.engine.util.SearchResult;
+import tn.zeros.zchess.engine.util.SearchUtils;
 
 public class AlphaBetaModel implements EngineModel {
     private static final SearchService searchService = new SearchService();
@@ -20,12 +21,12 @@ public class AlphaBetaModel implements EngineModel {
             MoveGenerator.MoveList legalMoves = MoveGenerator.generateAllMoves(boardState);
             if (!legalMoves.isEmpty()) {
                 int bestMove = -1;
-                int bestEval = Integer.MIN_VALUE;
+                int bestEval = SearchUtils.MIN_EVAL;
 
                 for (int i = 0; i < legalMoves.size; i++) {
                     int move = legalMoves.moves[i];
                     MoveUndoInfo undoInfo = MoveExecutor.makeMove(boardState, move);
-                    int eval = -searchService.alphaBetaPrune(MAX_DEPTH, Integer.MIN_VALUE + 1, Integer.MAX_VALUE, boardState);
+                    int eval = -searchService.alphaBetaPrune(MAX_DEPTH, SearchUtils.MIN_EVAL, SearchUtils.MAX_EVAL, boardState);
                     MoveExecutor.unmakeMove(boardState, undoInfo);
 
                     if (eval > bestEval) {
