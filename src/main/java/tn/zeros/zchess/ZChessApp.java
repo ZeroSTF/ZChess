@@ -9,6 +9,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import tn.zeros.zchess.ui.components.ControlPanel;
+import tn.zeros.zchess.ui.components.SettingsPanel;
 import tn.zeros.zchess.ui.controller.ChessController;
 import tn.zeros.zchess.ui.util.SoundManager;
 import tn.zeros.zchess.ui.view.ChessBoardView;
@@ -34,8 +35,8 @@ public class ZChessApp extends Application {
 
         // Create UI components
         ChessBoardView boardView = new ChessBoardView(controller);
-        ControlPanel controlPanel = new ControlPanel(controller);
-
+        SettingsPanel settingsPanel = new SettingsPanel(controller);
+        ControlPanel controlPanel = new ControlPanel(controller, settingsPanel);
         // Start game
         controller.startGame();
 
@@ -46,11 +47,13 @@ public class ZChessApp extends Application {
         centeredBoard.getChildren().add(boardView);
         root.setCenter(centeredBoard);
         root.setBottom(controlPanel);
+        root.setRight(settingsPanel);
         BorderPane.setMargin(controlPanel, new Insets(10));
         BorderPane.setMargin(centeredBoard, new Insets(20));
+        settingsPanel.setVisible(false);
 
         // Configure window
-        Scene scene = new Scene(root, 800, 900);
+        Scene scene = new Scene(root, 1200, 900);
         List<Image> icons = new ArrayList<>();
         addIconIfPresent(icons, "/icons/app-icon-16x16.png");
         addIconIfPresent(icons, "/icons/app-icon-32x32.png");

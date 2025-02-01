@@ -6,9 +6,7 @@ import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.MoveUndoInfo;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.service.StateManager;
-import tn.zeros.zchess.engine.models.AlphaBetaModel;
 import tn.zeros.zchess.engine.models.EngineModel;
-import tn.zeros.zchess.engine.models.OrderedAlphaBetaModel;
 import tn.zeros.zchess.ui.controller.GameListener;
 
 import java.util.ArrayList;
@@ -22,39 +20,36 @@ public class GameManager {
     private EngineModel blackModel;
     private GameMode gameMode;
     private boolean gameInProgress;
+    private boolean modelColor;
 
     public GameManager(BoardState boardState) {
         this.boardState = boardState;
         this.stateManager = new StateManager(boardState);
-        this.gameMode = GameMode.HUMAN_VS_MODEL;
-        this.whiteModel = new AlphaBetaModel();
-        this.blackModel = new OrderedAlphaBetaModel();
+        // Default game mode
+        this.gameMode = GameMode.HUMAN_VS_HUMAN;
     }
 
-    public void setGameMode(GameMode mode, EngineModel whiteModel, EngineModel blackModel) {
+    public void setGameMode(GameMode mode, EngineModel whiteModel, EngineModel blackModel, boolean modelColor) {
         this.gameMode = mode;
         this.whiteModel = whiteModel;
         this.blackModel = blackModel;
+        this.modelColor = modelColor;
+        checkForModelMove();
     }
 
     public void startGame() {
         gameInProgress = true;
-        if (gameMode == GameMode.MODEL_VS_MODEL ||
-                (gameMode == GameMode.HUMAN_VS_MODEL && !boardState.isWhiteToMove())) {
-            playNextModelMove();
-        }
+        checkForModelMove();
     }
 
     public void executeMove(int move) {
-        if (!gameInProgress) return;
+        if (!gameInProgress || isGameOver()) return;
 
         MoveUndoInfo undoInfo = MoveExecutor.makeMove(boardState, move);
         stateManager.saveState(undoInfo);
         notifyMoveExecuted(move);
 
-        if (!isGameOver() && gameMode != GameMode.HUMAN_VS_HUMAN) {
-            playNextModelMove();
-        }
+        checkForModelMove();
     }
 
     public void resetStateManager() {
@@ -62,8 +57,6 @@ public class GameManager {
     }
 
     private void playNextModelMove() {
-        if (gameMode == GameMode.HUMAN_VS_MODEL && boardState.isWhiteToMove()) return;
-
         PauseTransition pause = new PauseTransition(Duration.millis(500));
         pause.setOnFinished(event -> {
             EngineModel currentModel = boardState.isWhiteToMove() ? whiteModel : blackModel;
@@ -74,6 +67,19 @@ public class GameManager {
             }
         });
         pause.play();
+    }
+
+    public void checkForModelMove() {
+        if (!gameInProgress || isGameOver()) return;
+
+        if (shouldModelPlay()) {
+            playNextModelMove();
+        }
+    }
+
+    private boolean shouldModelPlay() {
+        return gameMode == GameMode.MODEL_VS_MODEL ||
+                (gameMode == GameMode.HUMAN_VS_MODEL && boardState.isWhiteToMove() == modelColor);
     }
 
     private boolean isGameOver() {

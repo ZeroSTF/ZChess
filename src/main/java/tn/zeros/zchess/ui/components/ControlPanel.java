@@ -16,18 +16,25 @@ import tn.zeros.zchess.ui.controller.ChessController;
 import java.util.Optional;
 
 public class ControlPanel extends HBox {
-    public ControlPanel(ChessController controller) {
+
+    public ControlPanel(ChessController controller, SettingsPanel settingsPanel) {
         // Buttons
         Button undoButton = new Button("Undo (Ctrl+Z)");
         Button redoButton = new Button("Redo (Ctrl+Y)");
         Button fenButton = new Button("Get FEN");
         Button setFenButton = new Button("Set FEN");
+        Button settingsButton = new Button("Settings ▶");
 
         // Button actions
         undoButton.setOnAction(e -> controller.undo());
         redoButton.setOnAction(e -> controller.redo());
         fenButton.setOnAction(e -> showFEN(controller));
         setFenButton.setOnAction(e -> setFEN(controller));
+        settingsButton.setOnAction(e -> {
+            boolean visible = !settingsPanel.isVisible();
+            settingsPanel.setVisible(visible);
+            settingsButton.setText(visible ? "Settings ◀" : "Settings ▶");
+        });
 
         // Keyboard shortcuts
         this.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
@@ -46,7 +53,7 @@ public class ControlPanel extends HBox {
         this.setSpacing(10);
         this.setPadding(new Insets(10));
         this.setAlignment(Pos.CENTER);
-        this.getChildren().addAll(undoButton, redoButton, fenButton, setFenButton);
+        this.getChildren().addAll(undoButton, redoButton, fenButton, setFenButton, settingsButton);
     }
 
     private void showFEN(ChessController controller) {

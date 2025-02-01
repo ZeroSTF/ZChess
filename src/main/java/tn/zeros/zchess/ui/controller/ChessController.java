@@ -6,7 +6,9 @@ import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.service.FenService;
+import tn.zeros.zchess.engine.models.EngineModel;
 import tn.zeros.zchess.ui.matchmaker.GameManager;
+import tn.zeros.zchess.ui.matchmaker.GameMode;
 import tn.zeros.zchess.ui.util.SoundManager;
 import tn.zeros.zchess.ui.view.ChessBoardView;
 import tn.zeros.zchess.ui.view.ChessView;
@@ -184,5 +186,9 @@ public class ChessController implements GameListener {
 
     public void startGame() {
         this.gameManager.startGame();
+    }
+
+    public void setGameMode(GameMode mode, EngineModel whiteModel, EngineModel blackModel, boolean modelColor) {
+        gameManager.setGameMode(mode, whiteModel, blackModel, modelColor);
     }
 }
