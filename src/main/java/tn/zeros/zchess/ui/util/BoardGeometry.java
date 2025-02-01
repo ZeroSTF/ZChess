@@ -15,6 +15,6 @@ public class BoardGeometry {
     }
 
     public static int[] fromSquareIndex(int square) {
-        return new int[]{square / 8, square & 7};
+        return new int[]{square >> 3, square & 7};
     }
 }

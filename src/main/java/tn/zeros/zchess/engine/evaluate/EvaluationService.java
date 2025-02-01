@@ -6,7 +6,7 @@ import tn.zeros.zchess.engine.util.EvalUtils;
 
 public class EvaluationService {
     private static int forceKingIntoCorner(int friendlyKingSquare, int enemyKingSquare, float endgameWeight) {
-        int enemyKingRank = enemyKingSquare / 8;
+        int enemyKingRank = enemyKingSquare >> 3;
         int enemyKingFile = enemyKingSquare & 7;
         return 0;
     }

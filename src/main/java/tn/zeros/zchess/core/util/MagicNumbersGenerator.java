@@ -76,7 +76,7 @@ public class MagicNumbersGenerator {
 
     public static long rmask(int sq) {
         long result = 0L;
-        int rk = sq / 8, fl = sq & 7;
+        int rk = sq >> 3, fl = sq & 7;
         for (int r = rk + 1; r <= 6; r++) {
             result |= (1L << (fl + r * 8));
         }
@@ -94,7 +94,7 @@ public class MagicNumbersGenerator {
 
     public static long bmask(int sq) {
         long result = 0L;
-        int rk = sq / 8, fl = sq & 7;
+        int rk = sq >> 3, fl = sq & 7;
         for (int r = rk + 1, f = fl + 1; r <= 6 && f <= 6; r++, f++) {
             result |= (1L << (f + r * 8));
         }
@@ -112,7 +112,7 @@ public class MagicNumbersGenerator {
 
     public static long ratt(int sq, long block) {
         long result = 0L;
-        int rk = sq / 8, fl = sq & 7;
+        int rk = sq >> 3, fl = sq & 7;
         for (int r = rk + 1; r <= 7; r++) {
             long bit = 1L << (fl + r * 8);
             result |= bit;
@@ -138,7 +138,7 @@ public class MagicNumbersGenerator {
 
     public static long batt(int sq, long block) {
         long result = 0L;
-        int rk = sq / 8, fl = sq & 7;
+        int rk = sq >> 3, fl = sq & 7;
         int r, f;
         for (r = rk + 1, f = fl + 1; r <= 7 && f <= 7; r++, f++) {
             long bit = 1L << (f + r * 8);

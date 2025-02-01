@@ -102,7 +102,7 @@ public class ChessBoardView extends GridPane implements ChessView {
         // Process legal moves
         for (int move : legalMoves) {
             int to = Move.getTo(move);
-            int row = to / 8;
+            int row = to >> 3;
             int col = to & 7;
             boolean isCapture = Move.getCapturedPiece(move) != Piece.NONE;
 
@@ -111,7 +111,7 @@ public class ChessBoardView extends GridPane implements ChessView {
 
         // Set check highlight
         if (kingInCheckSquare != -1) {
-            int row = kingInCheckSquare / 8;
+            int row = kingInCheckSquare >> 3;
             int col = kingInCheckSquare & 7;
             squares[row][col].setCheckOverlay(true);
         }
@@ -130,11 +130,11 @@ public class ChessBoardView extends GridPane implements ChessView {
         int lastMoveTo = controller.getInteractionState().getLastMoveTo();
 
         if (lastMoveFrom != -1) {
-            squares[lastMoveFrom / 8][lastMoveFrom & 7]
+            squares[lastMoveFrom >> 3][lastMoveFrom & 7]
                     .setLastMove(true);
         }
         if (lastMoveTo != -1) {
-            squares[lastMoveTo / 8][lastMoveTo & 7]
+            squares[lastMoveTo >> 3][lastMoveTo & 7]
                     .setLastMove(true);
         }
     }
@@ -142,7 +142,7 @@ public class ChessBoardView extends GridPane implements ChessView {
     private void highlightSelectedSquare() {
         int selectedSquare = controller.getInteractionState().getSelectedSquare();
         if (selectedSquare != -1) {
-            squares[selectedSquare / 8][selectedSquare & 7].setSelected(true);
+            squares[selectedSquare >> 3][selectedSquare & 7].setSelected(true);
         }
     }
 
@@ -188,7 +188,7 @@ public class ChessBoardView extends GridPane implements ChessView {
 
     @Override
     public Node getSquareNode(int square) {
-        int row = square / 8;
+        int row = square >> 3;
         int col = square & 7;
         return squares[row][col];
     }

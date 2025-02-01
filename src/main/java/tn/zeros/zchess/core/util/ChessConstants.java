@@ -93,7 +93,7 @@ public class ChessConstants {
 
     public static String squareName(int square) {
         char file = (char) ('a' + (square & 7));
-        int rank = (square / 8) + 1;
+        int rank = (square >> 3) + 1;
         return "" + file + rank;
     }
 
