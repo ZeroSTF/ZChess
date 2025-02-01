@@ -8,6 +8,8 @@ public class EvalUtils {
     public static final int QUEEN_VALUE = 900;
     public static final int KING_VALUE = 10000;
 
+    public static final float ENDGAME_MATERIAL_START = ROOK_VALUE * 2 + BISHOP_VALUE + KNIGHT_VALUE;
+
     private static final int[] PIECE_VALUES = {
             PAWN_VALUE, // 0: pawn
             KNIGHT_VALUE,    // 1: knight
