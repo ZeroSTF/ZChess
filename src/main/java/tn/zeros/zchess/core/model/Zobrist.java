@@ -25,6 +25,6 @@ public class Zobrist {
     }
 
     public static int pieceIndex(int pieceType, int color) {
-        return (pieceType - 1) + 6 * (color == Piece.WHITE ? 0 : 1);
+        return pieceType + 6 * color;
     }
 }

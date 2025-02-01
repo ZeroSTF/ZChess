@@ -10,7 +10,7 @@ import static tn.zeros.zchess.core.util.ChessConstants.*;
 public class MoveExecutor {
     public static MoveUndoInfo makeMove(BoardState state, int move) {
         // Save pre-move state
-        MoveUndoInfo undoInfo = new MoveUndoInfo(move, state.getCastlingRights(), state.getEnPassantSquare(), state.getHalfMoveClock());
+        MoveUndoInfo undoInfo = new MoveUndoInfo(move, state.getCastlingRights(), state.getEnPassantSquare(), state.getHalfMoveClock(), state.getZobristKey());
 
         // Handle special moves
         if (Move.isCastling(move)) {
@@ -157,6 +157,7 @@ public class MoveExecutor {
         if (!Piece.isWhite(piece)) {
             state.setFullMoveNumber(state.getFullMoveNumber() - 1);
         }
+        state.setZobristKey(undoInfo.zobristKey());
 
         // Reverse special moves
         if (Move.isCastling(move)) {

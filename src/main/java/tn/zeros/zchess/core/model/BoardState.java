@@ -34,6 +34,11 @@ public class BoardState {
         enPassantSquare = -1;
         halfMoveClock = 0;
         fullMoveNumber = 1;
+
+        // Initialize Zobrist hashing
+        zobristKey = 0L;
+        toggleCastling(castlingRights);
+        toggleSideToMove();
     }
 
     private void setBackRank(int color, int rank) {
@@ -56,6 +61,7 @@ public class BoardState {
     private void setPiece(int pieceType, int color, int file, int rank) {
         int square = rank * 8 + file;
         int colorIndex = getColorIndex(color);
+        togglePiece(pieceType, colorIndex, square);
         pieceBitboards[pieceType] |= 1L << square;
         colorBitboards[colorIndex] |= 1L << square;
         pieceSquare[square] = Piece.makePiece(pieceType, color);
@@ -90,15 +96,27 @@ public class BoardState {
     }
 
     public void setCastlingRights(int rights) {
+        toggleCastling(this.castlingRights);
         this.castlingRights = rights;
+        toggleCastling(this.castlingRights);
     }
 
     public int getEnPassantSquare() {
         return enPassantSquare;
     }
 
-    public void setEnPassantSquare(int enPassantSquare) {
-        this.enPassantSquare = enPassantSquare;
+    public void setEnPassantSquare(int square) {
+        // Toggle old file
+        if (enPassantSquare != -1) {
+            int oldFile = enPassantSquare % 8;
+            toggleEnPassant(oldFile);
+        }
+        // Toggle new file
+        this.enPassantSquare = square;
+        if (square != -1) {
+            int newFile = square % 8;
+            toggleEnPassant(newFile);
+        }
     }
 
     public int getHalfMoveClock() {
@@ -122,7 +140,10 @@ public class BoardState {
     }
 
     public void setWhiteToMove(boolean whiteToMove) {
-        this.whiteToMove = whiteToMove;
+        if (this.whiteToMove != whiteToMove) {
+            toggleSideToMove();
+            this.whiteToMove = whiteToMove;
+        }
     }
 
     public long getPieceBitboard(int pieceType) {
@@ -132,10 +153,12 @@ public class BoardState {
     public void movePiece(int from, int to, int piece) {
         final long combinedMask = (1L << from) | (1L << to);
         final int type = piece & 0x7;
-        final int color = piece >>> COLOR_SHIFT;
+        final int colorIndex = getColorIndex(Piece.getColor(piece));
 
+        togglePiece(type, colorIndex, from);
+        togglePiece(type, colorIndex, to);
         pieceBitboards[type] ^= combinedMask;
-        colorBitboards[color] ^= combinedMask;
+        colorBitboards[colorIndex] ^= combinedMask;
         pieceSquare[from] = Piece.NONE;
         pieceSquare[to] = piece;
     }
@@ -144,20 +167,22 @@ public class BoardState {
         if (piece == Piece.NONE) return;
         final long mask = 1L << square;
         final int type = piece & 0x7;
-        final int color = piece >>> COLOR_SHIFT;
+        final int colorIndex = getColorIndex(Piece.getColor(piece));
 
+        togglePiece(type, colorIndex, square);
         pieceBitboards[type] &= ~mask;
-        colorBitboards[color] &= ~mask;
+        colorBitboards[colorIndex] &= ~mask;
         pieceSquare[square] = Piece.NONE;
     }
 
     public void addPiece(int square, int piece) {
         final long mask = 1L << square;
         final int type = piece & 0x7;
-        final int color = piece >>> COLOR_SHIFT;
+        final int colorIndex = getColorIndex(Piece.getColor(piece));
 
+        togglePiece(type, colorIndex, square);
         pieceBitboards[type] |= mask;
-        colorBitboards[color] |= mask;
+        colorBitboards[colorIndex] |= mask;
         pieceSquare[square] = piece;
     }
 
@@ -178,6 +203,10 @@ public class BoardState {
         return zobristKey;
     }
 
+    public void setZobristKey(long zobristKey) {
+        this.zobristKey = zobristKey;
+    }
+
     private void togglePiece(int pieceType, int color, int square) {
         int pieceIdx = Zobrist.pieceIndex(pieceType, color);
         zobristKey ^= Zobrist.PIECES[pieceIdx][square];
@@ -191,7 +220,7 @@ public class BoardState {
         zobristKey ^= Zobrist.CASTLING[rights];
     }
 
-    private void toggleSide() {
+    private void toggleSideToMove() {
         zobristKey ^= Zobrist.SIDE_TO_MOVE;
     }
 }
