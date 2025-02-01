@@ -52,15 +52,20 @@ public class InputHandler {
         if (startSquare != -1) {
             ChessBoardView boardView = (ChessBoardView) controller.getView();
             int targetSquare = boardView.getSquareFromSceneCoordinates(x, y);
-            if (targetSquare != -1 && controller.getInteractionState().getCurrentLegalMoves()
-                    .stream()
-                    .anyMatch(move -> Move.getTo(move) == targetSquare)) {
+
+            if (targetSquare != -1 && isValidMove(targetSquare)) {
                 controller.handleMoveExecution(targetSquare);
             } else {
                 sourceSquare.showCurrentPiece();
             }
             cleanup();
         }
+    }
+
+    private boolean isValidMove(int targetSquare) {
+        return controller.getInteractionState().getCurrentLegalMoves()
+                .stream()
+                .anyMatch(move -> Move.getTo(move) == targetSquare);
     }
 
     private void createDragImage(int piece) {

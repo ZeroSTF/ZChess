@@ -31,6 +31,7 @@ public class ChessBoardView extends GridPane implements ChessView {
     private final PromotionDialog promotionDialog;
     private final BitboardOverlay bitboardOverlay;
     private SquareView lastHoveredSquare = null;
+    private boolean isFlipped = false;
 
     public ChessBoardView(ChessController controller) {
         this.promotionDialog = new PromotionDialog(controller);
@@ -43,13 +44,16 @@ public class ChessBoardView extends GridPane implements ChessView {
     }
 
     private void initializeBoard() {
+        getChildren().clear();
         addRankLabels();
         addFileLabels();
+
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 SquareView square = createSquare(row, col);
                 squares[row][col] = square;
-                add(square, col, 7 - row); // Flip for visual board
+                int displayRow = isFlipped ? row : 7 - row;
+                add(square, col, displayRow);
             }
         }
     }
@@ -159,14 +163,14 @@ public class ChessBoardView extends GridPane implements ChessView {
     private void addRankLabels() {
         for (int row = 0; row < 8; row++) {
             Label rightLabel = createLabel(RANKS[row]);
-            add(rightLabel, 9, row);
+            add(rightLabel, 9, isFlipped ? 7 - row : row);
         }
     }
 
     private void addFileLabels() {
         for (int col = 0; col < 8; col++) {
             Label fileLabel = createLabel(FILES[col]);
-            add(fileLabel, col, 8);
+            add(fileLabel, isFlipped ? 7 - col : col, 8);
             GridPane.setHalignment(fileLabel, javafx.geometry.HPos.CENTER);
         }
     }
@@ -195,13 +199,40 @@ public class ChessBoardView extends GridPane implements ChessView {
 
     public int getSquareFromSceneCoordinates(double sceneX, double sceneY) {
         Point2D boardPoint = sceneToLocal(sceneX, sceneY);
-        int col = (int) (boardPoint.getX() / UIConstants.SQUARE_SIZE);
-        int row = 7 - (int) (boardPoint.getY() / UIConstants.SQUARE_SIZE);
+        int displayCol = (int) (boardPoint.getX() / UIConstants.SQUARE_SIZE);
+        int displayRow = (int) (boardPoint.getY() / UIConstants.SQUARE_SIZE);
 
-        if (row >= 0 && row < 8 && col >= 0 && col < 8) {
-            return row * 8 + col;
+        // Convert to logical coordinates
+        int logicalRow = isFlipped ? displayRow : 7 - displayRow;
+        int logicalCol = isFlipped ? 7 - displayCol : displayCol;
+
+        return logicalRow * 8 + logicalCol;
+    }
+
+    public void flipBoard() {
+        isFlipped = !isFlipped;
+        refreshEntireBoard();
+        rebuildLabels();
+        rearrangeSquares();
+    }
+
+    private void rebuildLabels() {
+        // Clear existing labels
+        getChildren().removeIf(node -> node instanceof Label);
+        addRankLabels();
+        addFileLabels();
+    }
+
+    private void rearrangeSquares() {
+        getChildren().removeIf(node -> node instanceof SquareView);
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                int displayRow = isFlipped ? row : 7 - row;
+                int displayCol = isFlipped ? 7 - col : col;
+
+                add(squares[row][col], displayCol, displayRow);
+            }
         }
-        return -1;
     }
 
     public void handleDragHover(double x, double y) {

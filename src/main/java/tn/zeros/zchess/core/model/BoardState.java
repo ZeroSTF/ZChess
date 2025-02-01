@@ -16,6 +16,8 @@ public class BoardState {
     private int halfMoveClock;
     private int fullMoveNumber;
 
+    private long zobristKey;
+
     public BoardState() {
         initializeStartingPosition();
     }
@@ -130,10 +132,10 @@ public class BoardState {
     public void movePiece(int from, int to, int piece) {
         final long combinedMask = (1L << from) | (1L << to);
         final int type = piece & 0x7;
-        final int colorIndex = piece >>> COLOR_SHIFT;
+        final int color = piece >>> COLOR_SHIFT;
 
         pieceBitboards[type] ^= combinedMask;
-        colorBitboards[colorIndex] ^= combinedMask;
+        colorBitboards[color] ^= combinedMask;
         pieceSquare[from] = Piece.NONE;
         pieceSquare[to] = piece;
     }
@@ -142,20 +144,20 @@ public class BoardState {
         if (piece == Piece.NONE) return;
         final long mask = 1L << square;
         final int type = piece & 0x7;
-        final int colorIndex = piece >>> COLOR_SHIFT;
+        final int color = piece >>> COLOR_SHIFT;
 
         pieceBitboards[type] &= ~mask;
-        colorBitboards[colorIndex] &= ~mask;
+        colorBitboards[color] &= ~mask;
         pieceSquare[square] = Piece.NONE;
     }
 
     public void addPiece(int square, int piece) {
         final long mask = 1L << square;
         final int type = piece & 0x7;
-        final int colorIndex = piece >>> COLOR_SHIFT;
+        final int color = piece >>> COLOR_SHIFT;
 
         pieceBitboards[type] |= mask;
-        colorBitboards[colorIndex] |= mask;
+        colorBitboards[color] |= mask;
         pieceSquare[square] = piece;
     }
 
@@ -169,5 +171,27 @@ public class BoardState {
 
     public boolean isGameOver() {
         return GameStateChecker.isGameOver(this);
+    }
+
+    // Zobrist Hashing
+    public long getZobristKey() {
+        return zobristKey;
+    }
+
+    private void togglePiece(int pieceType, int color, int square) {
+        int pieceIdx = Zobrist.pieceIndex(pieceType, color);
+        zobristKey ^= Zobrist.PIECES[pieceIdx][square];
+    }
+
+    private void toggleEnPassant(int file) {
+        if (file != -1) zobristKey ^= Zobrist.EN_PASSANT[file];
+    }
+
+    private void toggleCastling(int rights) {
+        zobristKey ^= Zobrist.CASTLING[rights];
+    }
+
+    private void toggleSide() {
+        zobristKey ^= Zobrist.SIDE_TO_MOVE;
     }
 }

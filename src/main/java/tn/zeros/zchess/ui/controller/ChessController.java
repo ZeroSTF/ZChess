@@ -191,4 +191,10 @@ public class ChessController implements GameListener {
     public void setGameMode(GameMode mode, EngineModel whiteModel, EngineModel blackModel, boolean modelColor) {
         gameManager.setGameMode(mode, whiteModel, blackModel, modelColor);
     }
+
+    public void flipBoard() {
+        if (view instanceof ChessBoardView) {
+            ((ChessBoardView) view).flipBoard();
+        }
+    }
 }

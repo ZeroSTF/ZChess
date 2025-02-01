@@ -24,6 +24,7 @@ public class ControlPanel extends HBox {
         Button fenButton = new Button("Get FEN");
         Button setFenButton = new Button("Set FEN");
         Button settingsButton = new Button("Settings ▶");
+        Button flipButton = new Button("Flip Board (Space)");
 
         // Button actions
         undoButton.setOnAction(e -> controller.undo());
@@ -35,6 +36,7 @@ public class ControlPanel extends HBox {
             settingsPanel.setVisible(visible);
             settingsButton.setText(visible ? "Settings ◀" : "Settings ▶");
         });
+        flipButton.setOnAction(e -> controller.flipBoard());
 
         // Keyboard shortcuts
         this.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
@@ -47,13 +49,17 @@ public class ControlPanel extends HBox {
                     e.consume();
                 }
             }
+            if (e.getCode() == KeyCode.SPACE) {
+                controller.flipBoard();
+                e.consume();
+            }
         });
 
         // Styling
         this.setSpacing(10);
         this.setPadding(new Insets(10));
         this.setAlignment(Pos.CENTER);
-        this.getChildren().addAll(undoButton, redoButton, fenButton, setFenButton, settingsButton);
+        this.getChildren().addAll(undoButton, redoButton, fenButton, setFenButton, settingsButton, flipButton);
     }
 
     private void showFEN(ChessController controller) {

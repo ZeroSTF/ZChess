@@ -23,6 +23,7 @@ public class EvaluationService {
         float blackEndgameWeight = getEndgameWeight(blackMaterialWithoutPawns);
         whiteEval += forceKingIntoCorner(state.getKingSquare(false), state.getKingSquare(true), whiteEndgameWeight);
         blackEval += forceKingIntoCorner(state.getKingSquare(true), state.getKingSquare(false), blackEndgameWeight);
+        System.out.println(whiteEval + " " + blackEval);
 
         // Calculate final evaluation
         int eval = whiteEval - blackEval;
