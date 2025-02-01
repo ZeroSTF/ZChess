@@ -11,7 +11,7 @@ import tn.zeros.zchess.engine.util.SearchUtils;
 
 public class AlphaBetaModel implements EngineModel {
     private static final SearchService searchService = new SearchService();
-    private static final int MAX_DEPTH = 4;
+    private static final int MAX_DEPTH = 3;
 
     @Override
     public int generateMove(BoardState boardState) {
