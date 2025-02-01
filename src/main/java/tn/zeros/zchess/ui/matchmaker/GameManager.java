@@ -1,9 +1,12 @@
 package tn.zeros.zchess.ui.matchmaker;
 
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.MoveUndoInfo;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.service.StateManager;
+import tn.zeros.zchess.engine.models.AlphaBetaModel;
 import tn.zeros.zchess.engine.models.EngineModel;
 import tn.zeros.zchess.engine.models.OrderedAlphaBetaModel;
 import tn.zeros.zchess.ui.controller.GameListener;
@@ -24,6 +27,7 @@ public class GameManager {
         this.boardState = boardState;
         this.stateManager = new StateManager(boardState);
         this.gameMode = GameMode.HUMAN_VS_MODEL;
+        this.whiteModel = new AlphaBetaModel();
         this.blackModel = new OrderedAlphaBetaModel();
     }
 
@@ -60,12 +64,16 @@ public class GameManager {
     private void playNextModelMove() {
         if (gameMode == GameMode.HUMAN_VS_MODEL && boardState.isWhiteToMove()) return;
 
-        EngineModel currentModel = boardState.isWhiteToMove() ? whiteModel : blackModel;
-        int modelMove = currentModel.generateMove(boardState);
+        PauseTransition pause = new PauseTransition(Duration.millis(500));
+        pause.setOnFinished(event -> {
+            EngineModel currentModel = boardState.isWhiteToMove() ? whiteModel : blackModel;
+            int modelMove = currentModel.generateMove(boardState);
 
-        if (modelMove != -1) {
-            executeMove(modelMove);
-        }
+            if (modelMove != -1) {
+                executeMove(modelMove);
+            }
+        });
+        pause.play();
     }
 
     private boolean isGameOver() {
