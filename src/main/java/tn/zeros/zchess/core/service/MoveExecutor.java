@@ -93,7 +93,7 @@ public class MoveExecutor {
     }
 
     private static void updateEnPassant(BoardState state, int movedPiece, int fromSquare, int toSquare) {
-        if (Piece.isPawn(movedPiece) && Math.abs(toSquare / 8 - fromSquare / 8) == 2) {
+        if (Piece.isPawn(movedPiece) && Math.abs((toSquare >> 3) - (fromSquare >> 3)) == 2) {
             int epSquare = fromSquare + (Piece.isWhite(movedPiece) ? 8 : -8);
             state.setEnPassantSquare(epSquare);
         } else {

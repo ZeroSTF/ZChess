@@ -109,7 +109,7 @@ public class PrecomputedMoves {
 
         for (int square = 0; square < 64; square++) {
             int file = square & 7;
-            int rank = square / 8;
+            int rank = square >> 3;
             long moves = 0L;
             for (int[] offset : knightOffsets) {
                 int newFile = file + offset[0];
@@ -140,7 +140,7 @@ public class PrecomputedMoves {
 
     private static void initializePawnAttacks() {
         for (int square = 0; square < 64; square++) {
-            int rank = square / 8;
+            int rank = square >> 3;
             int file = square & 7;
 
             // White pawn attacks
@@ -160,7 +160,7 @@ public class PrecomputedMoves {
     private static void initializePawnMoves() {
         for (int square = 0; square < 64; square++) {
             // White pawn moves
-            int rank = square / 8;
+            int rank = square >> 3;
             long whiteMoves = 0L;
             if (rank < 7) { // Can move forward one square
                 whiteMoves |= 1L << (square + 8);
@@ -228,9 +228,9 @@ public class PrecomputedMoves {
     }
 
     private static boolean isAdjacent(int currentSquare, int targetSquare) {
-        int currentRank = currentSquare / 8;
+        int currentRank = currentSquare >> 3;
         int currentFile = currentSquare & 7;
-        int targetRank = targetSquare / 8;
+        int targetRank = targetSquare >> 3;
         int targetFile = targetSquare & 7;
 
         return Math.abs(currentFile - targetFile) <= 1 && Math.abs(currentRank - targetRank) <= 1;
@@ -239,7 +239,7 @@ public class PrecomputedMoves {
     // Mask calculation
     private static long calculateBishopMask(int square) {
         long attacks = 0L;
-        int r = square / 8;
+        int r = square >> 3;
         int f = square & 7;
 
         for (int i = 1; i < 7; i++) {
@@ -253,7 +253,7 @@ public class PrecomputedMoves {
 
     private static long calculateRookMask(int square) {
         long attacks = 0L;
-        int r = square / 8;
+        int r = square >> 3;
         int f = square & 7;
 
         for (int i = r + 1; i < 7; i++) attacks |= 1L << (i * 8 + f); // Up
@@ -292,7 +292,7 @@ public class PrecomputedMoves {
 
     private static long generateBishopAttacks(int square, long occupancy) {
         long attacks = 0L;
-        int r = square / 8;
+        int r = square >> 3;
         int f = square & 7;
 
         // Northeast
@@ -324,7 +324,7 @@ public class PrecomputedMoves {
 
     private static long generateRookAttacks(int square, long occupancy) {
         long attacks = 0L;
-        int r = square / 8;
+        int r = square >> 3;
         int f = square & 7;
 
         // North

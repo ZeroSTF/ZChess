@@ -99,7 +99,7 @@ public class PawnMoveGenerator {
         int kingSquare = state.getKingSquare(isWhite);
 
         // If king is not on the same rank as the capturing pawn, en passant is safe
-        if (kingSquare / 8 != from / 8) {
+        if (kingSquare >> 3 != from >> 3) {
             return true;
         }
 
