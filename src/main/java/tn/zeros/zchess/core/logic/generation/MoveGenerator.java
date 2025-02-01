@@ -58,7 +58,7 @@ public class MoveGenerator {
 
     public static long calculatePinRay(int pieceSquare, int kingSquare, BoardState state) {
         int kingColor = Piece.getColor(state.getPieceAt(kingSquare));
-        int dx = Integer.signum((pieceSquare % 8) - (kingSquare % 8));
+        int dx = Integer.signum((pieceSquare & 7) - (kingSquare & 7));
         int dy = Integer.signum((pieceSquare / 8) - (kingSquare / 8));
 
         int attackerType;
@@ -70,7 +70,7 @@ public class MoveGenerator {
 
         int current = pieceSquare;
         while (true) {
-            int nextFile = (current % 8) + dx;
+            int nextFile = (current & 7) + dx;
             int nextRank = (current / 8) + dy;
             if (nextFile < 0 || nextFile >= 8 || nextRank < 0 || nextRank >= 8) break;
             current = nextRank * 8 + nextFile;

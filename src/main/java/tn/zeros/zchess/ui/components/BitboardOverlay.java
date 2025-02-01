@@ -44,7 +44,7 @@ public class BitboardOverlay extends GridPane {
     public void updateBitboard(long bitboard) {
         for (int s = 0; s < 64; s++) {
             int overlayRow = 7 - (s / 8);
-            int overlayCol = s % 8;
+            int overlayCol = s & 7;
             Rectangle rect = overlaySquares[overlayRow][overlayCol];
             boolean isSet = (bitboard & (1L << s)) != 0;
             rect.setFill(isSet ? HIGHLIGHT_COLOR : Color.TRANSPARENT);
