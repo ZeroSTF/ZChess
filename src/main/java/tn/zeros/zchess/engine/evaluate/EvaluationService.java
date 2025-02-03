@@ -21,8 +21,10 @@ public class EvaluationService {
         // Evaluate king move up in endgame
         float whiteEndgameWeight = getEndgameWeight(whiteMaterialWithoutPawns);
         float blackEndgameWeight = getEndgameWeight(blackMaterialWithoutPawns);
-        whiteEval += forceKingIntoCorner(state.getKingSquare(false), state.getKingSquare(true), whiteEndgameWeight);
-        blackEval += forceKingIntoCorner(state.getKingSquare(true), state.getKingSquare(false), blackEndgameWeight);
+        int whiteKingSquare = state.getKingSquare(true);
+        int blackKingSquare = state.getKingSquare(false);
+        whiteEval += forceKingIntoCorner(whiteKingSquare, blackKingSquare, whiteEndgameWeight);
+        blackEval += forceKingIntoCorner(blackKingSquare, whiteKingSquare, blackEndgameWeight);
 
         // Calculate final evaluation
         int eval = whiteEval - blackEval;

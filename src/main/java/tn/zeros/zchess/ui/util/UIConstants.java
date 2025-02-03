@@ -22,7 +22,7 @@ public class UIConstants {
             true,
             CycleMethod.NO_CYCLE,
             new Stop(0.81, Color.TRANSPARENT),
-            new Stop(0.82, rgba(20, 85, 0, 0.3))
+            new Stop(0.82, Color.rgb(20, 85, 0, 0.3))
     );
     // Fonts
     public static final Font PIECE_FONT = Font.font("Arial", 24);
@@ -37,9 +37,5 @@ public class UIConstants {
     public static final String CASTLE_SOUND = "/sounds/castle.mp3";
     public static final String PROMOTION_SOUND = "/sounds/promotion.mp3";
     public static final String PREMOVE_SOUND = "/sounds/premove.mp3";
-
-    private static Color rgba(int r, int g, int b, double a) {
-        return Color.rgb(r, g, b, a);
-    }
-
+    
 }
