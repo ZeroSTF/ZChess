@@ -11,7 +11,7 @@ import java.util.List;
 public class MoveGenerator {
     private static final int DEFAULT_CAPACITY = 128;
 
-    public static MoveList generateAllMoves(BoardState state) {
+    public static MoveList generateAllMoves(BoardState state, boolean capturesOnly) {
         MoveList moveList = new MoveList(DEFAULT_CAPACITY);
         moveList.clear();
 
@@ -23,7 +23,7 @@ public class MoveGenerator {
 
         // If double check, only generate king moves
         if (checkCount >= 2) {
-            KingMoveGenerator.generate(state, kingSquare, moveList, checkers);
+            KingMoveGenerator.generate(state, kingSquare, moveList, checkers, capturesOnly);
             return moveList;
         }
 
@@ -37,17 +37,17 @@ public class MoveGenerator {
             int piece = state.getPieceAt(square);
 
             if (Piece.isPawn(piece)) {
-                PawnMoveGenerator.generate(state, square, moveList, pinned, checkingRay, checkers);
+                PawnMoveGenerator.generate(state, square, moveList, pinned, checkingRay, checkers, capturesOnly);
             } else if (Piece.isKnight(piece)) {
-                KnightMoveGenerator.generate(state, square, moveList, pinned, checkingRay);
+                KnightMoveGenerator.generate(state, square, moveList, pinned, checkingRay, capturesOnly);
             } else if (Piece.isBishop(piece)) {
-                BishopMoveGenerator.generate(state, square, moveList, pinned, checkingRay);
+                BishopMoveGenerator.generate(state, square, moveList, pinned, checkingRay, capturesOnly);
             } else if (Piece.isRook(piece)) {
-                RookMoveGenerator.generate(state, square, moveList, pinned, checkingRay);
+                RookMoveGenerator.generate(state, square, moveList, pinned, checkingRay, capturesOnly);
             } else if (Piece.isQueen(piece)) {
-                QueenMoveGenerator.generate(state, square, moveList, pinned, checkingRay);
+                QueenMoveGenerator.generate(state, square, moveList, pinned, checkingRay, capturesOnly);
             } else if (Piece.isKing(piece)) {
-                KingMoveGenerator.generate(state, square, moveList, checkers);
+                KingMoveGenerator.generate(state, square, moveList, checkers, capturesOnly);
             }
 
             pieces &= pieces - 1;

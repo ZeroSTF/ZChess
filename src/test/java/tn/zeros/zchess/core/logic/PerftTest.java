@@ -66,7 +66,7 @@ public class PerftTest {
 
         long nodes = 0;
 
-        MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state);
+        MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state, false);
 
         for (int i = 0; i < moves.size; i++) {
             int move = moves.moves[i];
@@ -97,7 +97,7 @@ public class PerftTest {
         if (currentDepth == 0) return 1L;
 
         long total = 0;
-        MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state);
+        MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state, false);
 
         for (int i = 0; i < moves.size; i++) {
             int move = moves.moves[i];

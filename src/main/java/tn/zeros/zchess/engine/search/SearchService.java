@@ -29,7 +29,7 @@ public class SearchService {
     public int minimax(int depth, BoardState state) {
         if (depth == 0) return evaluateTerminalNode(state);
 
-        MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state);
+        MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state, true);
         if (moves.isEmpty()) return handleLeafNode(state);
 
         int bestEval = SearchUtils.MIN_EVAL;
@@ -45,7 +45,7 @@ public class SearchService {
     public int alphaBetaPrune(int depth, int alpha, int beta, BoardState state, boolean useOrdering) {
         if (depth == 0) return evaluateTerminalNode(state);
 
-        MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state);
+        MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state, false);
         if (moves.isEmpty()) return handleLeafNode(state);
 
         if (useOrdering) {

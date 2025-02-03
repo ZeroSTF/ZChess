@@ -24,12 +24,12 @@ public class GameStateChecker {
     }
 
     private static boolean isCheckmate(BoardState boardState) {
-        MoveGenerator.MoveList legalMoves = MoveGenerator.generateAllMoves(boardState);
+        MoveGenerator.MoveList legalMoves = MoveGenerator.generateAllMoves(boardState, false);
         return legalMoves.isEmpty() && isKingInCheck(boardState);
     }
 
     private static boolean isStalemate(BoardState boardState) {
-        MoveGenerator.MoveList legalMoves = MoveGenerator.generateAllMoves(boardState);
+        MoveGenerator.MoveList legalMoves = MoveGenerator.generateAllMoves(boardState, false);
         return legalMoves.isEmpty() && !isKingInCheck(boardState);
     }
 

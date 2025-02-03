@@ -6,8 +6,7 @@ import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.util.PrecomputedMoves;
 
 public class BishopMoveGenerator {
-    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList,
-                                long pinned, long checkingRay) {
+    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList, long pinned, long checkingRay, boolean capturesOnly) {
         int bishop = state.getPieceAt(from);
         boolean isWhite = Piece.isWhite(bishop);
         long fromBit = 1L << from;
@@ -15,6 +14,10 @@ public class BishopMoveGenerator {
         // Get all possible bishop moves
         long moves = PrecomputedMoves.getMagicBishopAttack(from, state.getAllPieces());
         moves &= ~state.getFriendlyPieces(isWhite);
+
+        if (capturesOnly) {
+            moves &= state.getEnemyPieces(isWhite);  // Capture filter
+        }
 
         // If pinned, restrict to pin ray
         if ((fromBit & pinned) != 0) {

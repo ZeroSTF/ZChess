@@ -3,145 +3,118 @@ package tn.zeros.zchess.core.logic.generation;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
+import tn.zeros.zchess.core.util.ChessConstants;
 import tn.zeros.zchess.core.util.PrecomputedMoves;
 
 public class PawnMoveGenerator {
-    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList, long pinned, long checkingRay, long checkers) {
-        int pawn = state.getPieceAt(from);
-        if (pawn == Piece.NONE || !Piece.isPawn(pawn)) return;
+    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList, long pinned, long checkingRay, long checkers, boolean capturesOnly) {
+        final int pawn = state.getPieceAt(from);
+        if (!Piece.isPawn(pawn)) return;
 
-        boolean isWhite = Piece.isWhite(pawn);
-        if (isWhite != state.isWhiteToMove()) return;
-        long fromBitboard = 1L << from;
+        final boolean isWhite = Piece.isWhite(pawn);
+        final long fromBit = 1L << from;
+        final int kingSquare = state.getKingSquare(isWhite);
+        final long allPieces = state.getAllPieces();
+        final long enemyPieces = state.getEnemyPieces(isWhite) | getEnPassantMask(state, isWhite);
+        final int enPassantSquare = state.getEnPassantSquare();
 
         // If pinned, calculate pin ray and only allow moves along it
-        if ((fromBitboard & pinned) != 0) {
-            // Calculate pin ray by finding the direction to the king
-            int kingSquare = state.getKingSquare(isWhite);
-            long pinRay = MoveGenerator.calculatePinRay(from, kingSquare, state);
+        if ((fromBit & pinned) != 0) {
+            final long pinRay = MoveGenerator.calculatePinRay(from, kingSquare, state);
+            final long pawnAttacks = PrecomputedMoves.getPawnAttacks(from, isWhite);
+            long validMoves = capturesOnly
+                    ? pawnAttacks & enemyPieces
+                    : PrecomputedMoves.getPawnMoves(from, allPieces, enemyPieces, isWhite);
 
-            long validMoves = PrecomputedMoves.getPawnMoves(from, state.getAllPieces(), state.getEnemyPieces(isWhite), isWhite);
             validMoves &= pinRay;
-            if (checkingRay != -1L) {
-                validMoves &= checkingRay;
-            }
-            generatePawnMovesFromBitboard(state, from, pawn, validMoves, moveList);
+            if (checkingRay != -1L) validMoves &= checkingRay;
+            generateMoves(state, from, pawn, validMoves, moveList, enPassantSquare, isWhite);
             return;
         }
 
-        // Calculate base moves
-        long allPieces = state.getAllPieces();
-        long enemyPieces = state.getEnemyPieces(isWhite);
-        int enPassantSquare = state.getEnPassantSquare();
+        // Calculate possible moves using bitboard parallelism
+        final long pawnAttacks = PrecomputedMoves.getPawnAttacks(from, isWhite);
+        long possibleMoves = capturesOnly
+                ? pawnAttacks & enemyPieces
+                : PrecomputedMoves.getPawnMoves(from, allPieces, enemyPieces, isWhite);
 
-        // Handle en passant square separately to check for special cases
-        if (enPassantSquare != -1) {
-            enemyPieces |= 1L << enPassantSquare;
-        }
-
-        long possibleMoves = PrecomputedMoves.getPawnMoves(from, allPieces, enemyPieces, isWhite);
-
-        // If in check, only allow moves that block or capture the checker
+        // Check evasion and en passant validation
         if (checkingRay != -1L) {
-            possibleMoves &= checkingRay;
-            if (enPassantSquare != -1) {
-                int capturedPawnSquare = enPassantSquare + (isWhite ? -8 : 8);
-                long checkerMask = 1L << capturedPawnSquare;
-
-                // Check if the captured pawn is the checker
-                if ((checkers & checkerMask) != 0) {
-                    long enPassantMoveBit = 1L << enPassantSquare;
-                    long pawnAttacks = PrecomputedMoves.getPawnAttacks(from, isWhite);
-
-                    // If this pawn can attack the en passant square, re-add the move
-                    if ((pawnAttacks & enPassantMoveBit) != 0) {
-                        possibleMoves |= enPassantMoveBit;
-                    }
-                }
-            }
+            possibleMoves &= checkingRay | (validateEnPassantInCheck(state, from, enPassantSquare, checkers, isWhite) ? 1L << enPassantSquare : 0);
+        } else if (enPassantSquare != -1 && (possibleMoves & (1L << enPassantSquare)) != 0) {
+            possibleMoves &= ~(isEnPassantDangerous(state, from, enPassantSquare, isWhite) ? (1L << enPassantSquare) : 0);
         }
 
-        // Special handling for en passant captures
-        if (enPassantSquare != -1 && (possibleMoves & (1L << enPassantSquare)) != 0) {
-            if (!isEnPassantLegal(state, from, enPassantSquare, isWhite)) {
-                // Remove the en passant capture if it would leave the king in check
-                possibleMoves &= ~(1L << enPassantSquare);
-            }
-        }
-
-        generatePawnMovesFromBitboard(state, from, pawn, possibleMoves, moveList);
+        generateMoves(state, from, pawn, possibleMoves, moveList, enPassantSquare, isWhite);
     }
 
-    private static void generatePawnMovesFromBitboard(BoardState state, int from, int pawn, long moves, MoveGenerator.MoveList moveList) {
-        boolean isWhite = Piece.isWhite(pawn);
-        int enPassantSquare = state.getEnPassantSquare();
+    private static long getEnPassantMask(BoardState state, boolean isWhite) {
+        final int ep = state.getEnPassantSquare();
+        return ep != -1 ? 1L << ep : 0L;
+    }
+
+    private static boolean validateEnPassantInCheck(BoardState state, int from, int epSquare, long checkers, boolean isWhite) {
+        if (epSquare == -1) return false;
+        final int capturedPawnSquare = epSquare + (isWhite ? -8 : 8);
+        return (checkers & (1L << capturedPawnSquare)) != 0 &&
+                (PrecomputedMoves.getPawnAttacks(from, isWhite) & (1L << epSquare)) != 0;
+    }
+
+    private static void generateMoves(BoardState state, int from, int pawn, long moves,
+                                      MoveGenerator.MoveList moveList, int epSquare, boolean isWhite) {
+        final int[] promotions = getPromotionPieces(pawn);
+        final long promotionMask = isWhite ? ChessConstants.RANK_8 : ChessConstants.RANK_1;
 
         while (moves != 0) {
-            int to = Long.numberOfTrailingZeros(moves);
-            moves &= moves - 1; // Clear the least significant bit
+            final int to = Long.numberOfTrailingZeros(moves);
+            final boolean isPromotion = ((1L << to) & promotionMask) != 0;
+            final boolean isEp = (to == epSquare);
+            final int captured = getCapturedPiece(state, from, to, epSquare, isWhite);
 
-            int captured = getCapturedPiece(state, from, to, enPassantSquare, isWhite);
-            boolean isEnPassant = (to == enPassantSquare);
-            if (isPromotionRank(to, isWhite)) {
-                addPromotionMoves(moveList, from, to, pawn, captured);
+            if (isPromotion) {
+                addPromotionMoves(moveList, from, to, pawn, captured, promotions);
             } else {
-                moveList.add(Move.createMove(from, to, pawn, captured,
-                        isEnPassant ? Move.FLAG_ENPASSANT : 0, Piece.NONE));
+                moveList.add(Move.createMove(from, to, pawn, captured, isEp ? Move.FLAG_ENPASSANT : 0, Piece.NONE));
             }
+            moves &= moves - 1;
         }
     }
 
-    private static boolean isEnPassantLegal(BoardState state, int from, int enPassantSquare, boolean isWhite) {
-        // Get the square of the pawn being captured
-        int capturedPawnSquare = enPassantSquare + (isWhite ? -8 : 8);
-
-        // Get king position
-        int kingSquare = state.getKingSquare(isWhite);
-
-        // If king is not on the same rank as the capturing pawn, en passant is safe
-        if (kingSquare >> 3 != from >> 3) {
-            return true;
-        }
-
-        // Create a mask of the squares that will be empty after the en passant
-        long removedPawns = (1L << from) | (1L << capturedPawnSquare);
-        long remainingPieces = state.getAllPieces() & ~removedPawns;
-
-        int attackerColor = isWhite ? Piece.BLACK : Piece.WHITE;
-        long RooksAndQueens = state.getPieces(Piece.QUEEN, attackerColor) | state.getPieces(Piece.ROOK, attackerColor);
-
-        // Check for attacks along the rank
-        long rankMask = PrecomputedMoves.getMagicRookAttack(kingSquare, remainingPieces)
-                & RooksAndQueens;
-
-        // If there are any enemy rooks or queens that could attack along the rank, the move is illegal
-        return rankMask == 0;
-    }
-
-    private static int getCapturedPiece(BoardState state, int from, int to, int enPassantSquare, boolean isWhite) {
-        if (to == enPassantSquare) {
-            // For en passant, the captured pawn is on a different square
-            int capturedSquare = enPassantSquare + (isWhite ? -8 : 8);
-            return state.getPieceAt(capturedSquare);
-        }
-        return state.getPieceAt(to);
-    }
-
-    private static boolean isPromotionRank(int square, boolean isWhite) {
-        return (isWhite && square >= 56) || (!isWhite && square <= 7);
-    }
-
-    private static void addPromotionMoves(MoveGenerator.MoveList moveList, int from, int to, int pawn, int captured) {
-        // Create promotion moves in order of likely value (Queen, Knight, Rook, Bishop)
-        int[] promotions = {
-                Piece.isWhite(pawn) ? Piece.makePiece(Piece.QUEEN, Piece.WHITE) : Piece.makePiece(Piece.QUEEN, Piece.BLACK), // Queen
-                Piece.isWhite(pawn) ? Piece.makePiece(Piece.KNIGHT, Piece.WHITE) : Piece.makePiece(Piece.KNIGHT, Piece.BLACK), // Knight
-                Piece.isWhite(pawn) ? Piece.makePiece(Piece.ROOK, Piece.WHITE) : Piece.makePiece(Piece.ROOK, Piece.BLACK), // Rook
-                Piece.isWhite(pawn) ? Piece.makePiece(Piece.BISHOP, Piece.WHITE) : Piece.makePiece(Piece.BISHOP, Piece.BLACK)  // Bishop
+    private static int[] getPromotionPieces(int pawn) {
+        final int color = Piece.getColor(pawn);
+        return new int[]{
+                Piece.makePiece(Piece.QUEEN, color),
+                Piece.makePiece(Piece.KNIGHT, color),
+                Piece.makePiece(Piece.ROOK, color),
+                Piece.makePiece(Piece.BISHOP, color)
         };
+    }
 
+    private static void addPromotionMoves(MoveGenerator.MoveList moveList, int from, int to,
+                                          int pawn, int captured, int[] promotions) {
         for (int promotion : promotions) {
             moveList.add(Move.createMove(from, to, pawn, captured, Move.FLAG_PROMOTION, promotion));
         }
+    }
+
+    private static int getCapturedPiece(BoardState state, int from, int to, int epSquare, boolean isWhite) {
+        return (to == epSquare) ? state.getPieceAt(epSquare + (isWhite ? -8 : 8)) : state.getPieceAt(to);
+    }
+
+    private static boolean isEnPassantDangerous(BoardState state, int from, int epSquare, boolean isWhite) {
+        final int kingSquare = state.getKingSquare(isWhite);
+        final int kingRank = kingSquare >>> 3; // Divide by 8 to get the rank
+        final int fromRank = from >>> 3;
+
+        // If king isn't on the same rank as the moving pawn, en passant is safe
+        if (kingRank != fromRank) return false;
+
+        final int capturedSquare = epSquare + (isWhite ? -8 : 8);
+        final long occupied = (state.getAllPieces() & ~((1L << from) | (1L << capturedSquare))) | (1L << epSquare);
+
+        final int enemyColor = isWhite ? Piece.BLACK : Piece.WHITE;
+        final long rooksQueens = state.getPieces(Piece.ROOK, enemyColor) | state.getPieces(Piece.QUEEN, enemyColor);
+
+        return (PrecomputedMoves.getMagicRookAttack(kingSquare, occupied) & rooksQueens) != 0;
     }
 }

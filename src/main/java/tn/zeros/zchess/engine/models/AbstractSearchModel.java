@@ -24,7 +24,7 @@ public abstract class AbstractSearchModel implements EngineModel {
         metrics.startSearch();
         if (boardState.isGameOver()) return -1;
 
-        MoveGenerator.MoveList legalMoves = MoveGenerator.generateAllMoves(boardState);
+        MoveGenerator.MoveList legalMoves = MoveGenerator.generateAllMoves(boardState, false);
         if (legalMoves.isEmpty()) return -1;
 
         int bestMove = -1;

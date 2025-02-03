@@ -10,7 +10,7 @@ public class RandomMoveModel implements EngineModel {
 
     public int generateMove(BoardState boardState) {
         if (!boardState.isGameOver()) {
-            MoveGenerator.MoveList legalMoves = MoveGenerator.generateAllMoves(boardState);
+            MoveGenerator.MoveList legalMoves = MoveGenerator.generateAllMoves(boardState, false);
             if (!legalMoves.isEmpty()) {
                 return legalMoves.moves[random.nextInt(legalMoves.size)];
             }

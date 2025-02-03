@@ -6,7 +6,7 @@ import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.util.PrecomputedMoves;
 
 public class QueenMoveGenerator {
-    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList, long pinned, long checkingRay) {
+    public static void generate(BoardState state, int from, MoveGenerator.MoveList moveList, long pinned, long checkingRay, boolean capturesOnly) {
         int queen = state.getPieceAt(from);
         boolean isWhite = Piece.isWhite(queen);
         long fromBit = 1L << from;
@@ -15,6 +15,10 @@ public class QueenMoveGenerator {
         long moves = PrecomputedMoves.getMagicBishopAttack(from, state.getAllPieces()) |
                 PrecomputedMoves.getMagicRookAttack(from, state.getAllPieces());
         moves &= ~state.getFriendlyPieces(isWhite);
+
+        if (capturesOnly) {
+            moves &= state.getEnemyPieces(isWhite);
+        }
 
         // If pinned, restrict to pin ray
         if ((fromBit & pinned) != 0) {

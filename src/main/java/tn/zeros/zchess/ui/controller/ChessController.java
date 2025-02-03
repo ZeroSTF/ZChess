@@ -46,7 +46,7 @@ public class ChessController implements GameListener {
             interactionState.clearCurrentLegalMoves();
 
             // Get legal moves for the selected piece using new move generator
-            MoveGenerator.MoveList moveList = MoveGenerator.generateAllMoves(boardState);
+            MoveGenerator.MoveList moveList = MoveGenerator.generateAllMoves(boardState, false);
             List<Integer> legalMoves = moveList.toList().stream()
                     .filter(move -> Move.getFrom(move) == square)
                     .toList();
