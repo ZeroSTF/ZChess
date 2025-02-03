@@ -50,7 +50,7 @@ public class ZChessApp extends Application {
         root.setRight(settingsPanel);
         BorderPane.setMargin(controlPanel, new Insets(10));
         BorderPane.setMargin(centeredBoard, new Insets(20));
-        settingsPanel.setVisible(false);
+        settingsPanel.setVisible(true);
 
         // Configure window
         Scene scene = new Scene(root, 1200, 900);

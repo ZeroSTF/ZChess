@@ -23,7 +23,7 @@ public class ControlPanel extends HBox {
         Button redoButton = new Button("Redo (Ctrl+Y)");
         Button fenButton = new Button("Get FEN");
         Button setFenButton = new Button("Set FEN");
-        Button settingsButton = new Button("Settings ▶");
+        Button settingsButton = new Button("Settings ◀");
         Button flipButton = new Button("Flip Board (Space)");
 
         // Button actions

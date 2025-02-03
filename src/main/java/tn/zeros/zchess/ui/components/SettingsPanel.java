@@ -27,7 +27,7 @@ public class SettingsPanel extends VBox {
     private void initialize() {
         gameModeCombo = new ComboBox<>();
         gameModeCombo.getItems().addAll(GameMode.values());
-        gameModeCombo.getSelectionModel().select(GameMode.HUMAN_VS_HUMAN);
+        gameModeCombo.getSelectionModel().select(GameMode.HUMAN_VS_MODEL);
         gameModeCombo.setOnAction(e -> updateGameModeSettings());
 
         whiteModelCombo = new ComboBox<>();
@@ -47,7 +47,7 @@ public class SettingsPanel extends VBox {
         modelColorGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> updateGameModeSettings());
 
         depthLabel = new Label("Search Depth:");
-        depthSpinner = new Spinner<>(1, 8, 3); // Min:1, Max:8, Default:3
+        depthSpinner = new Spinner<>(1, 10, 4); // Min:1, Max:8, Default:3
         depthSpinner.setEditable(true);
 
         depthSpinner.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {

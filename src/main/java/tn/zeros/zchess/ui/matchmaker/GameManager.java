@@ -7,6 +7,8 @@ import tn.zeros.zchess.core.model.MoveUndoInfo;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.core.service.StateManager;
 import tn.zeros.zchess.engine.models.EngineModel;
+import tn.zeros.zchess.engine.models.OrderedAlphaBetaModel;
+import tn.zeros.zchess.engine.search.SearchService;
 import tn.zeros.zchess.ui.controller.GameListener;
 
 import java.util.ArrayList;
@@ -26,7 +28,9 @@ public class GameManager {
         this.boardState = boardState;
         this.stateManager = new StateManager(boardState);
         // Default game mode
-        this.gameMode = GameMode.HUMAN_VS_HUMAN;
+        this.gameMode = GameMode.HUMAN_VS_MODEL;
+        this.modelColor = false;
+        this.blackModel = new OrderedAlphaBetaModel(new SearchService(), 4);
     }
 
     public void setGameMode(GameMode mode, EngineModel whiteModel, EngineModel blackModel, boolean modelColor) {
