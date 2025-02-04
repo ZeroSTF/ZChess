@@ -1,6 +1,5 @@
 package tn.zeros.zchess.engine.util;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -31,7 +30,6 @@ public record TestPosition(
         return new TestPosition(fenPart, moves, id);
     }
 
-    @NotNull
     private static String getFenPart(String epdLine) {
         int bmIndex = epdLine.indexOf(" bm ");
         String fenPart;
@@ -49,7 +47,6 @@ public record TestPosition(
         return fenPart;
     }
 
-    @NotNull
     private static Set<String> getStrings(String epdLine, Pattern bmPattern) {
         Matcher bmMatcher = bmPattern.matcher(epdLine);
         Set<String> moves = new HashSet<>();
