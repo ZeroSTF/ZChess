@@ -6,7 +6,6 @@ import tn.zeros.zchess.core.model.MoveUndoInfo;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.engine.search.SearchService;
 import tn.zeros.zchess.engine.util.SearchMetrics;
-import tn.zeros.zchess.engine.util.SearchResult;
 import tn.zeros.zchess.engine.util.SearchUtils;
 
 public abstract class AbstractSearchModel implements EngineModel {
@@ -42,14 +41,15 @@ public abstract class AbstractSearchModel implements EngineModel {
             }
         }
 
-        SearchResult result = metrics.endSearch();
+        SearchMetrics.SearchResult result = metrics.endSearch();
+        result.logPerformance();
         logSearchResult(result);
         return bestMove;
     }
 
     protected abstract int performSearch(BoardState state);
 
-    private void logSearchResult(SearchResult result) {
+    private void logSearchResult(SearchMetrics.SearchResult result) {
         System.out.printf("Search complete: %dms, %d positions%n",
                 result.timeMs(), result.positions());
     }

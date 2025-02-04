@@ -16,7 +16,7 @@ public class EvalUtils {
             BISHOP_VALUE,  // 2: bishop
             ROOK_VALUE,  // 3: rook
             QUEEN_VALUE,    // 4: queen
-            KING_VALUE,   // 5: queen
+            KING_VALUE,   // 5: king
             0     // 6: none
     };
 

@@ -1,12 +1,17 @@
 package tn.zeros.zchess.ui.components;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import tn.zeros.zchess.engine.models.*;
 import tn.zeros.zchess.engine.search.SearchService;
+import tn.zeros.zchess.engine.util.TestHarness;
 import tn.zeros.zchess.ui.controller.ChessController;
 import tn.zeros.zchess.ui.matchmaker.GameMode;
+
+import java.io.IOException;
+import java.nio.file.Path;
 
 public class SettingsPanel extends VBox {
     private final ChessController controller;
@@ -43,7 +48,7 @@ public class SettingsPanel extends VBox {
         modelColorBlack = new RadioButton("Black");
         modelColorWhite.setToggleGroup(modelColorGroup);
         modelColorBlack.setToggleGroup(modelColorGroup);
-        modelColorGroup.selectToggle(modelColorWhite);
+        modelColorGroup.selectToggle(modelColorBlack);
         modelColorGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> updateGameModeSettings());
 
         depthLabel = new Label("Search Depth:");
@@ -59,6 +64,9 @@ public class SettingsPanel extends VBox {
         Button applyButton = new Button("Apply Settings");
         applyButton.setOnAction(e -> applySettings());
 
+        Button testSuiteButton = new Button("Run Test Suite");
+        testSuiteButton.setOnAction(e -> runTestSuite());
+
         getChildren().addAll(
                 new Label("Game Mode:"),
                 gameModeCombo,
@@ -71,7 +79,8 @@ public class SettingsPanel extends VBox {
                 new Label("Model Plays:"),
                 modelColorWhite,
                 modelColorBlack,
-                applyButton
+                applyButton,
+                testSuiteButton
         );
 
         setSpacing(10);
@@ -124,4 +133,33 @@ public class SettingsPanel extends VBox {
             default -> new AlphaBetaModel(searchService, maxDepth);
         };
     }
+
+    private void runTestSuite() {
+        new Thread(() -> {
+            try {
+                Path testPath = Path.of("test_suites/WAC.epd");
+                EngineModel model = createTestModel();
+                TestHarness.runTestSuite(model, testPath);
+            } catch (IOException ex) {
+                showErrorAlert("Test Suite Failed", ex.getMessage());
+            }
+        }).start();
+    }
+
+    private EngineModel createTestModel() {
+        int depth = depthSpinner.getValue();
+        String modelType = blackModelCombo.getValue();
+        return createEngineFromString(modelType, depth);
+    }
+
+    private void showErrorAlert(String title, String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
+    }
+
 }

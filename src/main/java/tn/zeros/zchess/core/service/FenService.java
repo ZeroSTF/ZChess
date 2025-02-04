@@ -66,7 +66,7 @@ public class FenService {
         return sb.toString();
     }
 
-    private static String squareToAlgebraic(int square) {
+    public static String squareToAlgebraic(int square) {
         char file = (char) ('a' + (square & 7));
         int rank = (square >> 3) + 1;
         return "" + file + rank;
@@ -76,15 +76,19 @@ public class FenService {
         clearBoard(state);
 
         String[] parts = fen.split(" ");
-        if (parts.length < 6) throw new IllegalArgumentException("Invalid FEN - not enough sections");
+        if (parts.length < 4) throw new IllegalArgumentException("Invalid FEN - not enough sections");
         if (!parts[0].matches("([rnbqkpRNBQKP1-8]+/){7}[rnbqkpRNBQKP1-8]+"))
             throw new IllegalArgumentException("Invalid piece placement");
+
+        // Set default move clocks in case they are missing
+        String halfMove = parts.length > 4 ? parts[4] : "0";
+        String fullMove = parts.length > 5 ? parts[5] : "1";
 
         parsePiecePlacement(state, parts[0]);
         parseActiveColor(state, parts[1]);
         parseCastlingRights(state, parts[2]);
         parseEnPassant(state, parts[3]);
-        parseMoveClocks(state, parts[4], parts[5]);
+        parseMoveClocks(state, halfMove, fullMove);
 
         return state;
     }

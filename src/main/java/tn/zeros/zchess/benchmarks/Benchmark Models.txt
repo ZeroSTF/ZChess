@@ -4,3 +4,7 @@ AlphaBeta: Search complete: 278ms, 853885 positions (depth 4)
            Search complete: 69ms, 419140 positions (depth 3)
 Ordered AlphaBeta: Search complete: 234ms, 200713 positions (depth 4)
                    Search complete: 60ms, 101843 positions (depth 3)
+
+///////////////////////////////////////////////////////////////////////////////////
+
+V0: Test Suite Results: 162/300 (54,0%)

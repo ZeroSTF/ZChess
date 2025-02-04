@@ -10,6 +10,7 @@ import tn.zeros.zchess.engine.models.EngineModel;
 import tn.zeros.zchess.engine.models.OrderedAlphaBetaModel;
 import tn.zeros.zchess.engine.search.SearchService;
 import tn.zeros.zchess.ui.controller.GameListener;
+import tn.zeros.zchess.ui.util.UIConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,12 +57,12 @@ public class GameManager {
         checkForModelMove();
     }
 
-    public void resetStateManager() {
-        stateManager = new StateManager(boardState);
+    public void resetStateManager(BoardState newState) {
+        stateManager = new StateManager(newState);
     }
 
     private void playNextModelMove() {
-        PauseTransition pause = new PauseTransition(Duration.millis(500));
+        PauseTransition pause = new PauseTransition(Duration.millis(UIConstants.MOVE_VISUAL_DELAY));
         pause.setOnFinished(event -> {
             EngineModel currentModel = boardState.isWhiteToMove() ? whiteModel : blackModel;
             int modelMove = currentModel.generateMove(boardState);

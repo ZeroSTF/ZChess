@@ -8,6 +8,7 @@ module tn.zeros.zchess {
     requires java.desktop;
     requires javafx.media;
     requires java.naming;
+    requires annotations;
 
     exports tn.zeros.zchess;
     opens tn.zeros.zchess to javafx.fxml;

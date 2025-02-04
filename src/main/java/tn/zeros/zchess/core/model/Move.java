@@ -1,5 +1,7 @@
 package tn.zeros.zchess.core.model;
 
+import tn.zeros.zchess.core.service.FenService;
+
 public final class Move {
 
     // Masks for extracting different parts of the move value
@@ -99,4 +101,26 @@ public final class Move {
         return (move & FLAG_ENPASSANT) != 0;
     }
 
+    public static String toAlgebraic(int move) {
+        int from = getFrom(move);
+        int to = getTo(move);
+        int piece = getPiece(move);
+        int captured = getCapturedPiece(move);
+        int promotion = getPromotionPiece(move);
+
+        String fromSquare = FenService.squareToAlgebraic(from);
+        String toSquare = FenService.squareToAlgebraic(to);
+
+        // Basic algebraic notation
+        if (Piece.isPawn(piece)) {
+            if (captured != Piece.NONE) {
+                return fromSquare.charAt(0) + "x" + toSquare;
+            }
+            return toSquare + (promotion != Piece.NONE ? "=" + Piece.getSymbol(promotion) : "");
+        }
+
+        return Piece.getSymbol(piece) +
+                (captured != Piece.NONE ? "x" : "") +
+                toSquare;
+    }
 }

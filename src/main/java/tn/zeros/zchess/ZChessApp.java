@@ -37,6 +37,7 @@ public class ZChessApp extends Application {
         ChessBoardView boardView = new ChessBoardView(controller);
         SettingsPanel settingsPanel = new SettingsPanel(controller);
         ControlPanel controlPanel = new ControlPanel(controller, settingsPanel);
+        
         // Start game
         controller.startGame();
 
@@ -45,6 +46,7 @@ public class ZChessApp extends Application {
         HBox centeredBoard = new HBox();
         centeredBoard.setAlignment(Pos.CENTER);
         centeredBoard.getChildren().add(boardView);
+
         root.setCenter(centeredBoard);
         root.setBottom(controlPanel);
         root.setRight(settingsPanel);

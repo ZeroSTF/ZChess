@@ -24,7 +24,7 @@ public class SearchService {
 
     private int handleLeafNode(BoardState state) {
         if (LegalMoveFilter.inCheck(state, state.isWhiteToMove())) {
-            return SearchUtils.MIN_EVAL;
+            return -SearchUtils.CHECKMATE_EVAL;
         }
         return 0;
     }
@@ -46,7 +46,11 @@ public class SearchService {
     }
 
     public int alphaBetaPrune(int depth, int alpha, int beta, BoardState state, boolean useOrdering) {
-        if (depth == 0) return quiescenceSearch(alpha, beta, state, useOrdering);
+        SearchMetrics.getInstance().incrementNodes();
+        if (depth == 0) {
+            SearchMetrics.getInstance().incrementPositions();
+            return quiescenceSearch(alpha, beta, state, useOrdering);
+        }
 
         MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state, false);
         if (moves.isEmpty()) return handleLeafNode(state);
@@ -68,7 +72,7 @@ public class SearchService {
     }
 
     private int quiescenceSearch(int alpha, int beta, BoardState state, boolean useOrdering) {
-        SearchMetrics.getInstance().incrementPositions();
+        SearchMetrics.getInstance().incrementQNodes();
 
         int standPat = EvaluationService.evaluate(state);
         boolean inCheck = LegalMoveFilter.inCheck(state, state.isWhiteToMove());
@@ -88,7 +92,7 @@ public class SearchService {
         MoveGenerator.MoveList moves = MoveGenerator.generateAllMoves(state, capturesOnly);
 
         if (moves.isEmpty()) {
-            return inCheck ? SearchUtils.MIN_EVAL : standPat;
+            return inCheck ? -SearchUtils.CHECKMATE_EVAL : standPat;
         }
 
         // Order moves (MVV-LVA in captures)
@@ -124,5 +128,11 @@ public class SearchService {
         }
 
         return alpha;
+    }
+
+    private int probeTranspositionTable(BoardState state, int depth, int alpha, int beta) {
+        // If entry exists and is usable:
+        SearchMetrics.getInstance().incrementTranspositionHits();
+        return 0; //TODO
     }
 }

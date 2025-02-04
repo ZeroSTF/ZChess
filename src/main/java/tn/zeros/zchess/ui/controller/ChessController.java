@@ -157,7 +157,7 @@ public class ChessController implements GameListener {
 
     private void resetState(BoardState newState) {
         this.boardState = newState;
-        gameManager.resetStateManager();
+        gameManager.resetStateManager(newState);
     }
 
     public InteractionState getInteractionState() {
