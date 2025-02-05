@@ -28,6 +28,7 @@ public abstract class AbstractSearchModel implements EngineModel {
 
         int bestMove = -1;
         int bestEval = SearchUtils.MIN_EVAL;
+        searchService.getTranspositionTable().clear();
 
         for (int i = 0; i < legalMoves.size; i++) {
             int move = legalMoves.moves[i];
@@ -52,5 +53,6 @@ public abstract class AbstractSearchModel implements EngineModel {
     private void logSearchResult(SearchMetrics.SearchResult result) {
         System.out.printf("Search complete: %dms, %d positions%n",
                 result.timeMs(), result.positions());
+        System.out.printf("Transposition table occupancy: %.1f%%%n", searchService.getTranspositionTable().getOccupancyPercent());
     }
 }

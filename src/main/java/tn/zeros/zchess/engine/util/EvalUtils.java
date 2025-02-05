@@ -7,6 +7,7 @@ public class EvalUtils {
     public static final int ROOK_VALUE = 500;
     public static final int QUEEN_VALUE = 900;
     public static final int KING_VALUE = 10000;
+    public static final int NONE_VALUE = 0;
 
     public static final float ENDGAME_MATERIAL_START = ROOK_VALUE * 2 + BISHOP_VALUE + KNIGHT_VALUE;
 
@@ -17,7 +18,7 @@ public class EvalUtils {
             ROOK_VALUE,  // 3: rook
             QUEEN_VALUE,    // 4: queen
             KING_VALUE,   // 5: king
-            0     // 6: none
+            NONE_VALUE     // 6: none
     };
 
     public static int getPieceTypeValue(int pieceType) {

@@ -39,9 +39,6 @@ public class TestHarness {
         if (move == -1) return false;
         String engineMove = Move.toAlgebraic(move)
                 .toLowerCase();
-        System.out.println(engineMove);
-        System.out.println(position.correctMoves());
-
         return position.correctMoves().stream()
                 .map(correct -> correct.toLowerCase().replace("+", ""))
                 .anyMatch(engineMove::equals);

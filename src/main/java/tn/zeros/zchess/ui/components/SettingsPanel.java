@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import tn.zeros.zchess.engine.models.*;
 import tn.zeros.zchess.engine.search.SearchService;
+import tn.zeros.zchess.engine.util.SearchUtils;
 import tn.zeros.zchess.engine.util.TestHarness;
 import tn.zeros.zchess.ui.controller.ChessController;
 import tn.zeros.zchess.ui.matchmaker.GameMode;
@@ -52,7 +53,7 @@ public class SettingsPanel extends VBox {
         modelColorGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> updateGameModeSettings());
 
         depthLabel = new Label("Search Depth:");
-        depthSpinner = new Spinner<>(1, 10, 4); // Min:1, Max:8, Default:3
+        depthSpinner = new Spinner<>(1, SearchUtils.MAX_DEPTH, 4); // Min, Max, Default
         depthSpinner.setEditable(true);
 
         depthSpinner.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {

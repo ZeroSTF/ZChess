@@ -27,6 +27,8 @@ public class ChessConstants {
     public static final String POSITION_5_FEN = "rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8";
     public static final String SEARCH_FEN = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
     public static final String QUEEN_VS_PAWN_FEN = "8/3K4/4P3/8/8/8/6k1/7q w - - 0 1";
+    public static final String LASKER_ENDGAME_FEN = "k7/8/3p4/p2P1p2/P2P1P2/8/8/K7 b - - 0 1";
+    public static final String TRANSPOSITION_TEST_FEN = "8/6pk/8/3Qbq1P/5P2/4B1p1/p1p5/5K2 w - - 0 1";
 
     // Fen constants
     public static final String FEN_DELIMITER = " ";

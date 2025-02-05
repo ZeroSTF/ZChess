@@ -48,23 +48,17 @@ public class MoveOrderingService {
     }
 
     private void sort(int[] moves, int size) {
-        for (int i = 0; i < size - 1; i++) {
-            int maxIndex = i;
-            for (int j = i + 1; j < size; j++) {
-                if (moveScores[j] > moveScores[maxIndex]) {
-                    maxIndex = j;
-                }
+        for (int i = 1; i < size; i++) {
+            int currentMove = moves[i];
+            int currentScore = moveScores[i];
+            int j = i - 1;
+            while (j >= 0 && moveScores[j] < currentScore) {
+                moves[j + 1] = moves[j];
+                moveScores[j + 1] = moveScores[j];
+                j--;
             }
-            // Swap moves and scores
-            if (maxIndex != i) {
-                int tempMove = moves[i];
-                moves[i] = moves[maxIndex];
-                moves[maxIndex] = tempMove;
-
-                int tempScore = moveScores[i];
-                moveScores[i] = moveScores[maxIndex];
-                moveScores[maxIndex] = tempScore;
-            }
+            moves[j + 1] = currentMove;
+            moveScores[j + 1] = currentScore;
         }
     }
 }
