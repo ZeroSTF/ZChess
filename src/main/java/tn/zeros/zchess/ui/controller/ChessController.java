@@ -63,7 +63,7 @@ public class ChessController implements GameListener {
     public void handleMoveExecution(int targetSquare) {
         int move = findMoveByTarget(targetSquare);
 
-        if (move != -1) {
+        if (move != Move.NULL_MOVE) {
             if (Move.isPromotion(move)) {
                 interactionState.setPendingPromotionMove(move);
                 view.showPromotionDialog(Piece.isWhite(Move.getPiece(move)));
@@ -80,12 +80,12 @@ public class ChessController implements GameListener {
         return interactionState.getCurrentLegalMoves().stream()
                 .filter(m -> Move.getTo(m) == targetSquare)
                 .findFirst()
-                .orElse(-1);
+                .orElse(Move.NULL_MOVE);
     }
 
     public void completePromotion(int promotionPiece) {
         int pendingPromotionMove = interactionState.getPendingPromotionMove();
-        if (pendingPromotionMove == -1) return;
+        if (pendingPromotionMove == Move.NULL_MOVE) return;
         int updatedPromotionMove = Move.updatePromotionPiece(pendingPromotionMove, promotionPiece);
         if (interactionState.getCurrentLegalMoves().contains(updatedPromotionMove)) {
             resetSelection();
@@ -94,7 +94,7 @@ public class ChessController implements GameListener {
             this.getInputHandler().restoreSourcePiece();
         }
 
-        interactionState.setPendingPromotionMove(-1);
+        interactionState.setPendingPromotionMove(Move.NULL_MOVE);
     }
 
     private void resetSelection() {
@@ -131,7 +131,7 @@ public class ChessController implements GameListener {
     }
 
     private void undoRedoRefresh(int move) {
-        if (move != -1) {
+        if (move != Move.NULL_MOVE) {
             view.refreshEntireBoard();
             interactionState.setLastMoveFrom(Move.getFrom(move));
             interactionState.setLastMoveTo(Move.getTo(move));

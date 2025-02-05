@@ -2,6 +2,7 @@ package tn.zeros.zchess.ui.matchmaker;
 
 import tn.zeros.zchess.core.logic.generation.LegalMoveFilter;
 import tn.zeros.zchess.core.model.BoardState;
+import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.engine.models.EngineModel;
 
@@ -33,7 +34,7 @@ public class EngineTester {
             EngineModel currentEngine = state.isWhiteToMove() ? whiteEngine : blackEngine;
             int move = currentEngine.generateMove(state);
 
-            if (move == -1) { // Game over
+            if (move == Move.NULL_MOVE) { // Game over
                 if (LegalMoveFilter.inCheck(state, state.isWhiteToMove())) {
                     return state.isWhiteToMove() ? GameResult.BLACK_WINS : GameResult.WHITE_WINS;
                 }

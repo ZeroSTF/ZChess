@@ -37,7 +37,5 @@ public class UIConstants {
     public static final String CASTLE_SOUND = "/sounds/castle.mp3";
     public static final String PROMOTION_SOUND = "/sounds/promotion.mp3";
     public static final String PREMOVE_SOUND = "/sounds/premove.mp3";
-    // Delays
-    public static final int MOVE_VISUAL_DELAY = 500; // ms
 
 }

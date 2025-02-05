@@ -2,11 +2,20 @@ package tn.zeros.zchess.engine.util;
 
 public class SearchMetrics {
     private static SearchMetrics instance;
-    private long nodesVisited;       // All nodes in main search
-    private long qNodesVisited;      // Quiescence search nodes
-    private long transpositionHits;  // TT cache hits
+
+    // Core metrics
+    private long nodesVisited;        // All nodes in main search
+    private long qNodesVisited;       // Quiescence search nodes
+    private long transpositionHits;   // TT cache hits
+    private long checkmatesDetected;  // Mate scores found
+    private long timeoutsOccurred;    // Aborted searches
+    private long terminalEvaluations; // Leaf node evaluations
+    private long nonTerminalEvals;    // Non-leaf evaluations
     private long searchStartTime;
-    private long positionsEvaluated; // Terminal evaluations
+
+    // PV tracking
+    private int[] pvMoves = new int[SearchUtils.MAX_DEPTH];
+    private int pvLength;
 
     private SearchMetrics() {
     }
@@ -23,9 +32,14 @@ public class SearchMetrics {
         nodesVisited = 0;
         qNodesVisited = 0;
         transpositionHits = 0;
-        positionsEvaluated = 0;
+        checkmatesDetected = 0;
+        timeoutsOccurred = 0;
+        terminalEvaluations = 0;
+        nonTerminalEvals = 0;
+        pvLength = 0;
     }
 
+    // === Add these increment methods ===
     public void incrementNodes() {
         nodesVisited++;
     }
@@ -38,41 +52,81 @@ public class SearchMetrics {
         transpositionHits++;
     }
 
-    public void incrementPositions() {
-        positionsEvaluated++;
+    public void incrementCheckmates() {
+        checkmatesDetected++;
+    }
+
+    public void incrementTimeouts() {
+        timeoutsOccurred++;
+    }
+
+    public void incrementTerminalEvals() {
+        terminalEvaluations++;
+    }
+
+    public void incrementNonTerminalEvals() {
+        nonTerminalEvals++;
+    }
+
+    // PV management
+    public void updatePrincipalVariation(int move, int depth) {
+        //Arrays.fill(pvMoves, depth, SearchUtils.MAX_DEPTH, Move.NULL_MOVE);
+        //pvMoves[depth] = move;
+        pvLength = depth + 1;
+    }
+
+    public String getPVString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < pvLength; i++) {
+            //sb.append(Move.toAlgebraic(pvMoves[i])).append(" ");
+        }
+        return sb.toString();
     }
 
     public SearchResult endSearch() {
         long duration = System.currentTimeMillis() - searchStartTime;
         return new SearchResult(
                 duration,
-                positionsEvaluated,
                 nodesVisited,
                 qNodesVisited,
-                transpositionHits
+                transpositionHits,
+                checkmatesDetected,
+                timeoutsOccurred,
+                terminalEvaluations,
+                nonTerminalEvals,
+                getPVString()
         );
     }
 
     public record SearchResult(
             long timeMs,
-            long positions,
             long nodes,
             long qNodes,
-            long ttHits
+            long ttHits,
+            long checkmates,
+            long timeouts,
+            long terminalEvals,
+            long nonTerminalEvals,
+            String pv
     ) {
-        public void logPerformance() {
+        public void logDiagnostics() {
             long totalNodes = nodes + qNodes;
-            double nps = (totalNodes * 1000.0) / (timeMs + 1); // +1 to avoid div by zero
+            double nps = (totalNodes * 1000.0) / (timeMs + 1);
 
             System.out.printf(
-                    "Nodes: %,d (%,.1f knps)%n" +
-                            "Quiescence: %,d (%.1f%%)%n" +
-                            "TT Hits: %,d (%.1f%%)%n" +
-                            "Evaluations: %,d%n",
+                    "Search Diagnostics:\n" +
+                            "PV: %s\n" +
+                            "Nodes: %,d (%,.1f knps)\n" +
+                            "QNodes: %,d (%.1f%%)\n" +
+                            "TT Hits: %,d (%.1f%% of nodes)\n" +
+                            "Checkmates: %,d  Timeouts: %,d\n" +
+                            "Evaluations: %,d terminal / %,d non-terminal\n",
+                    pv,
                     totalNodes, nps / 1000,
                     qNodes, (qNodes * 100.0) / totalNodes,
                     ttHits, (ttHits * 100.0) / totalNodes,
-                    positions
+                    checkmates, timeouts,
+                    terminalEvals, nonTerminalEvals
             );
         }
     }

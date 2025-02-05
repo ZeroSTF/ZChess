@@ -36,11 +36,11 @@ public class TestHarness {
     }
 
     private static boolean isMoveCorrect(TestPosition position, int move) {
-        if (move == -1) return false;
+        if (move == Move.NULL_MOVE) return false;
         String engineMove = Move.toAlgebraic(move)
                 .toLowerCase();
         return position.correctMoves().stream()
-                .map(correct -> correct.toLowerCase().replace("+", ""))
+                .map(correct -> correct.toLowerCase().replace("+", "").replace("#", ""))
                 .anyMatch(engineMove::equals);
     }
 
