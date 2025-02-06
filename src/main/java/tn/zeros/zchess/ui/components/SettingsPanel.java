@@ -4,16 +4,17 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import tn.zeros.zchess.engine.harness.TestHarness;
 import tn.zeros.zchess.engine.models.EngineModel;
-import tn.zeros.zchess.engine.models.Model_V0;
+import tn.zeros.zchess.engine.models.ModelV1;
 import tn.zeros.zchess.engine.models.RandomMoveModel;
-import tn.zeros.zchess.engine.search.SearchService;
-import tn.zeros.zchess.engine.util.TestHarness;
 import tn.zeros.zchess.ui.controller.ChessController;
 import tn.zeros.zchess.ui.matchmaker.GameMode;
 
 import java.io.IOException;
 import java.nio.file.Path;
+
+import static tn.zeros.zchess.ui.util.UIConstants.DEFAULT_SEARCH_TIME_MS;
 
 public class SettingsPanel extends VBox {
     private final ChessController controller;
@@ -38,12 +39,12 @@ public class SettingsPanel extends VBox {
         gameModeCombo.setOnAction(e -> updateGameModeSettings());
 
         whiteModelCombo = new ComboBox<>();
-        whiteModelCombo.getItems().setAll("V0", "Random");
-        whiteModelCombo.getSelectionModel().select("V0");
+        whiteModelCombo.getItems().setAll("V1", "Random");
+        whiteModelCombo.getSelectionModel().select("V1");
 
         blackModelCombo = new ComboBox<>();
-        blackModelCombo.getItems().setAll("V0", "Random");
-        blackModelCombo.getSelectionModel().select("V0");
+        blackModelCombo.getItems().setAll("V1", "Random");
+        blackModelCombo.getSelectionModel().select("V1");
 
         modelColorGroup = new ToggleGroup();
         modelColorWhite = new RadioButton("White");
@@ -54,7 +55,7 @@ public class SettingsPanel extends VBox {
         modelColorGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> updateGameModeSettings());
 
         timeLabel = new Label("Search Time:");
-        timeSpinner = new Spinner<>(1, 20000, 1000); // Min, Max, Default
+        timeSpinner = new Spinner<>(1, 20000, DEFAULT_SEARCH_TIME_MS); // Min, Max, Default
         timeSpinner.setEditable(true);
 
         timeSpinner.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {
@@ -125,12 +126,10 @@ public class SettingsPanel extends VBox {
     }
 
     private EngineModel createEngineFromString(String engineType, long time) {
-        SearchService searchService = new SearchService();
-
         return switch (engineType) {
-            case "V0" -> new Model_V0(searchService, time);
+            case "V1" -> new ModelV1(time);
             case "Random" -> new RandomMoveModel();
-            default -> new Model_V0(searchService, time);
+            default -> new ModelV1(time);
         };
     }
 

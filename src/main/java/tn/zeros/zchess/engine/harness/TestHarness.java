@@ -1,4 +1,4 @@
-package tn.zeros.zchess.engine.util;
+package tn.zeros.zchess.engine.harness;
 
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Move;

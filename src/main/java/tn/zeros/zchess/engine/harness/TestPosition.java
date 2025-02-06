@@ -1,4 +1,4 @@
-package tn.zeros.zchess.engine.util;
+package tn.zeros.zchess.engine.harness;
 
 
 import java.util.HashSet;

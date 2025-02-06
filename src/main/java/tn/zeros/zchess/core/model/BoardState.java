@@ -1,8 +1,8 @@
 package tn.zeros.zchess.core.model;
 
-import tn.zeros.zchess.core.service.GameStateChecker;
-
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static tn.zeros.zchess.core.util.ChessConstants.*;
 
@@ -10,6 +10,7 @@ public class BoardState {
     private final long[] pieceBitboards = new long[6]; // Indexed by piece type
     private final long[] colorBitboards = new long[2]; // Indexed by color
     private final int[] pieceSquare = new int[64];
+    private Map<Long, Integer> positionCounts = new HashMap<>();
     private boolean whiteToMove;
     private int castlingRights;
     private int enPassantSquare;
@@ -23,6 +24,8 @@ public class BoardState {
     }
 
     private void initializeStartingPosition() {
+        positionCounts.clear();
+        zobristKey = 0L;
         Arrays.fill(pieceSquare, Piece.NONE);
         setRank(Piece.PAWN, Piece.WHITE, 1);
         setBackRank(Piece.WHITE, 0);
@@ -35,8 +38,6 @@ public class BoardState {
         halfMoveClock = 0;
         fullMoveNumber = 1;
 
-        // Initialize Zobrist hashing
-        zobristKey = 0L;
         toggleCastling(castlingRights);
         toggleSideToMove();
     }
@@ -146,10 +147,6 @@ public class BoardState {
         }
     }
 
-    public long getPieceBitboard(int pieceType) {
-        return pieceBitboards[pieceType];
-    }
-
     public void movePiece(int from, int to, int piece) {
         final long combinedMask = (1L << from) | (1L << to);
         final int type = piece & 0x7;
@@ -186,6 +183,10 @@ public class BoardState {
         pieceSquare[square] = piece;
     }
 
+    public Map<Long, Integer> getPositionCounts() {
+        return positionCounts;
+    }
+
     public int getKingSquare(boolean white) {
         return Long.numberOfTrailingZeros(pieceBitboards[Piece.KING] & colorBitboards[getColorIndex(white ? Piece.WHITE : Piece.BLACK)]);
     }
@@ -194,8 +195,26 @@ public class BoardState {
         return color >> 3;
     }
 
-    public boolean isGameOver() {
-        return GameStateChecker.isGameOver(this);
+    public BoardState copy() {
+        BoardState copy = new BoardState();
+
+        // Copy primitive fields
+        copy.whiteToMove = this.whiteToMove;
+        copy.castlingRights = this.castlingRights;
+        copy.enPassantSquare = this.enPassantSquare;
+        copy.halfMoveClock = this.halfMoveClock;
+        copy.fullMoveNumber = this.fullMoveNumber;
+        copy.zobristKey = this.zobristKey;
+
+        // Copy arrays
+        System.arraycopy(this.pieceBitboards, 0, copy.pieceBitboards, 0, this.pieceBitboards.length);
+        System.arraycopy(this.colorBitboards, 0, copy.colorBitboards, 0, this.colorBitboards.length);
+        System.arraycopy(this.pieceSquare, 0, copy.pieceSquare, 0, this.pieceSquare.length);
+
+        // Deep copy the positionCounts map
+        copy.positionCounts = new HashMap<>(this.positionCounts);
+
+        return copy;
     }
 
     // Zobrist Hashing

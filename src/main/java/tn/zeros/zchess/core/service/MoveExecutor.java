@@ -10,7 +10,7 @@ import static tn.zeros.zchess.core.util.ChessConstants.*;
 public class MoveExecutor {
     public static MoveUndoInfo makeMove(BoardState state, int move) {
         // Save pre-move state
-        MoveUndoInfo undoInfo = new MoveUndoInfo(move, state.getCastlingRights(), state.getEnPassantSquare(), state.getHalfMoveClock(), state.getZobristKey());
+        MoveUndoInfo undoInfo = new MoveUndoInfo(move, state.getCastlingRights(), state.getEnPassantSquare(), state.getHalfMoveClock(), state.getZobristKey(), 0L);
 
         // Handle special moves
         if (Move.isCastling(move)) {
@@ -29,7 +29,9 @@ public class MoveExecutor {
         // Update game state
         updateGameState(state, move);
 
-        return undoInfo;
+        long newZobristKey = state.getZobristKey();
+        state.getPositionCounts().put(newZobristKey, state.getPositionCounts().getOrDefault(newZobristKey, 0) + 1);
+        return new MoveUndoInfo(undoInfo.move(), undoInfo.previousCastlingRights(), undoInfo.previousEnPassantSquare(), undoInfo.previousHalfMoveClock(), undoInfo.previousZobristKey(), newZobristKey);
     }
 
     private static void executeRegularMove(BoardState state, int move) {
@@ -157,7 +159,7 @@ public class MoveExecutor {
         if (!Piece.isWhite(piece)) {
             state.setFullMoveNumber(state.getFullMoveNumber() - 1);
         }
-        state.setZobristKey(undoInfo.zobristKey());
+        state.setZobristKey(undoInfo.previousZobristKey());
 
         // Reverse special moves
         if (Move.isCastling(move)) {
@@ -168,6 +170,16 @@ public class MoveExecutor {
             unmakePromotion(state, from, to, piece, capturedPiece, promotionPiece);
         } else {
             unmakeRegularMove(state, from, to, piece, capturedPiece);
+        }
+
+        long newZobristKey = undoInfo.newZobristKey();
+        Integer currentCount = state.getPositionCounts().get(newZobristKey);
+        if (currentCount != null) {
+            if (currentCount == 1) {
+                state.getPositionCounts().remove(newZobristKey);
+            } else {
+                state.getPositionCounts().put(newZobristKey, currentCount - 1);
+            }
         }
         return move;
     }

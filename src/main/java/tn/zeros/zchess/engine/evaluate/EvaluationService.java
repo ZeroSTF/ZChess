@@ -2,7 +2,6 @@ package tn.zeros.zchess.engine.evaluate;
 
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.Piece;
-import tn.zeros.zchess.engine.util.EvalUtils;
 
 public class EvaluationService {
     public static int evaluate(BoardState state) {
@@ -23,8 +22,9 @@ public class EvaluationService {
         float blackEndgameWeight = getEndgameWeight(blackMaterialWithoutPawns);
         int whiteKingSquare = state.getKingSquare(true);
         int blackKingSquare = state.getKingSquare(false);
-        whiteEval += forceKingIntoCorner(whiteKingSquare, blackKingSquare, whiteEndgameWeight);
-        blackEval += forceKingIntoCorner(blackKingSquare, whiteKingSquare, blackEndgameWeight);
+
+        whiteEval += mopUpEval(whiteKingSquare, blackKingSquare, whiteEndgameWeight, whiteMaterial, blackMaterial);
+        blackEval += mopUpEval(blackKingSquare, whiteKingSquare, blackEndgameWeight, blackMaterial, whiteMaterial);
 
         // Calculate final evaluation
         int eval = whiteEval - blackEval;
@@ -42,26 +42,29 @@ public class EvaluationService {
         return material;
     }
 
-    private static int forceKingIntoCorner(int friendlyKingSquare, int enemyKingSquare, float endgameWeight) {
-        int evaluation = 0;
+    private static int mopUpEval(int friendlyKingSquare, int enemyKingSquare, float endgameWeight, int myMaterialScore, int enemyMaterialScore) {
+        if (myMaterialScore > enemyMaterialScore + EvalUtils.PAWN_VALUE * 2) {
+            int evaluation = 0;
 
-        // Force enemy king into edge or corner
-        int enemyKingRank = enemyKingSquare >> 3;
-        int enemyKingFile = enemyKingSquare & 7;
+            // Force enemy king into edge or corner
+            int enemyKingRank = enemyKingSquare >> 3;
+            int enemyKingFile = enemyKingSquare & 7;
 
-        int opponentKingDistanceFromCenterRank = Math.max(3 - enemyKingRank, enemyKingRank - 4);
-        int opponentKingDistanceFromCenterFile = Math.max(3 - enemyKingFile, enemyKingFile - 4);
+            int opponentKingDistanceFromCenterRank = Math.max(3 - enemyKingRank, enemyKingRank - 4);
+            int opponentKingDistanceFromCenterFile = Math.max(3 - enemyKingFile, enemyKingFile - 4);
 
-        int opponentKingDistanceFromCenter = opponentKingDistanceFromCenterRank + opponentKingDistanceFromCenterFile;
-        evaluation += (int) (opponentKingDistanceFromCenter * endgameWeight);
+            int opponentKingDistanceFromCenter = opponentKingDistanceFromCenterRank + opponentKingDistanceFromCenterFile;
+            evaluation += (int) (opponentKingDistanceFromCenter * endgameWeight);
 
-        // Incentivise friendly king to get closer to enemy king
-        int friendlyKingRank = friendlyKingSquare >> 3;
-        int friendlyKingFile = friendlyKingSquare & 7;
+            // Incentivise friendly king to get closer to enemy king
+            int friendlyKingRank = friendlyKingSquare >> 3;
+            int friendlyKingFile = friendlyKingSquare & 7;
 
-        int distanceBetweenKings = Math.abs(friendlyKingRank - enemyKingRank) + Math.abs(friendlyKingFile - enemyKingFile);
-        evaluation += 14 - distanceBetweenKings;
-        return (int) (evaluation * 10 * endgameWeight);
+            int distanceBetweenKings = Math.abs(friendlyKingRank - enemyKingRank) + Math.abs(friendlyKingFile - enemyKingFile);
+            evaluation += 14 - distanceBetweenKings;
+            return (int) (evaluation * 10 * endgameWeight);
+        }
+        return 0;
     }
 
     private static float getEndgameWeight(int materialCountWithoutPawns) {

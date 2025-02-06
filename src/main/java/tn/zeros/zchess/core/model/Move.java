@@ -18,7 +18,7 @@ public final class Move {
     public static final int FLAG_PROMOTION = 1 << 22;
 
     // Null move
-    public static final int NULL_MOVE = -1;
+    public static final int NULL_MOVE = 0;
 
     // Constructor for creating a move
     public static int createMove(int fromSquare, int toSquare, int piece, int capturedPiece, int flags, int promotionPiece) {

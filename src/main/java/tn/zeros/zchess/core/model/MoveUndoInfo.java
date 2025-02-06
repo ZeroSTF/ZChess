@@ -5,6 +5,7 @@ public record MoveUndoInfo(
         int previousCastlingRights,
         int previousEnPassantSquare,
         int previousHalfMoveClock,
-        long zobristKey
+        long previousZobristKey,
+        long newZobristKey
 ) {
 }

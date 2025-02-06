@@ -1,4 +1,4 @@
-package tn.zeros.zchess.engine.util;
+package tn.zeros.zchess.engine.evaluate;
 
 public class EvalUtils {
     public static final int PAWN_VALUE = 100;

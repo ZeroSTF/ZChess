@@ -1,4 +1,4 @@
-package tn.zeros.zchess.engine.util;
+package tn.zeros.zchess.engine.search;
 
 public enum TTEntryType {
     EXACT,

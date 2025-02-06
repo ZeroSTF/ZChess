@@ -6,7 +6,7 @@ import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.engine.models.EngineModel;
 
-public class EngineTester {
+public class EngineTester { //TODO use this to test the engines
     private static final int NUM_GAMES = 100;
     private static final int MAX_MOVES = 200;
     private static final boolean ALTERNATE_COLORS = true;

@@ -14,13 +14,11 @@ public class GameStateChecker {
      * @return true if the game is over, false otherwise.
      */
     public static boolean isGameOver(BoardState boardState) {
-        if (isCheckmate(boardState) || isStalemate(boardState)) {
-            return true;
-        }
-        if (isInsufficientMaterial(boardState) || isFiftyMoveRule(boardState)) {
-            return true;
-        }
-        return isThreefoldRepetition(boardState);
+        return isCheckmate(boardState) ||
+                isStalemate(boardState) ||
+                isInsufficientMaterial(boardState) ||
+                isFiftyMoveRule(boardState) ||
+                isThreefoldRepetition(boardState);
     }
 
     private static boolean isCheckmate(BoardState boardState) {
@@ -37,7 +35,7 @@ public class GameStateChecker {
         return LegalMoveFilter.inCheck(boardState, boardState.isWhiteToMove());
     }
 
-    private static boolean isInsufficientMaterial(BoardState boardState) {
+    public static boolean isInsufficientMaterial(BoardState boardState) {
         long allPieces = boardState.getAllPieces();
         long whitePieces = boardState.getFriendlyPieces(true);
         long blackPieces = boardState.getFriendlyPieces(false);
@@ -56,11 +54,12 @@ public class GameStateChecker {
         return Long.bitCount(pieces) == 1 || (Long.bitCount(pieces) == 2 && ((pieces & bishops) != 0 || (pieces & knights) != 0));
     }
 
-    private static boolean isFiftyMoveRule(BoardState boardState) {
+    public static boolean isFiftyMoveRule(BoardState boardState) {
         return boardState.getHalfMoveClock() >= 50;
     }
 
-    private static boolean isThreefoldRepetition(BoardState boardState) {
-        return false; // TODO Implement using a position history or Zobrist hashing.
+    public static boolean isThreefoldRepetition(BoardState boardState) {
+        long currentKey = boardState.getZobristKey();
+        return boardState.getPositionCounts().getOrDefault(currentKey, 0) >= 2;
     }
 }

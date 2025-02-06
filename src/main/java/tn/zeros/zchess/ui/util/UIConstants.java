@@ -38,4 +38,7 @@ public class UIConstants {
     public static final String PROMOTION_SOUND = "/sounds/promotion.mp3";
     public static final String PREMOVE_SOUND = "/sounds/premove.mp3";
 
+    // Engine
+    public static final long DEFAULT_SEARCH_TIME_MS = 500;
+
 }
