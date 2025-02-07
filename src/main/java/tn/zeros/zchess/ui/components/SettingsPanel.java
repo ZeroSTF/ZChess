@@ -55,7 +55,7 @@ public class SettingsPanel extends VBox {
         modelColorGroup.selectedToggleProperty().addListener((obs, oldVal, newVal) -> updateGameModeSettings());
 
         timeLabel = new Label("Search Time:");
-        timeSpinner = new Spinner<>(1, 20000, DEFAULT_SEARCH_TIME_MS); // Min, Max, Default
+        timeSpinner = new Spinner<>(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 20000, DEFAULT_SEARCH_TIME_MS));
         timeSpinner.setEditable(true);
 
         timeSpinner.getEditor().textProperty().addListener((obs, oldVal, newVal) -> {
@@ -113,7 +113,7 @@ public class SettingsPanel extends VBox {
     }
 
     private void applySettings() {
-        long time = timeSpinner.getValue();
+        long time = timeSpinner.getValue().longValue();
         GameMode mode = gameModeCombo.getValue();
         String whiteModelType = whiteModelCombo.getValue();
         String blackModelType = blackModelCombo.getValue();

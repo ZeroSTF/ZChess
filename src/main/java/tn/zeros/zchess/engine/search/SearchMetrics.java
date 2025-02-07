@@ -3,58 +3,60 @@ package tn.zeros.zchess.engine.search;
 
 import tn.zeros.zchess.core.model.Move;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class SearchMetrics {
-    private long startTime;
-    private int currentDepth;
-    private int nodesEvaluated;
-    private int transpositionTableHits;
-    private int bestMove;
-    private int bestEval;
-    private List<Integer> principalVariation;
-    private int positionsEvaluated;
+    private final SearchDebugConfig config;
+    private final long startTime;
+    private final AtomicInteger nodesEvaluated;
+    private final AtomicInteger ttHits;
+    private volatile int currentDepth;
+    private volatile int bestMove;
+    private volatile int bestEval;
 
-    public void reset() {
-        startTime = System.currentTimeMillis();
-        currentDepth = 0;
-        nodesEvaluated = 0;
-        transpositionTableHits = 0;
-        bestMove = Move.NULL_MOVE;
-        bestEval = 0;
-        principalVariation = new ArrayList<>();
-        positionsEvaluated = 0;
+    public SearchMetrics() {
+        this.config = SearchDebugConfig.getInstance();
+        this.startTime = System.currentTimeMillis();
+        this.nodesEvaluated = new AtomicInteger(0);
+        this.ttHits = new AtomicInteger(0);
+        this.bestMove = Move.NULL_MOVE;
+        this.bestEval = 0;
     }
 
-    public void incrementNodesEvaluated() {
-        nodesEvaluated++;
-        positionsEvaluated++;
+    public void incrementNodes() {
+        if (config.isMetricsEnabled()) {
+            nodesEvaluated.incrementAndGet();
+        }
     }
 
-    public void incrementTranspositionTableHits() {
-        transpositionTableHits++;
+    public void incrementTTHits() {
+        if (config.isMetricsEnabled()) {
+            ttHits.incrementAndGet();
+        }
     }
 
-    // Getters and Setters
-    public long getStartTime() {
-        return startTime;
+    // Getters with metric checking
+    public long getElapsedMs() {
+        return System.currentTimeMillis() - startTime;
+    }
+
+    public double getNodesPerSecond() {
+        long elapsed = getElapsedMs();
+        return elapsed > 0 ? (nodesEvaluated.get() * 1000.0) / elapsed : 0;
+    }
+
+    public double getTTHitRate() {
+        int nodes = nodesEvaluated.get();
+        return nodes > 0 ? (ttHits.get() * 100.0) / nodes : 0;
     }
 
     public int getCurrentDepth() {
         return currentDepth;
     }
 
+    // Other getters/setters
     public void setCurrentDepth(int depth) {
         this.currentDepth = depth;
-    }
-
-    public int getNodesEvaluated() {
-        return nodesEvaluated;
-    }
-
-    public int getTranspositionTableHits() {
-        return transpositionTableHits;
     }
 
     public int getBestMove() {
@@ -73,15 +75,11 @@ public class SearchMetrics {
         this.bestEval = eval;
     }
 
-    public List<Integer> getPrincipalVariation() {
-        return principalVariation;
+    public int getNodesEvaluated() {
+        return nodesEvaluated.get();
     }
 
-    public void setPrincipalVariation(List<Integer> pv) {
-        this.principalVariation = pv;
-    }
-
-    public int getPositionsEvaluated() {
-        return positionsEvaluated;
+    public int getTTHits() {
+        return ttHits.get();
     }
 }

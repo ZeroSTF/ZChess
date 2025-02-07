@@ -11,16 +11,13 @@ import tn.zeros.zchess.core.service.MoveExecutor;
 import tn.zeros.zchess.engine.evaluate.EvalUtils;
 import tn.zeros.zchess.engine.evaluate.EvaluationService;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
 public class SearchServiceV1 implements SearchService {
     private static final int MAX_DEPTH = SearchUtils.MAX_DEPTH;
 
     private final MoveOrderingService moveOrderingService = new MoveOrderingService();
     private final TranspositionTable transpositionTable = new TranspositionTable(1 << 21);
-    private final SearchMetrics metrics = new SearchMetrics();
+    private final SearchMetrics metrics;
+    private final SearchLogger logger;
 
     private final long searchTimeMs;
     private long searchEndTime;
@@ -32,11 +29,17 @@ public class SearchServiceV1 implements SearchService {
 
     public SearchServiceV1(long searchTimeMs) {
         this.searchTimeMs = searchTimeMs;
+        this.metrics = new SearchMetrics();
+        this.logger = new SearchLogger(metrics);
+        SearchDebugConfig.getInstance()
+                .enableMetrics(true)
+                .enableIterationLogging(true)
+                .enableFinalSummary(true)
+                .enableVerboseLogging(false);
     }
 
     @Override
     public int startSearch(BoardState boardState) {
-        metrics.reset(); // Reset search metrics at the start
         int bestMove = Move.NULL_MOVE;
         int bestEval = SearchUtils.MIN_EVAL;
         searchEndTime = System.currentTimeMillis() + searchTimeMs; // Set search timeout
@@ -58,8 +61,7 @@ public class SearchServiceV1 implements SearchService {
                 bestEval = bestEvalThisIteration; // Update best eval found so far
                 metrics.setBestMove(bestMove); // Update best move in metrics
                 metrics.setBestEval(bestEval); // Update best eval in metrics
-                updatePrincipalVariation(boardState, bestMoveThisIteration, searchDepth); // Update PV
-                logIterationMetrics(); // Log metrics for this iteration
+                logger.logIterationResults();
             }
 
             if (isSearchCancelled()) { // Check for search cancellation
@@ -80,8 +82,8 @@ public class SearchServiceV1 implements SearchService {
                 endSearch(); // Set cancellation flag if timeout
             }
         }
-        searchCancelled = false; // Reset cancellation flag after search is complete (or cancelled)
-        logFinalMetrics(); // Log final search summary
+        searchCancelled = false;
+        logger.logFinalSummary();
         return bestMove != Move.NULL_MOVE ? bestMove : getFallbackMove(boardState); // Return best move or fallback
     }
 
@@ -96,7 +98,7 @@ public class SearchServiceV1 implements SearchService {
         }
 
         // 7.1.2. Increment Node Count (for metrics)
-        metrics.incrementNodesEvaluated();
+        metrics.incrementNodes();
 
         // 7.1.3. Check Drawish Positions (50-move rule, repetition, insufficient material)
         if (currentPly > 0 && isDrawishPosition(state)) {
@@ -114,7 +116,7 @@ public class SearchServiceV1 implements SearchService {
         final TranspositionTable.Entry ttEntry = getTranspositionEntry(state, currentPly); // Retrieve TT entry
         final int ttScore = lookupEntryEval(ttEntry, depth, alpha, beta); // Lookup score in TT
         if (ttScore != SearchUtils.LOOKUP_FAILED) {
-            metrics.incrementTranspositionTableHits(); // Increment TT hit count
+            metrics.incrementTTHits(); // Increment TT hit count
             if (currentPly == 0) { // Store best move for root in iterative deepening
                 bestMoveThisIteration = ttEntry.bestMove;
                 bestEvalThisIteration = ttScore;
@@ -147,7 +149,6 @@ public class SearchServiceV1 implements SearchService {
         int originalAlpha = alpha; // Store original alpha for TT entry type
         int bestMove = Move.NULL_MOVE;  // Initialize best move for this node
         int bestScore = SearchUtils.MIN_EVAL; // Initialize best score for this node
-
 
         for (int i = 0; i < moves.size; i++) { // Iterate through all moves
             int move = moves.moves[i];
@@ -217,7 +218,7 @@ public class SearchServiceV1 implements SearchService {
         final TranspositionTable.Entry ttEntry = getTranspositionEntry(state, currentPly); // Retrieve TT entry
         final int ttScore = lookupEntryEval(ttEntry, 0, alpha, beta); // Depth 0 for quiescence entries
         if (ttScore != SearchUtils.LOOKUP_FAILED) {
-            metrics.incrementTranspositionTableHits(); // Increment TT hit count
+            metrics.incrementTTHits(); // Increment TT hit count
             if (currentPly == 0) { // Store best move for root in iterative deepening (though likely NULL in quiescence)
                 bestMoveThisIteration = ttEntry.bestMove;
                 bestEvalThisIteration = ttScore;
@@ -244,7 +245,7 @@ public class SearchServiceV1 implements SearchService {
 
         // 8.6. Check for No Legal Quiescence Moves
         if (moves.isEmpty()) {
-            int finalScore = inCheck ? -(SearchUtils.CHECKMATE_EVAL + currentPly) : standPat; // Checkmate if in check, otherwise stand-pat
+            int finalScore = inCheck ? -SearchUtils.CHECKMATE_EVAL : standPat; // Checkmate if in check, otherwise stand-pat
             storeTranspositionEntry(state, 0, finalScore, TTEntryType.EXACT, Move.NULL_MOVE, currentPly); // Store TT entry (exact score for terminal node)
             return finalScore; // Return final score for quiescence search leaf node
         }
@@ -344,10 +345,20 @@ public class SearchServiceV1 implements SearchService {
     }
 
     private void storeTranspositionEntry(BoardState state, int depth, int score, TTEntryType type, int bestMove, int currentPly) {
-        if (SearchUtils.isTimeout(score)) return; // Don't store timeout scores
-        final long positionKey = state.getZobristKey(); // Get Zobrist key
-        final int adjustedScore = SearchUtils.adjustMateScore(score, currentPly); // Adjust mate score for ply distance
-        transpositionTable.put(positionKey, depth, adjustedScore, type, bestMove, currentPly); // Store entry in TT
+        if (SearchDebugConfig.getInstance().isVerboseLogging() && depth > 2) {
+            System.out.printf("Storing TT entry - depth: %d, move: %s%n",
+                    depth, Move.toAlgebraic(bestMove));
+        }
+
+        if (SearchUtils.isTimeout(score)) return;
+
+        final long positionKey = state.getZobristKey();
+        final int adjustedScore = SearchUtils.adjustMateScore(score, currentPly);
+
+        // Only store if we have a valid move
+        if (bestMove != Move.NULL_MOVE) {
+            transpositionTable.put(positionKey, depth, adjustedScore, type, bestMove, currentPly);
+        }
     }
 
     private int lookupEntryEval(TranspositionTable.Entry ttEntry, int depth, int alpha, int beta) {
@@ -397,27 +408,6 @@ public class SearchServiceV1 implements SearchService {
         return EvaluationService.evaluate(state); // Delegate board evaluation to EvaluationService
     }
 
-    // 13. Principal Variation Reconstruction (PV)
-    private void updatePrincipalVariation(BoardState rootState, int rootBestMove, int depth) {
-        List<Integer> pv = new ArrayList<>();
-        BoardState tempState = rootState.copy();
-        int currentMove = rootBestMove;
-
-        for (int i = 0; i < depth; i++) {
-            if (currentMove == Move.NULL_MOVE) break;
-            pv.add(currentMove);
-            MoveExecutor.makeMove(tempState, currentMove);
-            TranspositionTable.Entry entry = transpositionTable.get(tempState.getZobristKey());
-            int remainingDepth = depth - i - 1; // Expected depth for the next entry
-            if (entry == null || entry.depth < remainingDepth) {
-                break;
-            }
-            currentMove = entry.bestMove;
-        }
-
-        metrics.setPrincipalVariation(pv);
-    }
-
     // 14. Fallback Move (for edge cases)
     private int getFallbackMove(BoardState boardState) {
         MoveGenerator.MoveList moves = generateLegalMoves(boardState); // Generate legal moves
@@ -432,61 +422,4 @@ public class SearchServiceV1 implements SearchService {
                 GameStateChecker.isInsufficientMaterial(state); // Check for insufficient material draw
     }
 
-    // 16. Debugging and Logging Methods (Metrics)
-    private void logIterationMetrics() {
-        String pvString = metrics.getPrincipalVariation().stream() // Get PV from metrics and convert to algebraic notation
-                .map(Move::toAlgebraic)
-                .collect(Collectors.joining(" "));
-
-        String evalStr = formatEval(metrics.getBestEval()); // Format the evaluation score
-
-        System.out.println("\n--- Iteration " + metrics.getCurrentDepth() + " ---");
-        System.out.println("PV: " + pvString); // Print Principal Variation
-        System.out.println("Best Move: " + Move.toAlgebraic(metrics.getBestMove())); // Print best move in algebraic notation
-        System.out.println("Evaluation: " + evalStr); // Print formatted evaluation
-        System.out.printf("Nodes: %,d (%,d nodes/s)%n", // Print node count and nodes per second
-                metrics.getNodesEvaluated(),
-                getNodesPerSecond());
-        System.out.printf("TT Hits: %,d (%.1f%%)%n", // Print TT hit count and hit rate
-                metrics.getTranspositionTableHits(),
-                getTTHitRate() * 100);
-        System.out.printf("TT Usage: %,d/%d (%.1f MB)%n", // Print TT occupancy, size, and memory usage
-                transpositionTable.getOccupancy(),
-                transpositionTable.size,
-                transpositionTable.getSizeMB());
-    }
-
-    private void logFinalMetrics() {
-        System.out.println("\n=== Search Summary ===");
-        System.out.println("Depth Reached: " + metrics.getCurrentDepth()); // Print maximum depth reached
-        System.out.println("Total Positions: " + metrics.getPositionsEvaluated()); // Print total positions evaluated
-        System.out.printf("TT Hit Rate: %.1f%%%n", getTTHitRate() * 100); // Print final TT hit rate
-        System.out.printf("Final Evaluation: %s%n", formatEval(metrics.getBestEval())); // Print final evaluation
-    }
-
-    private String formatEval(int eval) {
-        if (SearchUtils.isMateScore(eval)) {
-            // Calculate remaining plies to mate
-            int pliesRemaining = SearchUtils.CHECKMATE_EVAL - Math.abs(eval);
-            // Convert plies to full moves (rounding up)
-            int movesToMate = (pliesRemaining + 1) / 2;
-            // Check if mate is for current player (positive) or opponent (negative)
-            if (eval > 0) {
-                return "Mate in " + movesToMate;
-            } else {
-                return "Opponent can mate in " + movesToMate;
-            }
-        }
-        // Non-mate evaluation
-        return String.format("%.2f", eval / 100.0);
-    }
-
-    private double getTTHitRate() {
-        return (double) metrics.getTranspositionTableHits() / metrics.getNodesEvaluated(); // Calculate TT hit rate as percentage
-    }
-
-    private long getNodesPerSecond() {
-        long elapsed = System.currentTimeMillis() - metrics.getStartTime(); // Calculate elapsed time
-        return elapsed > 0 ? metrics.getNodesEvaluated() * 1000L / elapsed : 0; // Calculate nodes per second
-    }
 }

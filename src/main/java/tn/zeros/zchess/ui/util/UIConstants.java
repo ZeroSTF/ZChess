@@ -39,6 +39,6 @@ public class UIConstants {
     public static final String PREMOVE_SOUND = "/sounds/premove.mp3";
 
     // Engine
-    public static final long DEFAULT_SEARCH_TIME_MS = 500;
+    public static final int DEFAULT_SEARCH_TIME_MS = 500;
 
 }
