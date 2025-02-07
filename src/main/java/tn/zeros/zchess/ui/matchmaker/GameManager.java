@@ -63,6 +63,7 @@ public class GameManager {
         stateManager = new StateManager(newState);
         whiteModel.reset();
         blackModel.reset();
+        newState.clearPositionCounts();
     }
 
     public void checkForModelMove() {

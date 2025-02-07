@@ -64,11 +64,6 @@ public class TranspositionTable {
         return count;
     }
 
-    public double getSizeMB() {
-        final int ENTRY_SIZE_BYTES = Integer.BYTES * 4 + Long.BYTES + 1;
-        return (getOccupancy() * ENTRY_SIZE_BYTES) / (1024.0 * 1024.0);
-    }
-
     public static class Entry {
         public long key;
         public TTEntryType type;

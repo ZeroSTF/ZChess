@@ -15,7 +15,7 @@ public class SearchServiceV1 implements SearchService {
     private static final int MAX_DEPTH = SearchUtils.MAX_DEPTH;
 
     private final MoveOrderingService moveOrderingService = new MoveOrderingService();
-    private final TranspositionTable transpositionTable = new TranspositionTable(1 << 21);
+    private final TranspositionTable transpositionTable = new TranspositionTable(1 << 26);
     private final SearchMetrics metrics;
     private final SearchLogger logger;
 
@@ -30,11 +30,11 @@ public class SearchServiceV1 implements SearchService {
     public SearchServiceV1(long searchTimeMs) {
         this.searchTimeMs = searchTimeMs;
         this.metrics = new SearchMetrics();
-        this.logger = new SearchLogger(metrics);
+        this.logger = new SearchLogger(metrics, transpositionTable);
         SearchDebugConfig.getInstance()
-                .enableMetrics(false)
-                .enableIterationLogging(false)
-                .enableFinalSummary(false)
+                .enableMetrics(true)
+                .enableIterationLogging(true)
+                .enableFinalSummary(true)
                 .enableVerboseLogging(false);
     }
 

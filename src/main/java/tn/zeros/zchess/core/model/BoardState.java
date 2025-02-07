@@ -24,7 +24,7 @@ public class BoardState {
     }
 
     private void initializeStartingPosition() {
-        positionCounts.clear();
+        clearPositionCounts();
         zobristKey = 0L;
         Arrays.fill(pieceSquare, Piece.NONE);
         setRank(Piece.PAWN, Piece.WHITE, 1);
@@ -195,26 +195,8 @@ public class BoardState {
         return color >> 3;
     }
 
-    public BoardState copy() {
-        BoardState copy = new BoardState();
-
-        // Copy primitive fields
-        copy.whiteToMove = this.whiteToMove;
-        copy.castlingRights = this.castlingRights;
-        copy.enPassantSquare = this.enPassantSquare;
-        copy.halfMoveClock = this.halfMoveClock;
-        copy.fullMoveNumber = this.fullMoveNumber;
-        copy.zobristKey = this.zobristKey;
-
-        // Copy arrays
-        System.arraycopy(this.pieceBitboards, 0, copy.pieceBitboards, 0, this.pieceBitboards.length);
-        System.arraycopy(this.colorBitboards, 0, copy.colorBitboards, 0, this.colorBitboards.length);
-        System.arraycopy(this.pieceSquare, 0, copy.pieceSquare, 0, this.pieceSquare.length);
-
-        // Deep copy the positionCounts map
-        copy.positionCounts = new HashMap<>(this.positionCounts);
-
-        return copy;
+    public void clearPositionCounts() {
+        this.positionCounts.clear();
     }
 
     // Zobrist Hashing
