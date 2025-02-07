@@ -32,9 +32,9 @@ public class SearchServiceV1 implements SearchService {
         this.metrics = new SearchMetrics();
         this.logger = new SearchLogger(metrics);
         SearchDebugConfig.getInstance()
-                .enableMetrics(true)
-                .enableIterationLogging(true)
-                .enableFinalSummary(true)
+                .enableMetrics(false)
+                .enableIterationLogging(false)
+                .enableFinalSummary(false)
                 .enableVerboseLogging(false);
     }
 
@@ -42,107 +42,93 @@ public class SearchServiceV1 implements SearchService {
     public int startSearch(BoardState boardState) {
         int bestMove = Move.NULL_MOVE;
         int bestEval = SearchUtils.MIN_EVAL;
-        searchEndTime = System.currentTimeMillis() + searchTimeMs; // Set search timeout
-        searchCancelled = false; // Reset cancellation flag
+        searchEndTime = System.currentTimeMillis() + searchTimeMs;
+        searchCancelled = false;
 
-        bestMoveThisIteration = Move.NULL_MOVE; // Reset best move for this iteration
-        bestEvalThisIteration = SearchUtils.MIN_EVAL; // Reset best eval for this iteration
+        bestMoveThisIteration = Move.NULL_MOVE;
+        bestEvalThisIteration = SearchUtils.MIN_EVAL;
 
         for (int searchDepth = 1; searchDepth <= MAX_DEPTH; searchDepth++) { // Iterative deepening loop
-            metrics.setCurrentDepth(searchDepth); // Update current depth in metrics
-            hasSearchedAtLeastOneMove = false; // Reset flag for each depth
+            metrics.setCurrentDepth(searchDepth);
+            hasSearchedAtLeastOneMove = false;
 
-            // Perform alpha-beta search for the current depth
             alphaBetaPrune(searchDepth, SearchUtils.MIN_EVAL, SearchUtils.MAX_EVAL, boardState, 0);
 
-            // After search, check if cancelled or if we found at least one move
-            if (!isSearchCancelled() || hasSearchedAtLeastOneMove) {
-                bestMove = bestMoveThisIteration; // Update best move found so far
-                bestEval = bestEvalThisIteration; // Update best eval found so far
-                metrics.setBestMove(bestMove); // Update best move in metrics
-                metrics.setBestEval(bestEval); // Update best eval in metrics
-                logger.logIterationResults();
+            if (isSearchCancelled()) {
+                if (hasSearchedAtLeastOneMove) {
+                    bestMove = bestMoveThisIteration;
+                    bestEval = bestEvalThisIteration;
+                    metrics.setBestMove(bestMove);
+                    metrics.setBestEval(bestEval);
+                    logger.logIterationResults();
+                }
+                System.out.println("Search Aborted");
+                break;
+            } else {
+                bestMove = bestMoveThisIteration;
+                bestEval = bestEvalThisIteration;
+                metrics.setBestMove(bestMove);
+                metrics.setBestEval(bestEval);
+
+                if (SearchUtils.isMateScore(bestEval)) {
+                    break;
+                }
             }
 
-            if (isSearchCancelled()) { // Check for search cancellation
-                break; // Exit iterative deepening loop if cancelled
-            }
-
-            // Reset for next iteration (already done before the loop, but good to reiterate in comments)
-            bestMoveThisIteration = Move.NULL_MOVE;
-            bestEvalThisIteration = SearchUtils.MIN_EVAL;
-
-            // Early exit if mate is found
-            if (SearchUtils.isMateScore(bestEval)) {
-                break; // Exit if mate is found
-            }
-
-            // Check for time timeout after each iteration
-            if (checkSearchTimeout()) {
-                endSearch(); // Set cancellation flag if timeout
-            }
+            logger.logIterationResults();
         }
-        searchCancelled = false;
         logger.logFinalSummary();
+        searchCancelled = false;
         return bestMove != Move.NULL_MOVE ? bestMove : getFallbackMove(boardState); // Return best move or fallback
     }
 
     // 7. Alpha-Beta Search Core (alphaBetaPrune)
     @Override
     public int alphaBetaPrune(int depth, int alpha, int beta, BoardState state, int currentPly) {
-        // 7.1. Search Termination Conditions and Checks
-
-        // 7.1.1. Check Timeout and Cancellation
-        if (checkSearchTimeout() || isSearchCancelled()) {
-            return SearchUtils.TIMEOUT_VALUE; // Immediately return timeout value
+        checkSearchTimeout();
+        if (isSearchCancelled()) {
+            return SearchUtils.TIMEOUT_VALUE;
         }
 
-        // 7.1.2. Increment Node Count (for metrics)
         metrics.incrementNodes();
 
-        // 7.1.3. Check Drawish Positions (50-move rule, repetition, insufficient material)
-        if (currentPly > 0 && isDrawishPosition(state)) {
-            return 0; // Return draw score (0)
-        }
+        if (currentPly > 0) {
+            if (isDrawishPosition(state)) return 0;
 
-        // 7.1.4. Mate Distance Pruning
-        alpha = Math.max(alpha, -SearchUtils.CHECKMATE_EVAL + currentPly); // Lower bound for alpha
-        beta = Math.min(beta, SearchUtils.CHECKMATE_EVAL - currentPly);   // Upper bound for beta
-        if (alpha >= beta) {
-            return alpha; // Beta cutoff due to mate distance pruning
+            // Mate Distance Pruning
+            alpha = Math.max(alpha, -SearchUtils.CHECKMATE_EVAL + currentPly);
+            beta = Math.min(beta, SearchUtils.CHECKMATE_EVAL - currentPly);
+            if (alpha >= beta) {
+                return alpha;
+            }
         }
 
         // 7.2. Transposition Table Lookup
-        final TranspositionTable.Entry ttEntry = getTranspositionEntry(state, currentPly); // Retrieve TT entry
-        final int ttScore = lookupEntryEval(ttEntry, depth, alpha, beta); // Lookup score in TT
+        final TranspositionTable.Entry ttEntry = getTranspositionEntry(state, currentPly);
+        final int ttScore = lookupEntryEval(ttEntry, depth, alpha, beta);
         if (ttScore != SearchUtils.LOOKUP_FAILED) {
-            metrics.incrementTTHits(); // Increment TT hit count
-            if (currentPly == 0) { // Store best move for root in iterative deepening
+            metrics.incrementTTHits();
+            if (currentPly == 0) {
                 bestMoveThisIteration = ttEntry.bestMove;
                 bestEvalThisIteration = ttScore;
                 hasSearchedAtLeastOneMove = true;
             }
-            return ttScore; // Return TT score if lookup is successful and valid
+            return ttScore;
         }
 
-        // 7.3. Base Case: Depth 0 - Quiescence Search
         if (depth == 0) {
-            return quiescenceSearch(alpha, beta, state, currentPly); // Call quiescence search
+            return quiescenceSearch(alpha, beta, state, currentPly);
         }
 
-        // 7.4. Move Generation and Ordering
-        MoveGenerator.MoveList moves = generateLegalMoves(state); // Generate all legal moves
+        MoveGenerator.MoveList moves = generateLegalMoves(state);
         if (moves.isEmpty()) {
-            // 7.4.1. Checkmate or Stalemate
             if (LegalMoveFilter.inCheck(state, state.isWhiteToMove())) {
-                return -SearchUtils.CHECKMATE_EVAL; // Checkmate score
+                return -SearchUtils.CHECKMATE_EVAL;
             }
-            return 0; // Stalemate score
+            return 0;
         }
 
         int ttBestMove = (ttEntry != null) ? ttEntry.bestMove : Move.NULL_MOVE; // Get TT best move for ordering
-
-        // Move Ordering (including TT move, killer moves, history heuristic)
         moveOrderingService.orderMoves(moves, state, currentPly, ttBestMove); // Order moves for efficiency
 
         // 7.5. Move Loop and Alpha-Beta Pruning
@@ -156,9 +142,9 @@ public class SearchServiceV1 implements SearchService {
             int eval = -alphaBetaPrune(depth - 1, -beta, -alpha, state, currentPly + 1); // Recursive alpha-beta call
             MoveExecutor.unmakeMove(state, undoInfo); // Unmake move (restore state)
 
-            // 7.5.1. Check Timeout and Cancellation within the loop
-            if (checkSearchTimeout() || isSearchCancelled()) {
-                return SearchUtils.TIMEOUT_VALUE; // Return timeout value if time runs out during move loop
+            checkSearchTimeout();
+            if (isSearchCancelled()) {
+                return SearchUtils.TIMEOUT_VALUE;
             }
 
             // 7.5.2. Update Best Move and Score
@@ -207,11 +193,9 @@ public class SearchServiceV1 implements SearchService {
 
     // 8. Quiescence Search (quiescenceSearch)
     private int quiescenceSearch(int alpha, int beta, BoardState state, int currentPly) {
-        // 8.1. Search Termination Checks
-
-        // 8.1.1. Check Timeout and Cancellation
-        if (checkSearchTimeout() || isSearchCancelled()) {
-            return SearchUtils.TIMEOUT_VALUE; // Immediately return timeout value
+        checkSearchTimeout();
+        if (isSearchCancelled()) {
+            return SearchUtils.TIMEOUT_VALUE;
         }
 
         // 8.2. Transposition Table Lookup
@@ -263,10 +247,6 @@ public class SearchServiceV1 implements SearchService {
         int deltaMargin = EvalUtils.getPieceTypeValue(Piece.PAWN) + 200;
 
         for (int i = 0; i < moves.size; i++) {
-            // 8.7.1. Check Timeout and Cancellation within the loop
-            if (checkSearchTimeout() || isSearchCancelled()) {
-                break; // Exit move loop if timeout or cancelled
-            }
 
             int move = moves.moves[i];
             int capturedPiece = Move.getCapturedPiece(move);
@@ -283,11 +263,6 @@ public class SearchServiceV1 implements SearchService {
             MoveUndoInfo undoInfo = MoveExecutor.makeMove(state, move); // Make capture move
             int eval = -quiescenceSearch(-beta, -alpha, state, currentPly + 1); // Recursive quiescence search
             MoveExecutor.unmakeMove(state, undoInfo); // Unmake capture move
-
-            // 8.7.4. Check Timeout and Cancellation after recursive call
-            if (checkSearchTimeout() || isSearchCancelled()) {
-                return SearchUtils.TIMEOUT_VALUE; // Return timeout value if time ran out during recursive call
-            }
 
             // 8.7.5. Update Best Score and Move
             if (eval > bestScore) {
@@ -388,14 +363,8 @@ public class SearchServiceV1 implements SearchService {
         moveOrderingService.clearHistoryScores(); // Clear history heuristic as well
     }
 
-
-    // 11. Search Control Methods (Timeout, Cancellation)
-    public void endSearch() {
-        searchCancelled = true; // Set the searchCancelled flag to stop the search
-    }
-
-    private boolean checkSearchTimeout() {
-        return System.currentTimeMillis() >= searchEndTime; // Check if current time exceeds search end time
+    private void checkSearchTimeout() {
+        if (System.currentTimeMillis() >= searchEndTime) searchCancelled = true;
     }
 
     private boolean isSearchCancelled() {

@@ -9,7 +9,7 @@ public class SearchTest {
     public void testSearch() {
         SearchServiceV1 searchService = new SearchServiceV1(500);
         BoardState state = new BoardState();
-        FenService.parseFEN("8/8/8/8/8/5K2/4R3/5k2 b - - 4 3", state);
+        FenService.parseFEN("8/8/8/8/8/5K2/4R3/5k2 w - - 4 3", state);
         searchService.startSearch(state);
     }
 }
