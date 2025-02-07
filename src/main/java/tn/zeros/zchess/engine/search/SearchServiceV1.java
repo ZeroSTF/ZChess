@@ -62,7 +62,6 @@ public class SearchServiceV1 implements SearchService {
                     metrics.setBestEval(bestEval);
                     logger.logIterationResults();
                 }
-                System.out.println("Search Aborted");
                 break;
             } else {
                 bestMove = bestMoveThisIteration;
