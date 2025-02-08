@@ -32,10 +32,11 @@ public class SearchServiceV1 implements SearchService {
         this.metrics = new SearchMetrics();
         this.logger = new SearchLogger(metrics, transpositionTable);
         SearchDebugConfig.getInstance()
-                .enableMetrics(true)
-                .enableIterationLogging(true)
-                .enableFinalSummary(true)
-                .enableVerboseLogging(false);
+                .enableMetrics(false)
+                .enableIterationLogging(false)
+                .enableVerboseLogging(false)
+                .enableFinalSummary(false);
+
     }
 
     @Override

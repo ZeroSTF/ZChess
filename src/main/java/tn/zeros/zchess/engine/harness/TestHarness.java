@@ -19,6 +19,7 @@ public class TestHarness {
         for (String line : epdLines) {
             TestPosition position = TestPosition.fromEpd(line);
             BoardState testState = new BoardState();
+            model.reset();
             FenService.parseFEN(position.fen(), testState);
 
             int move = model.generateMove(testState);
