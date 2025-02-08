@@ -91,7 +91,6 @@ public class GameManager {
 
             @Override
             protected void failed() {
-                // Optionally handle errors, e.g., log the exception.
                 getException().printStackTrace();
             }
         };

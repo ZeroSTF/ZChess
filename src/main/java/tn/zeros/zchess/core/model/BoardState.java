@@ -1,8 +1,8 @@
 package tn.zeros.zchess.core.model;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static tn.zeros.zchess.core.util.ChessConstants.*;
 
@@ -10,7 +10,7 @@ public class BoardState {
     private final long[] pieceBitboards = new long[6]; // Indexed by piece type
     private final long[] colorBitboards = new long[2]; // Indexed by color
     private final int[] pieceSquare = new int[64];
-    private Map<Long, Integer> positionCounts = new HashMap<>();
+    private final Map<Long, Integer> positionCounts = new ConcurrentHashMap<>();
     private boolean whiteToMove;
     private int castlingRights;
     private int enPassantSquare;

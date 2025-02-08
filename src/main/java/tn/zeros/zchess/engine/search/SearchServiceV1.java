@@ -320,9 +320,9 @@ public class SearchServiceV1 implements SearchService {
     }
 
     private void storeTranspositionEntry(BoardState state, int depth, int score, TTEntryType type, int bestMove, int currentPly) {
-        if (SearchDebugConfig.getInstance().isVerboseLogging() && depth > 2) {
-            System.out.printf("Storing TT entry - depth: %d, move: %s%n",
-                    depth, Move.toAlgebraic(bestMove));
+        if (SearchDebugConfig.getInstance().isVerboseLogging()) {
+            if (depth > 2)
+                System.out.printf("Storing TT entry - depth: %d, move: %s%n", depth, Move.toAlgebraic(bestMove));
         }
 
         if (SearchUtils.isTimeout(score)) return;
