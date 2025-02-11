@@ -1,11 +1,17 @@
 package tn.zeros.zchess.ui.controller;
 
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import tn.zeros.zchess.core.logic.generation.LegalMoveFilter;
 import tn.zeros.zchess.core.logic.generation.MoveGenerator;
 import tn.zeros.zchess.core.model.BoardState;
+import tn.zeros.zchess.core.model.GameResult;
 import tn.zeros.zchess.core.model.Move;
 import tn.zeros.zchess.core.model.Piece;
 import tn.zeros.zchess.core.service.FenService;
+import tn.zeros.zchess.core.service.GameStateChecker;
+import tn.zeros.zchess.core.util.ChessConstants;
 import tn.zeros.zchess.engine.models.EngineModel;
 import tn.zeros.zchess.ui.matchmaker.GameManager;
 import tn.zeros.zchess.ui.matchmaker.GameMode;
@@ -15,6 +21,7 @@ import tn.zeros.zchess.ui.view.ChessView;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 public class ChessController implements GameListener {
     private final GameManager gameManager;
@@ -182,6 +189,11 @@ public class ChessController implements GameListener {
         view.refreshEntireBoard();
         view.updateHighlights(Collections.emptyList(), kingInCheck);
         playMoveSound(move);
+
+        if (gameManager.isGameOver()) {
+            GameResult result = GameStateChecker.getGameResult(boardState);
+            showGameResult(result);
+        }
     }
 
     public void startGame() {
@@ -196,5 +208,47 @@ public class ChessController implements GameListener {
         if (view instanceof ChessBoardView) {
             ((ChessBoardView) view).flipBoard();
         }
+    }
+
+    private void showGameResult(GameResult result) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Game Over");
+            alert.setHeaderText(getResultMessage(result));
+            alert.setContentText("Click OK to start a new game.");
+
+            Optional<ButtonType> response = alert.showAndWait();
+            response.ifPresent(bt -> {
+                if (bt == ButtonType.OK) {
+                    restartGame();
+                }
+            });
+        });
+    }
+
+    private String getResultMessage(GameResult result) {
+        switch (result) {
+            case WHITE_WINS:
+                return "White wins by checkmate!";
+            case BLACK_WINS:
+                return "Black wins by checkmate!";
+            case THREEFOLD_REPETITION:
+                return "Draw by threefold repetition!";
+            case FIFTY_MOVE_RULE:
+                return "Draw by fifty move rule!";
+            case INSUFFICIENT_MATERIAL:
+                return "Draw by insufficient material!";
+            case STALEMATE:
+                return "Draw by stalemate!";
+            default:
+                return "Game Over";
+        }
+    }
+
+    public void restartGame() {
+        BoardState newState = FenService.parseFEN(ChessConstants.DEFAULT_FEN, boardState);
+        resetState(newState);
+        gameManager.startGame();
+        view.refreshEntireBoard();
     }
 }

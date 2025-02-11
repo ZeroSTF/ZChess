@@ -3,6 +3,7 @@ package tn.zeros.zchess.core.service;
 import tn.zeros.zchess.core.logic.generation.LegalMoveFilter;
 import tn.zeros.zchess.core.logic.generation.MoveGenerator;
 import tn.zeros.zchess.core.model.BoardState;
+import tn.zeros.zchess.core.model.GameResult;
 import tn.zeros.zchess.core.model.Piece;
 
 public class GameStateChecker {
@@ -14,20 +15,37 @@ public class GameStateChecker {
      * @return true if the game is over, false otherwise.
      */
     public static boolean isGameOver(BoardState boardState) {
-        return isCheckmate(boardState) ||
-                isStalemate(boardState) ||
+        MoveGenerator.MoveList legalMoves = MoveGenerator.generateAllMoves(boardState, false);
+
+        return isCheckmate(boardState, legalMoves) ||
+                isStalemate(boardState, legalMoves) ||
                 isInsufficientMaterial(boardState) ||
                 isFiftyMoveRule(boardState) ||
                 isThreefoldRepetition(boardState);
     }
 
-    private static boolean isCheckmate(BoardState boardState) {
+    public static GameResult getGameResult(BoardState boardState) {
         MoveGenerator.MoveList legalMoves = MoveGenerator.generateAllMoves(boardState, false);
+
+        if (isCheckmate(boardState, legalMoves)) {
+            return boardState.isWhiteToMove() ? GameResult.BLACK_WINS : GameResult.WHITE_WINS;
+        } else if (isStalemate(boardState, legalMoves)) {
+            return GameResult.STALEMATE;
+        } else if (isInsufficientMaterial(boardState)) {
+            return GameResult.INSUFFICIENT_MATERIAL;
+        } else if (isFiftyMoveRule(boardState)) {
+            return GameResult.FIFTY_MOVE_RULE;
+        } else if (isThreefoldRepetition(boardState)) {
+            return GameResult.THREEFOLD_REPETITION;
+        }
+        return GameResult.STALEMATE;
+    }
+
+    private static boolean isCheckmate(BoardState boardState, MoveGenerator.MoveList legalMoves) {
         return legalMoves.isEmpty() && isKingInCheck(boardState);
     }
 
-    private static boolean isStalemate(BoardState boardState) {
-        MoveGenerator.MoveList legalMoves = MoveGenerator.generateAllMoves(boardState, false);
+    private static boolean isStalemate(BoardState boardState, MoveGenerator.MoveList legalMoves) {
         return legalMoves.isEmpty() && !isKingInCheck(boardState);
     }
 

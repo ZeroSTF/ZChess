@@ -56,7 +56,11 @@ public class GameManager {
         stateManager.saveState(undoInfo);
         notifyMoveExecuted(move);
 
-        checkForModelMove();
+        if (isGameOver()) {
+            gameInProgress = false;
+        } else {
+            checkForModelMove();
+        }
     }
 
     public void resetStateManager(BoardState newState) {
@@ -106,7 +110,7 @@ public class GameManager {
                 (gameMode == GameMode.HUMAN_VS_MODEL && boardState.isWhiteToMove() == modelColor);
     }
 
-    private boolean isGameOver() {
+    public boolean isGameOver() {
         return GameStateChecker.isGameOver(boardState);
     }
 
