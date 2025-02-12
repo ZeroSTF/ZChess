@@ -1,0 +1,28 @@
+.settings-panel {
+    -fx-background-color: -surface-color;
+    -fx-border-color: -border-color;
+    -fx-border-width: 0 0 0 1px;
+    -fx-padding: 18px;
+    -fx-spacing: 12px;
+}
+
+.settings-label {
+    -fx-text-fill: -text-color;
+    -fx-font-weight: 600;
+    -fx-font-size: 14px;
+}
+
+.settings-combo, .settings-spinner {
+    -fx-background-color: -surface-color;
+    -fx-border-color: -border-color;
+}
+
+.apply-button {
+    -fx-background-color: -success-color;
+    -fx-text-fill: white;
+}
+
+.test-suite-button {
+    -fx-background-color: -warning-color;
+    -fx-text-fill: white;
+}

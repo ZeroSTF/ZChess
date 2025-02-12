@@ -2,6 +2,8 @@ package tn.zeros.zchess.ui.components;
 
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import tn.zeros.zchess.engine.harness.TestHarness;
@@ -13,6 +15,7 @@ import tn.zeros.zchess.ui.matchmaker.GameMode;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Objects;
 
 import static tn.zeros.zchess.ui.util.UIConstants.DEFAULT_SEARCH_TIME_MS;
 
@@ -85,6 +88,30 @@ public class SettingsPanel extends VBox {
                 applyButton,
                 testSuiteButton
         );
+        setAlignment(Pos.TOP_CENTER);
+        // Styles
+        this.getStylesheets().addAll(
+                Objects.requireNonNull(getClass().getResource("/css/application.css")).toExternalForm(),
+                Objects.requireNonNull(getClass().getResource("/css/settings-panel.css")).toExternalForm()
+        );
+        this.getStyleClass().add("settings-panel");
+
+        // Add style classes to components
+        gameModeCombo.getStyleClass().add("settings-combo");
+        whiteModelCombo.getStyleClass().add("settings-combo");
+        blackModelCombo.getStyleClass().add("settings-combo");
+        modelColorWhite.getStyleClass().add("settings-radio");
+        modelColorBlack.getStyleClass().add("settings-radio");
+        timeSpinner.getStyleClass().add("settings-spinner");
+        applyButton.getStyleClass().add("apply-button");
+        testSuiteButton.getStyleClass().add("test-suite-button");
+
+        // Style labels
+        for (Node node : getChildren()) {
+            if (node instanceof Label) {
+                node.getStyleClass().add("settings-label");
+            }
+        }
 
         setSpacing(10);
         setPadding(new Insets(10));

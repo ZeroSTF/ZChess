@@ -1,0 +1,40 @@
+.root {
+    -fx-font-family: 'Segoe UI', system-ui, sans-serif;
+    -fx-base: -primary-color;
+    -fx-accent: -secondary-color;
+    -fx-default-button: -primary-color;
+    -fx-focus-color: derive(-primary-color, -20%);
+    -fx-faint-focus-color: derive(-primary-color, 90%);
+}
+
+.button {
+    -fx-padding: 8px 20px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-cursor: hand;
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-color;
+    -fx-background-color: -surface-color;
+    -fx-border-color: -border-color;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 2, 0, 1, 1);
+    -fx-transition: all 0.2s;
+}
+
+.button:hover {
+    -fx-background-color: derive(-surface-color, -5%);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 2, 2);
+}
+
+.label {
+    -fx-text-fill: -text-color;
+    -fx-font-smoothing-type: lcd;
+}
+
+.text-field, .combo-box, .spinner {
+    -fx-background-color: -surface-color;
+    -fx-border-color: -border-color;
+    -fx-border-radius: 4px;
+    -fx-padding: 6px 8px;
+    -fx-font-size: 14px;
+}

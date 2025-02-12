@@ -9,6 +9,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import tn.zeros.zchess.ui.components.ControlPanel;
+import tn.zeros.zchess.ui.components.GameStatusPanel;
 import tn.zeros.zchess.ui.components.SettingsPanel;
 import tn.zeros.zchess.ui.controller.ChessController;
 import tn.zeros.zchess.ui.util.SoundManager;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class ZChessApp extends Application {
 
@@ -37,7 +39,8 @@ public class ZChessApp extends Application {
         ChessBoardView boardView = new ChessBoardView(controller);
         SettingsPanel settingsPanel = new SettingsPanel(controller);
         ControlPanel controlPanel = new ControlPanel(controller, settingsPanel);
-        
+        GameStatusPanel statusPanel = new GameStatusPanel(controller.getGameStateModel(), controller::restartGame);
+
         // Start game
         controller.startGame();
 
@@ -50,12 +53,18 @@ public class ZChessApp extends Application {
         root.setCenter(centeredBoard);
         root.setBottom(controlPanel);
         root.setRight(settingsPanel);
+        root.setLeft(statusPanel);
         BorderPane.setMargin(controlPanel, new Insets(10));
         BorderPane.setMargin(centeredBoard, new Insets(20));
+        BorderPane.setMargin(statusPanel, new Insets(20));
         settingsPanel.setVisible(true);
 
         // Configure window
-        Scene scene = new Scene(root, 1200, 900);
+        Scene scene = new Scene(root, 1300, 900);
+        scene.getStylesheets().addAll(
+                Objects.requireNonNull(getClass().getResource("/css/colors.css")).toExternalForm(),
+                Objects.requireNonNull(getClass().getResource("/css/application.css")).toExternalForm()
+        );
         List<Image> icons = new ArrayList<>();
         addIconIfPresent(icons, "/icons/app-icon-16x16.png");
         addIconIfPresent(icons, "/icons/app-icon-32x32.png");

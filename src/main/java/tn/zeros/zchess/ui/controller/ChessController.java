@@ -15,6 +15,7 @@ import tn.zeros.zchess.core.util.ChessConstants;
 import tn.zeros.zchess.engine.models.EngineModel;
 import tn.zeros.zchess.ui.matchmaker.GameManager;
 import tn.zeros.zchess.ui.matchmaker.GameMode;
+import tn.zeros.zchess.ui.models.GameStateModel;
 import tn.zeros.zchess.ui.util.SoundManager;
 import tn.zeros.zchess.ui.view.ChessBoardView;
 import tn.zeros.zchess.ui.view.ChessView;
@@ -26,6 +27,7 @@ import java.util.Optional;
 public class ChessController implements GameListener {
     private final GameManager gameManager;
     private final InteractionState interactionState;
+    private final GameStateModel gameState = new GameStateModel();
     private final InputHandler inputHandler;
     private BoardState boardState;
     private ChessView view;
@@ -249,6 +251,11 @@ public class ChessController implements GameListener {
         BoardState newState = FenService.parseFEN(ChessConstants.DEFAULT_FEN, boardState);
         resetState(newState);
         gameManager.startGame();
+        interactionState.clearAll();
         view.refreshEntireBoard();
+    }
+
+    public GameStateModel getGameStateModel() {
+        return gameState;
     }
 }

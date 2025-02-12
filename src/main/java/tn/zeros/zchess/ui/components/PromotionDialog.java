@@ -43,6 +43,12 @@ public class PromotionDialog {
         dialog.getDialogPane().getButtonTypes().clear();
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
         dialog.getDialogPane().setContent(grid);
+
+        // Styles
+        dialog.getDialogPane().getStylesheets().addAll(
+                Objects.requireNonNull(getClass().getResource("/css/promotion-dialog.css")).toExternalForm(),
+                Objects.requireNonNull(getClass().getResource("/css/application.css")).toExternalForm());
+        dialog.getDialogPane().getStyleClass().add("promotion-dialog");
     }
 
     public void show(boolean isWhite) {
@@ -83,6 +89,11 @@ public class PromotionDialog {
             dialog.setResult(piece);
             dialog.close();
         });
+
+        // Styles
+        btn.getStyleClass().add("promotion-button");
+        imageView.getStyleClass().add("promotion-image");
+
         return btn;
     }
 }

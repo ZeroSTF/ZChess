@@ -1,0 +1,12 @@
+.root {
+    /* Modern muted color palette */
+    -primary-color: #ffffff; /* Muted blue */
+    -secondary-color: #9A8F76; /* Warm taupe */
+    -success-color: #7CA982; /* Sage green */
+    -warning-color: #C4A35D; /* Mustard */
+    -danger-color: #AF6B6B; /* Dusty red */
+    -text-color: #3D3D3D; /* Soft black */
+    -background-color: #F5F4F2; /* Warm off-white */
+    -border-color: #D3CEC4; /* Natural gray */
+    -surface-color: #FFFFFF; /* Pure white */
+}

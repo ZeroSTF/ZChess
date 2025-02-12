@@ -1,0 +1,23 @@
+.promotion-dialog {
+    -fx-background-color: -surface-color;
+    -fx-border-color: -border-color;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.5, 0, 0);
+}
+
+.promotion-button {
+    -fx-background-color: transparent;
+    -fx-border-color: -border-color;
+    -fx-border-radius: 4px;
+    -fx-padding: 10px;
+}
+
+.promotion-button:hover {
+    -fx-background-color: #F8F8F6;
+    -fx-border-color: derive(-border-color, -10%);
+}
+
+.promotion-image {
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0.2, 0, 1);
+}

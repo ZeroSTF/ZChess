@@ -1,5 +1,7 @@
 package tn.zeros.zchess.ui.controller;
 
+import tn.zeros.zchess.core.model.Move;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,5 +51,13 @@ public class InteractionState {
 
     public void setLastMoveTo(int lastMoveTo) {
         this.lastMoveTo = lastMoveTo;
+    }
+
+    public void clearAll() {
+        clearCurrentLegalMoves();
+        setSelectedSquare(-1);
+        setPendingPromotionMove(Move.NULL_MOVE);
+        setLastMoveFrom(-1);
+        setLastMoveTo(-1);
     }
 }

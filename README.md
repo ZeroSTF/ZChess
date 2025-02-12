@@ -99,5 +99,5 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ## Acknowledgments
 
 - Magic bitboard implementation inspired by [Chess Programming Wiki](https://www.chessprogramming.org/Magic_Bitboards)
-- JavaFX documentation from [FXExperience](https://openjfx.io/javadoc/23/)
+- JavaFX documentation from [OpenJFX](https://openjfx.io/javadoc/23/)
 - Test positions from [Chess Programming Perft Results](https://www.chessprogramming.org/Perft_Results)

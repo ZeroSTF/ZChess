@@ -13,11 +13,17 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
 import tn.zeros.zchess.ui.controller.ChessController;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public class ControlPanel extends HBox {
 
     public ControlPanel(ChessController controller, SettingsPanel settingsPanel) {
+        this.getStylesheets().addAll(
+                Objects.requireNonNull(getClass().getResource("/css/control-panel.css")).toExternalForm(),
+                Objects.requireNonNull(getClass().getResource("/css/application.css")).toExternalForm());
+        this.getStyleClass().add("control-panel");
+
         // Buttons
         Button undoButton = new Button("Undo (Ctrl+Z)");
         Button redoButton = new Button("Redo (Ctrl+Y)");
@@ -25,6 +31,14 @@ public class ControlPanel extends HBox {
         Button setFenButton = new Button("Set FEN");
         Button settingsButton = new Button("Settings ◀");
         Button flipButton = new Button("Flip Board (Space)");
+
+        // Button styles
+        undoButton.getStyleClass().add("control-button");
+        redoButton.getStyleClass().add("control-button");
+        fenButton.getStyleClass().addAll("control-button", "fen-button");
+        setFenButton.getStyleClass().addAll("control-button", "fen-button");
+        settingsButton.getStyleClass().addAll("control-button", "settings-button");
+        flipButton.getStyleClass().add("control-button");
 
         // Button actions
         undoButton.setOnAction(e -> controller.undo());

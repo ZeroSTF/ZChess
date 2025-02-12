@@ -84,6 +84,7 @@ public class ChessBoardView extends GridPane implements ChessView {
                 squares[row][col].setPiece(state.getPieceAt(square));
             }
         }
+        clearHighlights();
     }
 
     @Override
@@ -97,13 +98,14 @@ public class ChessBoardView extends GridPane implements ChessView {
         highlightLastMove();
         highlightSelectedSquare();
 
+        // Remove check overlays
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 squares[row][col].setCheckOverlay(false);
             }
         }
 
-        // Process legal moves
+        // Set legal moves overlay
         for (int move : legalMoves) {
             int to = Move.getTo(move);
             int row = to >> 3;
@@ -113,7 +115,7 @@ public class ChessBoardView extends GridPane implements ChessView {
             squares[row][col].setLegalMoveOverlay(true, isCapture);
         }
 
-        // Set check highlight
+        // Set check overlay
         if (kingInCheckSquare != -1) {
             int row = kingInCheckSquare >> 3;
             int col = kingInCheckSquare & 7;
@@ -156,6 +158,7 @@ public class ChessBoardView extends GridPane implements ChessView {
                 squares[row][col].setLegalMoveOverlay(false, false);
                 squares[row][col].setSelected(false);
                 squares[row][col].setLastMove(false);
+                squares[row][col].setCheckOverlay(false);
             }
         }
     }

@@ -1,0 +1,46 @@
+.game-status-panel {
+    -fx-padding: 20px;
+    -fx-spacing: 18px;
+    -fx-background-color: -surface-color;
+    -fx-border-color: -border-color;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 8, 0, 2, 2);
+}
+
+.clock-container {
+    -fx-spacing: 10px;
+}
+
+.clock-label {
+    -fx-font-size: 22px;
+    -fx-font-weight: 600;
+    -fx-padding: 12px 24px;
+    -fx-background-radius: 6px;
+    -fx-border-radius: 6px;
+    -fx-border-color: -border-color;
+}
+
+.white-clock {
+    -fx-background-color: #F8F8F6;
+    -fx-text-fill: #5A5A5A;
+}
+
+.black-clock {
+    -fx-background-color: #5A5A5A;
+    -fx-text-fill: #F8F8F6;
+}
+
+.game-result-label {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -text-color;
+    -fx-padding: 12px 0;
+}
+
+.restart-button {
+    -fx-background-color: -secondary-color;
+    -fx-text-fill: white;
+    -fx-font-weight: 600;
+    -fx-padding: 10px 24px;
+}
