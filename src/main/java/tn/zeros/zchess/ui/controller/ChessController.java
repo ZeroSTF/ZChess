@@ -1,8 +1,10 @@
 package tn.zeros.zchess.ui.controller;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+import javafx.util.Duration;
 import tn.zeros.zchess.core.logic.generation.LegalMoveFilter;
 import tn.zeros.zchess.core.logic.generation.MoveGenerator;
 import tn.zeros.zchess.core.model.BoardState;
@@ -13,6 +15,9 @@ import tn.zeros.zchess.core.service.FenService;
 import tn.zeros.zchess.core.service.GameStateChecker;
 import tn.zeros.zchess.core.util.ChessConstants;
 import tn.zeros.zchess.engine.models.EngineModel;
+import tn.zeros.zchess.ui.events.ClockEvent;
+import tn.zeros.zchess.ui.events.EventBus;
+import tn.zeros.zchess.ui.events.EventListener;
 import tn.zeros.zchess.ui.matchmaker.GameManager;
 import tn.zeros.zchess.ui.matchmaker.GameMode;
 import tn.zeros.zchess.ui.models.GameStateModel;
@@ -22,12 +27,12 @@ import tn.zeros.zchess.ui.view.ChessView;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
-public class ChessController implements GameListener {
+public class ChessController implements GameListener, EventListener {
     private final GameManager gameManager;
     private final InteractionState interactionState;
     private final GameStateModel gameState = new GameStateModel();
+    private final Timeline chessClock = new Timeline();
     private final InputHandler inputHandler;
     private BoardState boardState;
     private ChessView view;
@@ -38,6 +43,8 @@ public class ChessController implements GameListener {
         this.gameManager.addListener(this);
         this.interactionState = new InteractionState();
         this.inputHandler = new InputHandler(this);
+        EventBus.getInstance().register(this);
+        setupClock();
     }
 
     public BoardState getBoardState() {
@@ -191,11 +198,6 @@ public class ChessController implements GameListener {
         view.refreshEntireBoard();
         view.updateHighlights(Collections.emptyList(), kingInCheck);
         playMoveSound(move);
-
-        if (gameManager.isGameOver()) {
-            GameResult result = GameStateChecker.getGameResult(boardState);
-            showGameResult(result);
-        }
     }
 
     public void startGame() {
@@ -212,44 +214,15 @@ public class ChessController implements GameListener {
         }
     }
 
-    private void showGameResult(GameResult result) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Game Over");
-            alert.setHeaderText(getResultMessage(result));
-            alert.setContentText("Click OK to start a new game.");
-
-            Optional<ButtonType> response = alert.showAndWait();
-            response.ifPresent(bt -> {
-                if (bt == ButtonType.OK) {
-                    restartGame();
-                }
-            });
-        });
-    }
-
-    private String getResultMessage(GameResult result) {
-        switch (result) {
-            case WHITE_WINS:
-                return "White wins by checkmate!";
-            case BLACK_WINS:
-                return "Black wins by checkmate!";
-            case THREEFOLD_REPETITION:
-                return "Draw by threefold repetition!";
-            case FIFTY_MOVE_RULE:
-                return "Draw by fifty move rule!";
-            case INSUFFICIENT_MATERIAL:
-                return "Draw by insufficient material!";
-            case STALEMATE:
-                return "Draw by stalemate!";
-            default:
-                return "Game Over";
-        }
-    }
-
     public void restartGame() {
         BoardState newState = FenService.parseFEN(ChessConstants.DEFAULT_FEN, boardState);
         resetState(newState);
+        EventBus.getInstance().post(new ClockEvent(
+                ClockEvent.Type.RESET,
+                false,
+                Duration.ZERO
+        ));
+        gameState.gameResultProperty().set(GameResult.ONGOING);
         gameManager.startGame();
         interactionState.clearAll();
         view.refreshEntireBoard();
@@ -258,4 +231,102 @@ public class ChessController implements GameListener {
     public GameStateModel getGameStateModel() {
         return gameState;
     }
+
+    private void setupClock() {
+        chessClock.setCycleCount(Timeline.INDEFINITE);
+        chessClock.getKeyFrames().add(new KeyFrame(
+                Duration.seconds(1),
+                e -> EventBus.getInstance().post(new ClockEvent(
+                        ClockEvent.Type.TICK,
+                        boardState.isWhiteToMove(),
+                        Duration.seconds(1)
+                ))
+        ));
+    }
+
+    private void updateClocks() {
+        if (!gameManager.isGameInProgress() || gameManager.isGameOver()) return;
+
+        Duration whiteRemaining = gameState.whiteTimeProperty().get();
+        Duration blackRemaining = gameState.blackTimeProperty().get();
+
+        if (boardState.isWhiteToMove() && whiteRemaining.greaterThan(Duration.ZERO)) {
+            gameState.whiteTimeProperty().set(whiteRemaining.subtract(Duration.seconds(1)));
+            checkClockExpiration(whiteRemaining, true);
+        } else if (!boardState.isWhiteToMove() && blackRemaining.greaterThan(Duration.ZERO)) {
+            gameState.blackTimeProperty().set(blackRemaining.subtract(Duration.seconds(1)));
+            checkClockExpiration(blackRemaining, false);
+        }
+    }
+
+    private void checkClockExpiration(Duration remaining, boolean isWhite) {
+        if (remaining.lessThanOrEqualTo(Duration.ZERO)) {
+            Platform.runLater(() -> {
+                chessClock.stop();
+                GameResult result = isWhite ? GameResult.BLACK_WINS : GameResult.WHITE_WINS;
+                gameState.gameResultProperty().set(result);
+                showTimeExpiredResult(result);
+            });
+        }
+    }
+
+    private void showTimeExpiredResult(GameResult result) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Time Expired");
+        alert.setHeaderText(result == GameResult.WHITE_WINS ?
+                "White wins on time!" : "Black wins on time!");
+        alert.show();
+    }
+
+    @Override
+    public void onGameOver(BoardState boardState) {
+        Platform.runLater(() -> {
+            chessClock.stop();
+            GameResult result = GameStateChecker.getGameResult(boardState);
+            gameState.gameResultProperty().set(result);
+        });
+    }
+
+    @Override
+    public void onClockEvent(ClockEvent event) {
+        Platform.runLater(() -> {
+            switch (event.getType()) {
+                case TICK -> handleClockTick(event);
+                case INCREMENT -> handleTimeIncrement(event);
+                case RESET -> handleClockReset();
+            }
+        });
+    }
+
+    private void handleClockTick(ClockEvent event) {
+        if (event.isWhite()) {
+            gameState.whiteTimeProperty().set(
+                    gameState.whiteTimeProperty().get().subtract(event.getDuration())
+            );
+            checkClockExpiration(gameState.whiteTimeProperty().get(), true);
+        } else {
+            gameState.blackTimeProperty().set(
+                    gameState.blackTimeProperty().get().subtract(event.getDuration())
+            );
+            checkClockExpiration(gameState.blackTimeProperty().get(), false);
+        }
+    }
+
+    private void handleTimeIncrement(ClockEvent event) {
+        if (event.isWhite()) {
+            gameState.whiteTimeProperty().set(
+                    gameState.whiteTimeProperty().get().add(event.getDuration())
+            );
+        } else {
+            gameState.blackTimeProperty().set(
+                    gameState.blackTimeProperty().get().add(event.getDuration())
+            );
+        }
+    }
+
+    private void handleClockReset() {
+        gameState.resetClocks();
+    }
+
+
 }

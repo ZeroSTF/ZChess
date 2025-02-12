@@ -1,46 +1,72 @@
 .game-status-panel {
     -fx-padding: 20px;
-    -fx-spacing: 18px;
-    -fx-background-color: -surface-color;
-    -fx-border-color: -border-color;
+    -fx-spacing: 25px;
+    -fx-background-color: #f8f8f8;
+    -fx-border-color: #e0e0e0;
     -fx-border-width: 1px;
-    -fx-border-radius: 6px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 8, 0, 2, 2);
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-min-width: 250px;
 }
 
 .clock-container {
-    -fx-spacing: 10px;
+    -fx-alignment: center;
+    -fx-spacing: 8px;
+}
+
+.player-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #555555;
 }
 
 .clock-label {
     -fx-font-size: 22px;
-    -fx-font-weight: 600;
-    -fx-padding: 12px 24px;
-    -fx-background-radius: 6px;
-    -fx-border-radius: 6px;
-    -fx-border-color: -border-color;
+    -fx-font-family: 'Consolas', monospace;
+    -fx-padding: 12px 20px;
+    -fx-background-radius: 4px;
+    -fx-border-radius: 4px;
+    -fx-border-width: 1px;
+    transition: color 0.3s ease;
+}
+
+.clock-label.time-warning {
+    -fx-text-fill: #e74c3c !important;
+}
+
+.clock-label.time-critical {
+    -fx-text-fill: #c0392b !important;
+    -fx-font-weight: bold;
 }
 
 .white-clock {
-    -fx-background-color: #F8F8F6;
-    -fx-text-fill: #5A5A5A;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cccccc;
+    -fx-text-fill: #333333;
 }
 
 .black-clock {
-    -fx-background-color: #5A5A5A;
-    -fx-text-fill: #F8F8F6;
+    -fx-background-color: #333333;
+    -fx-border-color: #222222;
+    -fx-text-fill: #ffffff;
 }
 
-.game-result-label {
+.result-label {
     -fx-font-size: 16px;
-    -fx-font-weight: 600;
-    -fx-text-fill: -text-color;
-    -fx-padding: 12px 0;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-wrap-text: true;
+    -fx-max-width: 200px;
 }
 
-.restart-button {
-    -fx-background-color: -secondary-color;
+.control-button {
+    -fx-background-color: #3498db;
     -fx-text-fill: white;
-    -fx-font-weight: 600;
-    -fx-padding: 10px 24px;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 4px;
+}
+
+.control-button:hover {
+    -fx-background-color: #2980b9;
 }

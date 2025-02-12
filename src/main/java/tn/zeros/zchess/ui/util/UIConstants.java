@@ -2,6 +2,7 @@ package tn.zeros.zchess.ui.util;
 
 import javafx.scene.paint.*;
 import javafx.scene.text.Font;
+import javafx.util.Duration;
 
 public class UIConstants {
     // Sizes
@@ -38,7 +39,9 @@ public class UIConstants {
     public static final String PROMOTION_SOUND = "/sounds/promotion.mp3";
     public static final String PREMOVE_SOUND = "/sounds/premove.mp3";
 
-    // Engine
+    // Time settings
     public static final int DEFAULT_SEARCH_TIME_MS = 500;
+    public static final Duration INITIAL_TIME = Duration.minutes(5);
+    public static final Duration TIME_INCREMENT = Duration.seconds(0);
 
 }

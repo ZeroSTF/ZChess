@@ -2,6 +2,7 @@ package tn.zeros.zchess.ui.matchmaker;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.util.Duration;
 import tn.zeros.zchess.core.model.BoardState;
 import tn.zeros.zchess.core.model.MoveUndoInfo;
 import tn.zeros.zchess.core.service.GameStateChecker;
@@ -10,6 +11,9 @@ import tn.zeros.zchess.core.service.StateManager;
 import tn.zeros.zchess.engine.models.EngineModel;
 import tn.zeros.zchess.engine.models.ModelV1;
 import tn.zeros.zchess.ui.controller.GameListener;
+import tn.zeros.zchess.ui.events.ClockEvent;
+import tn.zeros.zchess.ui.events.EventBus;
+import tn.zeros.zchess.ui.util.UIConstants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,15 +56,37 @@ public class GameManager {
     public void executeMove(int move) {
         if (!gameInProgress || isGameOver()) return;
 
+        boolean wasWhiteMove = boardState.isWhiteToMove();
+
         MoveUndoInfo undoInfo = MoveExecutor.makeMove(boardState, move);
         stateManager.saveState(undoInfo);
         notifyMoveExecuted(move);
 
+        // Notify about time increment
+        if (UIConstants.TIME_INCREMENT.greaterThan(Duration.ZERO)) {
+            EventBus.getInstance().post(new ClockEvent(
+                    ClockEvent.Type.INCREMENT,
+                    wasWhiteMove,
+                    UIConstants.TIME_INCREMENT
+            ));
+        }
+
         if (isGameOver()) {
             gameInProgress = false;
+            Platform.runLater(() -> {
+                listeners.forEach(l -> l.onGameOver(boardState));
+            });
         } else {
             checkForModelMove();
         }
+    }
+
+    private void notifyClockTick(boolean isWhite) {
+        EventBus.getInstance().post(new ClockEvent(
+                ClockEvent.Type.TICK,
+                isWhite,
+                Duration.seconds(1)
+        ));
     }
 
     public void resetStateManager(BoardState newState) {
@@ -120,6 +146,10 @@ public class GameManager {
 
     private void notifyMoveExecuted(int move) {
         listeners.forEach(l -> l.onMoveExecuted(move, boardState));
+    }
+
+    public boolean isGameInProgress() {
+        return gameInProgress;
     }
 
 }

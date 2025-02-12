@@ -45,20 +45,22 @@ public class GameStatusPanel extends VBox {
                 Objects.requireNonNull(getClass().getResource("/css/application.css")).toExternalForm(),
                 Objects.requireNonNull(getClass().getResource("/css/game-status-panel.css")).toExternalForm());
         this.getStyleClass().add("game-status-panel");
-        restartBtn.getStyleClass().add("restart-button");
-        gameResultLabel.getStyleClass().add("game-result-label");
+        gameResultLabel.getStyleClass().add("result-label");
+        restartBtn.getStyleClass().add("control-button");
     }
 
     private void bindProperties() {
-        whiteClock.textProperty().bind(Bindings.createStringBinding(() ->
-                        formatDuration(gameState.whiteTimeProperty().get()),
-                gameState.whiteTimeProperty()
-        ));
+        whiteClock.textProperty().bind(Bindings.createStringBinding(() -> {
+            Duration time = gameState.whiteTimeProperty().get();
+            updateClockStyle(whiteClock, time);
+            return formatDuration(time);
+        }, gameState.whiteTimeProperty()));
 
-        blackClock.textProperty().bind(Bindings.createStringBinding(() ->
-                        formatDuration(gameState.blackTimeProperty().get()),
-                gameState.blackTimeProperty()
-        ));
+        blackClock.textProperty().bind(Bindings.createStringBinding(() -> {
+            Duration time = gameState.blackTimeProperty().get();
+            updateClockStyle(blackClock, time);
+            return formatDuration(time);
+        }, gameState.blackTimeProperty()));
 
         gameResultLabel.textProperty().bind(Bindings.createStringBinding(() ->
                         gameState.gameResultProperty().get() == GameResult.ONGOING ? "" :
@@ -67,18 +69,34 @@ public class GameStatusPanel extends VBox {
         ));
     }
 
+    private void updateClockStyle(Label clock, Duration remaining) {
+        clock.getStyleClass().removeAll("time-warning", "time-critical");
+
+        if (remaining.lessThanOrEqualTo(Duration.seconds(30))) {
+            clock.getStyleClass().add("time-warning");
+        }
+        if (remaining.lessThanOrEqualTo(Duration.seconds(10))) {
+            clock.getStyleClass().add("time-critical");
+        }
+    }
+
     private String formatDuration(Duration duration) {
+        Duration effective = duration.greaterThan(Duration.ZERO) ? duration : Duration.ZERO;
         return String.format("%02d:%02d",
-                (int) duration.toMinutes(),
-                (int) duration.toSeconds() % 60
+                (int) effective.toMinutes(),
+                (int) effective.toSeconds() % 60
         );
     }
 
     private String getResultText(GameResult result) {
         return switch (result) {
-            case WHITE_WINS -> "White Wins!";
-            case BLACK_WINS -> "Black Wins!";
-            default -> "Game Drawn";
+            case WHITE_WINS -> "White Wins by Checkmate!";
+            case BLACK_WINS -> "Black Wins by Checkmate!";
+            case STALEMATE -> "Draw by Stalemate!";
+            case THREEFOLD_REPETITION -> "Draw by Repetition!";
+            case FIFTY_MOVE_RULE -> "Draw by 50-Move Rule!";
+            case INSUFFICIENT_MATERIAL -> "Draw by Insufficient Material!";
+            default -> "";
         };
     }
 
