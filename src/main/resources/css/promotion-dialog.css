@@ -1,23 +1,23 @@
 .promotion-dialog {
-    -fx-background-color: -surface-color;
+    -fx-background-color: -background-color;
     -fx-border-color: -border-color;
-    -fx-border-radius: 8px;
-    -fx-background-radius: 8px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 10, 0.5, 0, 0);
+    -fx-border-radius: 16px;
+    -fx-background-radius: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 20, 0, 0, 10);
+    -fx-padding: 24px;
 }
 
 .promotion-button {
-    -fx-background-color: transparent;
+    -fx-background-color: -surface-color;
     -fx-border-color: -border-color;
-    -fx-border-radius: 4px;
-    -fx-padding: 10px;
+    -fx-border-radius: 12px;
+    -fx-background-radius: 12px;
+    -fx-padding: 16px;
+    -fx-transition: all 0.2s ease;
 }
 
 .promotion-button:hover {
-    -fx-background-color: #F8F8F6;
-    -fx-border-color: derive(-border-color, -10%);
-}
-
-.promotion-image {
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0.2, 0, 1);
+    -fx-background-color: derive(-surface-color, -3%);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 8, 0, 0, 2);
+    -fx-translate-y: -2px;
 }

@@ -78,6 +78,11 @@ public class GameStateChecker {
 
     public static boolean isThreefoldRepetition(BoardState boardState) {
         long currentKey = boardState.getZobristKey();
+        return boardState.getPositionCounts().getOrDefault(currentKey, 0) >= 3;
+    }
+
+    public static boolean isTwoFoldRepetition(BoardState boardState) {
+        long currentKey = boardState.getZobristKey();
         return boardState.getPositionCounts().getOrDefault(currentKey, 0) >= 2;
     }
 }

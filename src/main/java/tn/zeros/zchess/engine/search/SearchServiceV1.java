@@ -49,7 +49,8 @@ public class SearchServiceV1 implements SearchService {
         bestMoveThisIteration = Move.NULL_MOVE;
         bestEvalThisIteration = SearchUtils.MIN_EVAL;
 
-        for (int searchDepth = 1; searchDepth <= MAX_DEPTH; searchDepth++) { // Iterative deepening loop
+        // Iterative deepening loop
+        for (int searchDepth = 1; searchDepth <= MAX_DEPTH; searchDepth++) {
             metrics.setCurrentDepth(searchDepth);
             hasSearchedAtLeastOneMove = false;
 
@@ -79,10 +80,9 @@ public class SearchServiceV1 implements SearchService {
         }
         logger.logFinalSummary();
         searchCancelled = false;
-        return bestMove != Move.NULL_MOVE ? bestMove : getFallbackMove(boardState); // Return best move or fallback
+        return bestMove != Move.NULL_MOVE ? bestMove : getFallbackMove(boardState);
     }
 
-    // 7. Alpha-Beta Search Core (alphaBetaPrune)
     @Override
     public int alphaBetaPrune(int depth, int alpha, int beta, BoardState state, int currentPly) {
         checkSearchTimeout();
@@ -131,7 +131,6 @@ public class SearchServiceV1 implements SearchService {
         int ttBestMove = (ttEntry != null) ? ttEntry.bestMove : Move.NULL_MOVE; // Get TT best move for ordering
         moveOrderingService.orderMoves(moves, state, currentPly, ttBestMove); // Order moves for efficiency
 
-        // 7.5. Move Loop and Alpha-Beta Pruning
         int originalAlpha = alpha; // Store original alpha for TT entry type
         int bestMove = Move.NULL_MOVE;  // Initialize best move for this node
         int bestScore = SearchUtils.MIN_EVAL; // Initialize best score for this node
@@ -337,30 +336,28 @@ public class SearchServiceV1 implements SearchService {
     }
 
     private int lookupEntryEval(TranspositionTable.Entry ttEntry, int depth, int alpha, int beta) {
-        if (ttEntry != null && ttEntry.depth >= depth) { // Check if TT entry is valid and deep enough
-            final int score = ttEntry.score; // Get score from TT entry
+        if (ttEntry != null && ttEntry.depth >= depth) {
+            final int score = ttEntry.score;
 
-            // 10.1.1. Exact Score: Return immediately
             if (ttEntry.type == TTEntryType.EXACT) {
-                return score; // Exact score found, return it
+                return score;
             }
 
-            // 10.1.2. Bound Checks: Check if score provides cutoff
             if (ttEntry.type == TTEntryType.LOWER_BOUND && score >= beta) {
-                return score; // Lower bound score is sufficient for beta cutoff, return it
+                return score;
             }
             if (ttEntry.type == TTEntryType.UPPER_BOUND && score <= alpha) {
-                return score; // Upper bound score is sufficient for alpha cutoff, return it
+                return score;
             }
         }
-        return SearchUtils.LOOKUP_FAILED; // TT lookup failed or score not usable
+        return SearchUtils.LOOKUP_FAILED;
     }
 
     @Override
     public void clear() {
-        transpositionTable.clear(); // Clear all entries in the transposition table
-        moveOrderingService.clearKillerMoves(); // Also clear killer move heuristic when TT is cleared
-        moveOrderingService.clearHistoryScores(); // Clear history heuristic as well
+        transpositionTable.clear();
+        moveOrderingService.clearKillerMoves();
+        moveOrderingService.clearHistoryScores();
     }
 
     private void checkSearchTimeout() {
@@ -368,27 +365,24 @@ public class SearchServiceV1 implements SearchService {
     }
 
     private boolean isSearchCancelled() {
-        return searchCancelled; // Return the current state of the searchCancelled flag
+        return searchCancelled;
     }
 
 
-    // 12. Evaluation and Static Exchange Evaluation (SEE - if you implement it later)
-    private int evaluateBoard(BoardState state) { // Renamed for clarity
-        return EvaluationService.evaluate(state); // Delegate board evaluation to EvaluationService
+    private int evaluateBoard(BoardState state) {
+        return EvaluationService.evaluate(state);
     }
 
-    // 14. Fallback Move (for edge cases)
     private int getFallbackMove(BoardState boardState) {
-        MoveGenerator.MoveList moves = generateLegalMoves(boardState); // Generate legal moves
-        return moves.size > 0 ? moves.moves[0] : Move.NULL_MOVE; // Return the first legal move if available, otherwise NULL_MOVE
+        MoveGenerator.MoveList moves = generateLegalMoves(boardState);
+        return moves.size > 0 ? moves.moves[0] : Move.NULL_MOVE;
     }
 
 
-    // 15. Game State Checks (Repetition, 50-move rule etc.)
     private boolean isDrawishPosition(BoardState state) {
-        return GameStateChecker.isFiftyMoveRule(state) || // Check for 50-move rule draw
-                GameStateChecker.isThreefoldRepetition(state) || // Check for threefold repetition draw
-                GameStateChecker.isInsufficientMaterial(state); // Check for insufficient material draw
+        return GameStateChecker.isFiftyMoveRule(state) ||
+                GameStateChecker.isThreefoldRepetition(state) ||
+                GameStateChecker.isInsufficientMaterial(state);
     }
 
 }

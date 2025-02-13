@@ -2,27 +2,24 @@
     -fx-background-color: -surface-color;
     -fx-border-color: -border-color;
     -fx-border-width: 0 0 0 1px;
-    -fx-padding: 18px;
-    -fx-spacing: 12px;
+    -fx-padding: 24px;
+    -fx-spacing: 16px;
 }
 
 .settings-label {
-    -fx-text-fill: -text-color;
+    -fx-text-fill: -text-secondary;
     -fx-font-weight: 600;
     -fx-font-size: 14px;
 }
 
-.settings-combo, .settings-spinner {
-    -fx-background-color: -surface-color;
-    -fx-border-color: -border-color;
-}
-
 .apply-button {
     -fx-background-color: -success-color;
-    -fx-text-fill: white;
+    -fx-text-fill: -white-piece-color;
+    -fx-border-color: transparent;
 }
 
 .test-suite-button {
     -fx-background-color: -warning-color;
-    -fx-text-fill: white;
+    -fx-text-fill: -white-piece-color;
+    -fx-border-color: transparent;
 }

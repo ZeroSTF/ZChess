@@ -1,40 +1,38 @@
 .root {
-    -fx-font-family: 'Segoe UI', system-ui, sans-serif;
-    -fx-base: -primary-color;
-    -fx-accent: -secondary-color;
+    -fx-font-family: 'Inter', -apple-system, system-ui, sans-serif;
+    -fx-base: -background-color;
+    -fx-accent: -accent-color;
     -fx-default-button: -primary-color;
-    -fx-focus-color: derive(-primary-color, -20%);
-    -fx-faint-focus-color: derive(-primary-color, 90%);
+    -fx-focus-color: -accent-color;
+    -fx-faint-focus-color: derive(-accent-color, 80%);
 }
 
 .button {
-    -fx-padding: 8px 20px;
-    -fx-background-radius: 4px;
-    -fx-border-radius: 4px;
+    -fx-padding: 12px 24px;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
     -fx-cursor: hand;
     -fx-font-size: 14px;
+    -fx-font-weight: 600;
     -fx-text-fill: -text-color;
     -fx-background-color: -surface-color;
     -fx-border-color: -border-color;
     -fx-border-width: 1px;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.05), 2, 0, 1, 1);
-    -fx-transition: all 0.2s;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.08), 4, 0, 0, 1);
+    -fx-transition: all 0.2s ease;
 }
 
 .button:hover {
-    -fx-background-color: derive(-surface-color, -5%);
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 4, 0, 2, 2);
-}
-
-.label {
-    -fx-text-fill: -text-color;
-    -fx-font-smoothing-type: lcd;
+    -fx-background-color: derive(-surface-color, -3%);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.12), 8, 0, 0, 2);
+    -fx-translate-y: -1px;
 }
 
 .text-field, .combo-box, .spinner {
-    -fx-background-color: -surface-color;
+    -fx-background-color: -background-color;
     -fx-border-color: -border-color;
-    -fx-border-radius: 4px;
-    -fx-padding: 6px 8px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 12px 16px;
     -fx-font-size: 14px;
 }

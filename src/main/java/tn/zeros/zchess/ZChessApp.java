@@ -60,7 +60,7 @@ public class ZChessApp extends Application {
         settingsPanel.setVisible(true);
 
         // Configure window
-        Scene scene = new Scene(root, 1400, 900);
+        Scene scene = new Scene(root, 1400, 950);
         scene.getStylesheets().addAll(
                 Objects.requireNonNull(getClass().getResource("/css/colors.css")).toExternalForm(),
                 Objects.requireNonNull(getClass().getResource("/css/application.css")).toExternalForm()
