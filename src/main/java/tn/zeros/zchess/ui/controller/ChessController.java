@@ -3,7 +3,6 @@ package tn.zeros.zchess.ui.controller;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
 import javafx.util.Duration;
 import tn.zeros.zchess.core.logic.generation.LegalMoveFilter;
 import tn.zeros.zchess.core.logic.generation.MoveGenerator;
@@ -250,19 +249,10 @@ public class ChessController implements GameListener, EventListener {
         if (remaining.lessThanOrEqualTo(Duration.ZERO)) {
             Platform.runLater(() -> {
                 chessClock.stop();
-                GameResult result = isWhite ? GameResult.BLACK_WINS : GameResult.WHITE_WINS;
+                GameResult result = isWhite ? GameResult.WHITE_TIMEOUT : GameResult.BLACK_TIMEOUT;
                 gameState.gameResultProperty().set(result);
-                showTimeExpiredResult(result);
             });
         }
-    }
-
-    private void showTimeExpiredResult(GameResult result) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Time Expired");
-        alert.setHeaderText(result == GameResult.WHITE_WINS ?
-                "White wins on time!" : "Black wins on time!");
-        alert.show();
     }
 
     @Override

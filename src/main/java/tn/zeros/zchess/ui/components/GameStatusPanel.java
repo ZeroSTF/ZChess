@@ -92,6 +92,8 @@ public class GameStatusPanel extends VBox {
         return switch (result) {
             case WHITE_WINS -> "White Wins by Checkmate!";
             case BLACK_WINS -> "Black Wins by Checkmate!";
+            case WHITE_TIMEOUT -> "Black Wins by Timeout!";
+            case BLACK_TIMEOUT -> "White Wins by Timeout!";
             case STALEMATE -> "Draw by Stalemate!";
             case THREEFOLD_REPETITION -> "Draw by Repetition!";
             case FIFTY_MOVE_RULE -> "Draw by 50-Move Rule!";
