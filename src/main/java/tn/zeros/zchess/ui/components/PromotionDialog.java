@@ -44,10 +44,15 @@ public class PromotionDialog {
         dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
         dialog.getDialogPane().setContent(grid);
 
+        Button cancelButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+        cancelButton.setText("Cancel");
+
         // Styles
         dialog.getDialogPane().getStylesheets().addAll(
                 Objects.requireNonNull(getClass().getResource("/css/promotion-dialog.css")).toExternalForm(),
-                Objects.requireNonNull(getClass().getResource("/css/application.css")).toExternalForm());
+                Objects.requireNonNull(getClass().getResource("/css/application.css")).toExternalForm(),
+                Objects.requireNonNull(getClass().getResource("/css/colors.css")).toExternalForm()
+        );
         dialog.getDialogPane().getStyleClass().add("promotion-dialog");
     }
 

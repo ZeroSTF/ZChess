@@ -23,3 +23,25 @@
     -fx-text-fill: -white-piece-color;
     -fx-border-color: transparent;
 }
+
+.apply-button, .test-suite-button {
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-padding: 12px 24px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+.apply-button:hover {
+    -fx-background-color: derive(-success-color, -10%);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.12), 8, 0, 0, 2);
+    -fx-translate-y: -1px;
+}
+
+.test-suite-button:hover {
+    -fx-background-color: derive(-warning-color, -10%);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.12), 8, 0, 0, 2);
+    -fx-translate-y: -1px;
+}
