@@ -199,6 +199,28 @@ public class BoardState {
         this.positionCounts.clear();
     }
 
+    @Override
+    public BoardState clone() {
+        BoardState cloned = new BoardState();
+
+        System.arraycopy(this.pieceBitboards, 0, cloned.pieceBitboards, 0, this.pieceBitboards.length);
+        System.arraycopy(this.colorBitboards, 0, cloned.colorBitboards, 0, this.colorBitboards.length);
+
+        System.arraycopy(this.pieceSquare, 0, cloned.pieceSquare, 0, this.pieceSquare.length);
+
+        cloned.positionCounts.clear();
+        cloned.positionCounts.putAll(this.positionCounts);
+
+        cloned.whiteToMove = this.whiteToMove;
+        cloned.castlingRights = this.castlingRights;
+        cloned.enPassantSquare = this.enPassantSquare;
+        cloned.halfMoveClock = this.halfMoveClock;
+        cloned.fullMoveNumber = this.fullMoveNumber;
+        cloned.zobristKey = this.zobristKey;
+
+        return cloned;
+    }
+
     // Zobrist Hashing
     public long getZobristKey() {
         return zobristKey;

@@ -13,7 +13,8 @@ public class ModelV1 implements EngineModel {
 
     @Override
     public int generateMove(BoardState boardState) {
-        return searchService.startSearch(boardState);
+        BoardState newState = boardState.clone();
+        return searchService.startSearch(newState);
     }
 
     @Override

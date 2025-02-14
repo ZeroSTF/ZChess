@@ -57,7 +57,7 @@ public class ChessController implements GameListener, EventListener {
 
     public void handlePieceSelection(int square) {
         int piece = boardState.getPieceAt(square);
-        if (piece != Piece.NONE && Piece.isWhite(piece) == boardState.isWhiteToMove()) {
+        if (piece != Piece.NONE && Piece.isWhite(piece) == boardState.isWhiteToMove() && !gameManager.isGameOver()) {
             interactionState.setSelectedSquare(square);
             interactionState.clearCurrentLegalMoves();
 

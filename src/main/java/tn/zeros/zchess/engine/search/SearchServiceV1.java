@@ -381,7 +381,7 @@ public class SearchServiceV1 implements SearchService {
 
     private boolean isDrawishPosition(BoardState state) {
         return GameStateChecker.isFiftyMoveRule(state) ||
-                GameStateChecker.isThreefoldRepetition(state) ||
+                GameStateChecker.isTwoFoldRepetition(state) ||
                 GameStateChecker.isInsufficientMaterial(state);
     }
 
