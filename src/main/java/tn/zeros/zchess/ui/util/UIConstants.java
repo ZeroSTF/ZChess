@@ -42,6 +42,6 @@ public class UIConstants {
     // Time settings
     public static final int DEFAULT_SEARCH_TIME_MS = 500;
     public static final Duration INITIAL_TIME = Duration.minutes(5);
-    public static final Duration TIME_INCREMENT = Duration.seconds(0);
+    public static final Duration TIME_INCREMENT = Duration.seconds(5);
 
 }

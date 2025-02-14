@@ -202,6 +202,7 @@ public class ChessController implements GameListener, EventListener {
 
     public void startGame() {
         this.gameManager.startGame();
+        chessClock.play();
     }
 
     public void setGameMode(GameMode mode, EngineModel whiteModel, EngineModel blackModel, boolean modelColor) {
@@ -217,6 +218,7 @@ public class ChessController implements GameListener, EventListener {
     public void restartGame() {
         BoardState newState = FenService.parseFEN(ChessConstants.DEFAULT_FEN, boardState);
         resetState(newState);
+        interactionState.clearAll();
         EventBus.getInstance().post(new ClockEvent(
                 ClockEvent.Type.RESET,
                 false,
@@ -224,7 +226,7 @@ public class ChessController implements GameListener, EventListener {
         ));
         gameState.gameResultProperty().set(GameResult.ONGOING);
         gameManager.startGame();
-        interactionState.clearAll();
+        chessClock.play();
         view.refreshEntireBoard();
     }
 
@@ -242,21 +244,6 @@ public class ChessController implements GameListener, EventListener {
                         Duration.seconds(1)
                 ))
         ));
-    }
-
-    private void updateClocks() {
-        if (!gameManager.isGameInProgress() || gameManager.isGameOver()) return;
-
-        Duration whiteRemaining = gameState.whiteTimeProperty().get();
-        Duration blackRemaining = gameState.blackTimeProperty().get();
-
-        if (boardState.isWhiteToMove() && whiteRemaining.greaterThan(Duration.ZERO)) {
-            gameState.whiteTimeProperty().set(whiteRemaining.subtract(Duration.seconds(1)));
-            checkClockExpiration(whiteRemaining, true);
-        } else if (!boardState.isWhiteToMove() && blackRemaining.greaterThan(Duration.ZERO)) {
-            gameState.blackTimeProperty().set(blackRemaining.subtract(Duration.seconds(1)));
-            checkClockExpiration(blackRemaining, false);
-        }
     }
 
     private void checkClockExpiration(Duration remaining, boolean isWhite) {
