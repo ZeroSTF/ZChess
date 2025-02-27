@@ -19,7 +19,7 @@ public class GameStateChecker {
 
         return isCheckmate(boardState, legalMoves) ||
                 isStalemate(boardState, legalMoves) ||
-                isInsufficientMaterial(boardState) ||
+                isInsufficientMaterial(boardState, false) ||
                 isFiftyMoveRule(boardState) ||
                 isThreefoldRepetition(boardState);
     }
@@ -31,7 +31,7 @@ public class GameStateChecker {
             return boardState.isWhiteToMove() ? GameResult.BLACK_WINS : GameResult.WHITE_WINS;
         } else if (isStalemate(boardState, legalMoves)) {
             return GameResult.STALEMATE;
-        } else if (isInsufficientMaterial(boardState)) {
+        } else if (isInsufficientMaterial(boardState, false)) {
             return GameResult.INSUFFICIENT_MATERIAL;
         } else if (isFiftyMoveRule(boardState)) {
             return GameResult.FIFTY_MOVE_RULE;
@@ -53,7 +53,7 @@ public class GameStateChecker {
         return LegalMoveFilter.inCheck(boardState, boardState.isWhiteToMove());
     }
 
-    public static boolean isInsufficientMaterial(BoardState boardState) {
+    public static boolean isInsufficientMaterial(BoardState boardState, boolean isTimeout) {
         long allPieces = boardState.getAllPieces();
         long whitePieces = boardState.getFriendlyPieces(true);
         long blackPieces = boardState.getFriendlyPieces(false);
@@ -62,6 +62,11 @@ public class GameStateChecker {
 
         if (Long.bitCount(allPieces) > 4) {
             return false; // Too many pieces for insufficient material
+        }
+
+        if (isTimeout) {
+            boolean whiteToMove = boardState.isWhiteToMove();
+            return isKingAndMinorPieceOnly(whiteToMove ? blackPieces : whitePieces, bishops, knights);
         }
 
         // Check specific scenarios

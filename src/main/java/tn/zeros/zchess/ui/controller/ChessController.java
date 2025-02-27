@@ -249,7 +249,9 @@ public class ChessController implements GameListener, EventListener {
         if (remaining.lessThanOrEqualTo(Duration.ZERO)) {
             Platform.runLater(() -> {
                 chessClock.stop();
-                GameResult result = isWhite ? GameResult.WHITE_TIMEOUT : GameResult.BLACK_TIMEOUT;
+                gameManager.setGameInProgress(false);
+                boolean isDrawTimeout = GameStateChecker.isInsufficientMaterial(boardState, true);
+                GameResult result = isDrawTimeout ? GameResult.DRAW_TIMEOUT : (isWhite ? GameResult.WHITE_TIMEOUT : GameResult.BLACK_TIMEOUT);
                 gameState.gameResultProperty().set(result);
             });
         }

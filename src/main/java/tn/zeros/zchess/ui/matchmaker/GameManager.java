@@ -54,7 +54,7 @@ public class GameManager {
     }
 
     public void executeMove(int move) {
-        if (!gameInProgress || isGameOver()) return;
+        if (isGameOver()) return;
 
         boolean wasWhiteMove = boardState.isWhiteToMove();
 
@@ -81,14 +81,6 @@ public class GameManager {
         }
     }
 
-    private void notifyClockTick(boolean isWhite) {
-        EventBus.getInstance().post(new ClockEvent(
-                ClockEvent.Type.TICK,
-                isWhite,
-                Duration.seconds(1)
-        ));
-    }
-
     public void resetStateManager(BoardState newState) {
         stateManager = new StateManager(newState);
         whiteModel.reset();
@@ -97,7 +89,7 @@ public class GameManager {
     }
 
     public void checkForModelMove() {
-        if (!gameInProgress || isGameOver()) return;
+        if (isGameOver()) return;
         if (shouldModelPlay()) {
             runModelMoveTask();
         }
@@ -137,7 +129,7 @@ public class GameManager {
     }
 
     public boolean isGameOver() {
-        return GameStateChecker.isGameOver(boardState);
+        return GameStateChecker.isGameOver(boardState) || !gameInProgress;
     }
 
     public void addListener(GameListener listener) {
@@ -148,8 +140,8 @@ public class GameManager {
         listeners.forEach(l -> l.onMoveExecuted(move, boardState));
     }
 
-    public boolean isGameInProgress() {
-        return gameInProgress;
+    public void setGameInProgress(boolean gameInProgress) {
+        this.gameInProgress = gameInProgress;
     }
 
 }

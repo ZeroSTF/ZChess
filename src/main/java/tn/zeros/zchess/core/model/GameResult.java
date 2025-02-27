@@ -10,4 +10,5 @@ public enum GameResult {
     ONGOING,
     WHITE_TIMEOUT,
     BLACK_TIMEOUT,
+    DRAW_TIMEOUT
 }
